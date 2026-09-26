@@ -57,3 +57,18 @@ sudo pacman -S make mono dotnet-sdk dotnet-runtime
 
     [ServUO]: <https://www.servuo.dev>
 
+
+### UO Tavern Arena
+
+The optional `Config/Arena.cfg` service adds a safe lobby, `[Arena` player gump,
+AI-worker matchmaking, mage/warrior templates, supplies, cosmetics and persistent
+per-character/build ratings. It is **disabled by default** and intended for a
+dedicated arena shard: joining explicitly applies a permanent 5x template.
+The gump and combat use standard UO packets for ClassicUO and Anima clients.
+
+Set the operator-owned bot **account** allowlist, keep bots at Player access,
+and run the `anima3.arena` workers from the companion anima3 repository. Training
+workers self-play separately; human ratings are never accepted from clients.
+Results go to `Logs/Arena/events.jsonl`, rankings to `Saves/ArenaService.bin` and
+`Export/Arena/leaderboard.json`. Save the world before maintenance. The companion
+anima3 `docs/ARENA.md` covers setup, learning, evaluation, deployment and recovery.

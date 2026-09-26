@@ -341,6 +341,12 @@ namespace Server.Engines.Dueling
                 return false;
             }
 
+            if (o is BasePotion && ArenaService.IsServiceMatch(Match) && !ArenaService.AllowsPotions(Match))
+            {
+                m.SendMessage(DuelSystem.MessageHue, "[Arena] Potions are not allowed in ranked AI matches.");
+                return false;
+            }
+
             if (o is Bandage && !DuelSystem.AllowBandage(m, m))
                 return false;
 
@@ -436,6 +442,12 @@ namespace Server.Engines.Dueling
             if (!from.InRange(GetWorldLocation(), 8))
             {
                 from.SendMessage(DuelSystem.MessageHue, "[Duel] You are too far away from the duel stone.");
+                return;
+            }
+
+            if (ArenaService.Enabled && from is Server.Mobiles.PlayerMobile)
+            {
+                ArenaService.Open((Server.Mobiles.PlayerMobile)from);
                 return;
             }
 

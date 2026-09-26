@@ -183,6 +183,10 @@ namespace Server.Engines.Dueling
             RemoveDeathRobe(m);
             DuelSystem.RestoreOuterTorso(m);
 
+            if (ArenaService.IsServiceMatch(this))
+            {
+                foreach (var mod in new List<StatMod>(m.StatMods)) m.RemoveStatMod(mod.Name);
+            }
             m.MoveToWorld(MarkOf(m), DuelArena.ArenaMap);
             FullHeal(m);
 
@@ -345,6 +349,7 @@ namespace Server.Engines.Dueling
 
             AnnounceRoundDetail();
             DuelSystem.RecordRound(winner, loser);
+            ArenaService.NoteRound(this, reason, seconds, m_HarmfulA, m_HarmfulB);
             AfterRound();
         }
 
@@ -356,6 +361,7 @@ namespace Server.Engines.Dueling
 
             Announce(String.Format("[Duel] Round {0}: Draw: time limit ({1} seconds).", Round, seconds));
             AnnounceRoundDetail();
+            ArenaService.NoteRound(this, "time_limit", seconds, m_HarmfulA, m_HarmfulB);
             AfterRound();
         }
 
@@ -401,6 +407,7 @@ namespace Server.Engines.Dueling
             ReleaseFighter(B);
 
             DuelSystem.OnMatchFinished(this);
+            ArenaService.Finished(this, winner, false);
         }
 
         /// <summary>Staff abort or a fighter vanished: heal everyone, put them in the lobby, no stats recorded.</summary>
@@ -418,6 +425,7 @@ namespace Server.Engines.Dueling
             ReleaseFighter(B);
 
             DuelSystem.OnMatchFinished(this);
+            ArenaService.Finished(this, null, true);
         }
 
         /// <summary>Resurrects/heals the fighter and moves them to the lobby spot outside the fence.</summary>

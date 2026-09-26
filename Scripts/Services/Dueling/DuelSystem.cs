@@ -158,6 +158,12 @@ namespace Server.Engines.Dueling
             if (match == null)
                 return true;
 
+            if (ArenaService.IsServiceMatch(match) && item.Name != "arena equipment" && item.Layer != Layer.Backpack && !(item is DeathRobe))
+            {
+                m.SendMessage(MessageHue, "[Arena] Use the supplied equipment during an AI match.");
+                return false;
+            }
+
             string violation = match.Rules.GetEquipViolation(item);
 
             if (violation == null)
