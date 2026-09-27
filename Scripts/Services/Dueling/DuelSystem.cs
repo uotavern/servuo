@@ -18,6 +18,21 @@ namespace Server.Engines.Dueling
         }
     }
 
+    /// <summary>A finished or aborted match, kept by name so it outlives the fighters' characters.</summary>
+    public class DuelHistoryEntry
+    {
+        public DateTime Started, Ended;
+        public int Arena, Rounds, ScoreA, ScoreB;
+        public string A, B, Rules, Aborted; // Aborted: the reason, or null for a match played out
+        public string Kind;                 // what a service called the match (DescribeMatch), or null for a plain challenge
+        public List<DuelRoundResult> Results = new List<DuelRoundResult>();
+
+        public string Winner
+        {
+            get { return Aborted != null || ScoreA == ScoreB ? null : (ScoreA > ScoreB ? A : B); }
+        }
+    }
+
     public class DuelChallenge
     {
         public static readonly TimeSpan Lifetime = TimeSpan.FromSeconds(60.0);
@@ -58,6 +73,14 @@ namespace Server.Engines.Dueling
 
         private static readonly Dictionary<Mobile, DuelChallenge> m_Pending = new Dictionary<Mobile, DuelChallenge>(); // keyed by challenged player
         private static readonly Dictionary<Mobile, DuelRecord> m_Stats = new Dictionary<Mobile, DuelRecord>();
+
+        public const int HistoryLimit = 100;
+        public static readonly List<DuelHistoryEntry> History = new List<DuelHistoryEntry>(); // oldest first
+
+        public static IEnumerable<KeyValuePair<Mobile, DuelRecord>> Records
+        {
+            get { return m_Stats.Where(kv => kv.Key != null && !kv.Key.Deleted); }
+        }
 
         public static void Configure()
         {
@@ -547,6 +570,36 @@ namespace Server.Engines.Dueling
             }
         }
 
+        /// <summary>Set by a service that starts its own matches (the arena) to label them, e.g. "mage · ranked".</summary>
+        public static Func<DuelMatch, string> DescribeMatch;
+
+        public static string Describe(DuelMatch match)
+        {
+            return DescribeMatch != null ? DescribeMatch(match) : null;
+        }
+
+        public static void RecordHistory(DuelMatch match, string aborted)
+        {
+            History.Add(new DuelHistoryEntry
+            {
+                Started = match.Started,
+                Ended = DateTime.UtcNow,
+                Arena = match.Arena.Id,
+                Rounds = match.Rounds,
+                ScoreA = match.ScoreA,
+                ScoreB = match.ScoreB,
+                A = match.A != null ? match.A.Name : "?",
+                B = match.B != null ? match.B.Name : "?",
+                Rules = match.Rules.ToString(),
+                Aborted = aborted,
+                Kind = Describe(match),
+                Results = match.Results.ToList()
+            });
+
+            if (History.Count > HistoryLimit)
+                History.RemoveRange(0, History.Count - HistoryLimit);
+        }
+
         #endregion
 
         #region Persistence
@@ -555,7 +608,7 @@ namespace Server.Engines.Dueling
         {
             Persistence.Serialize(SavePath, writer =>
             {
-                writer.Write(0); // version
+                writer.Write(1); // version
 
                 var entries = m_Stats.Where(kv => kv.Key != null && !kv.Key.Deleted).ToList();
 
@@ -570,6 +623,31 @@ namespace Server.Engines.Dueling
                     writer.Write(kv.Value.RoundWins);
                     writer.Write(kv.Value.RoundLosses);
                 }
+
+                writer.Write(History.Count);
+
+                foreach (DuelHistoryEntry h in History)
+                {
+                    writer.Write(h.Started);
+                    writer.Write(h.Ended);
+                    writer.Write(h.Arena);
+                    writer.Write(h.Rounds);
+                    writer.Write(h.ScoreA);
+                    writer.Write(h.ScoreB);
+                    writer.Write(h.A);
+                    writer.Write(h.B);
+                    writer.Write(h.Rules);
+                    writer.Write(h.Aborted);
+                    writer.Write(h.Kind);
+                    writer.Write(h.Results.Count);
+
+                    foreach (DuelRoundResult r in h.Results)
+                    {
+                        writer.Write(r.Winner);
+                        writer.Write(r.How);
+                        writer.Write(r.Seconds);
+                    }
+                }
             });
         }
 
@@ -577,7 +655,7 @@ namespace Server.Engines.Dueling
         {
             Persistence.Deserialize(SavePath, reader =>
             {
-                reader.ReadInt(); // version
+                int version = reader.ReadInt();
 
                 int count = reader.ReadInt();
 
@@ -595,6 +673,36 @@ namespace Server.Engines.Dueling
 
                     if (m != null)
                         m_Stats[m] = rec;
+                }
+
+                if (version < 1)
+                    return;
+
+                count = reader.ReadInt();
+
+                for (int i = 0; i < count; i++)
+                {
+                    var h = new DuelHistoryEntry
+                    {
+                        Started = reader.ReadDateTime(),
+                        Ended = reader.ReadDateTime(),
+                        Arena = reader.ReadInt(),
+                        Rounds = reader.ReadInt(),
+                        ScoreA = reader.ReadInt(),
+                        ScoreB = reader.ReadInt(),
+                        A = reader.ReadString(),
+                        B = reader.ReadString(),
+                        Rules = reader.ReadString(),
+                        Aborted = reader.ReadString(),
+                        Kind = reader.ReadString()
+                    };
+
+                    int n = reader.ReadInt();
+
+                    for (int j = 0; j < n; j++)
+                        h.Results.Add(new DuelRoundResult(reader.ReadString(), reader.ReadString(), reader.ReadInt()));
+
+                    History.Add(h);
                 }
             });
         }

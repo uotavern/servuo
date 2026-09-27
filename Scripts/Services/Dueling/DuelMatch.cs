@@ -14,6 +14,21 @@ namespace Server.Engines.Dueling
         Finished    // match over (or aborted)
     }
 
+    /// <summary>One finished round: the winner's name (null for a draw), how it ended and how long it took.</summary>
+    public class DuelRoundResult
+    {
+        public string Winner;
+        public string How;
+        public int Seconds;
+
+        public DuelRoundResult(string winner, string how, int seconds)
+        {
+            Winner = winner;
+            How = how;
+            Seconds = seconds;
+        }
+    }
+
     /// <summary>
     /// One best-of-N match between two players in the fixed arena. Drives itself with a 1-second timer.
     /// All journal output goes through Announce() as plain "[Duel] ..." system messages.
@@ -34,6 +49,8 @@ namespace Server.Engines.Dueling
         public int ScoreA { get; private set; }
         public int ScoreB { get; private set; }
         public DuelPhase Phase { get; private set; }
+        public DateTime Started { get; private set; }
+        public readonly List<DuelRoundResult> Results = new List<DuelRoundResult>();
 
         private Timer m_Timer;
         private int m_Countdown;
@@ -148,6 +165,7 @@ namespace Server.Engines.Dueling
 
         public void Start()
         {
+            Started = DateTime.UtcNow;
             Announce(String.Format("[Duel] Start: {0} vs {1}, best of {2}, rules {3}, arena {4}.", A.Name, B.Name, Rounds, Rules, Arena.Id));
 
             Arena.EvictOthers(A, B);
@@ -320,7 +338,8 @@ namespace Server.Engines.Dueling
             EndRound(Opponent(m), (PlayerMobile)m, null);
         }
 
-        private int ElapsedSeconds()
+        /// <summary>Seconds into the live round, 0 during a countdown.</summary>
+        public int ElapsedSeconds()
         {
             if (Phase == DuelPhase.Countdown || m_RoundStart == DateTime.MinValue)
                 return 0;
@@ -344,6 +363,7 @@ namespace Server.Engines.Dueling
                 Announce(String.Format("[Duel] Round {0}: {1} defeats {2} ({3}, {4} seconds).", Round, winner.Name, loser.Name, reason, seconds));
 
             AnnounceRoundDetail();
+            Results.Add(new DuelRoundResult(winner.Name, reason ?? String.Format("hp {0}%", HpPercent(winner)), seconds));
             DuelSystem.RecordRound(winner, loser);
             AfterRound();
         }
@@ -356,6 +376,7 @@ namespace Server.Engines.Dueling
 
             Announce(String.Format("[Duel] Round {0}: Draw: time limit ({1} seconds).", Round, seconds));
             AnnounceRoundDetail();
+            Results.Add(new DuelRoundResult(null, "time limit", seconds));
             AfterRound();
         }
 
@@ -396,6 +417,7 @@ namespace Server.Engines.Dueling
                 Announce(String.Format("[Duel] Match: {0} {1} - {2} {3}. Draw.", A.Name, ScoreA, ScoreB, B.Name));
 
             DuelSystem.RecordMatch(A, B, winner);
+            DuelSystem.RecordHistory(this, null);
 
             ReleaseFighter(A);
             ReleaseFighter(B);
@@ -413,6 +435,7 @@ namespace Server.Engines.Dueling
             StopTimer();
 
             Announce(String.Format("[Duel] Match aborted: {0}.", reason));
+            DuelSystem.RecordHistory(this, reason);
 
             ReleaseFighter(A);
             ReleaseFighter(B);
