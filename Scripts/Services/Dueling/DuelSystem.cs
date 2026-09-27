@@ -35,6 +35,7 @@ namespace Server.Engines.Dueling
 
     public class DuelChallenge
     {
+        public readonly string Id = Guid.NewGuid().ToString("N");
         public static readonly TimeSpan Lifetime = TimeSpan.FromSeconds(60.0);
 
         public PlayerMobile Challenger { get; private set; }
@@ -377,6 +378,32 @@ namespace Server.Engines.Dueling
             DuelChallenge current;
             if (!m_Pending.TryGetValue(p, out current) || current != expected || current.Expired) return;
             if (accept) Accept(p); else Decline(p);
+        }
+
+        public static void SendClientState(PlayerMobile p)
+        {
+            var m = FindMatchOf(p);
+            if (m != null)
+            {
+                p.SendMessage(MessageHue, "[DuelState] {\"phase\":" + ArenaService.Json(m.Phase.ToString()) +
+                    ",\"id\":" + ArenaService.Json(m.Id) + ",\"opponent\":" + m.Opponent(p).Serial.Value +
+                    ",\"round\":" + m.Round + ",\"rules\":" + ArenaService.Json(m.Rules.ToString()) + "}");
+                return;
+            }
+            DuelChallenge c;
+            string invite = "null";
+            if (m_Pending.TryGetValue(p, out c) && !c.Expired)
+                invite = "{\"id\":" + ArenaService.Json(c.Id) + ",\"opponent\":" + c.Challenger.Serial.Value +
+                    ",\"name\":" + ArenaService.Json(c.Challenger.Name) + ",\"rounds\":" + c.Rounds +
+                    ",\"rules\":" + ArenaService.Json(c.Rules.ToString()) + "}";
+            p.SendMessage(MessageHue, "[DuelState] {\"phase\":\"Idle\",\"challenge\":" + invite + "}");
+        }
+
+        public static void AcceptClientChallenge(PlayerMobile p, string id)
+        {
+            DuelChallenge c;
+            if (m_Pending.TryGetValue(p, out c) && !c.Expired && c.Id == id)
+                Accept(p);
         }
 
         public static void Accept(PlayerMobile pm)

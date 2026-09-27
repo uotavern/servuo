@@ -235,3 +235,7 @@ Inscribe and Lumberjacking. Tracking is deliberately excluded for fixed 1v1
 arenas. Pure trade, bard, pet and post-AOS skills are excluded. The same explicit
 allowlist validates client submissions; forged IDs do not consume the ball or
 change skills. This filters skill selection, not the entire combat-era engine.
+
+Participant clients may poll `[DuelState` for their own direct match or incoming challenge.
+`[DuelAccept <challenge-id>` accepts only that still-current, unexpired invitation.
+This does not require staff access and does not register a hosted AI worker.

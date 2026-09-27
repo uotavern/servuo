@@ -39,6 +39,7 @@ namespace Server.Engines.Dueling
         public static readonly TimeSpan OfflineForfeit = TimeSpan.FromSeconds(30.0);
         public const int CountdownSeconds = 5;
 
+        public readonly string Id = Guid.NewGuid().ToString("N");
         public DuelArena Arena { get; private set; }
         public PlayerMobile A { get; private set; }
         public PlayerMobile B { get; private set; }

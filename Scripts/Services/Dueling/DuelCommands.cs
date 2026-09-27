@@ -16,6 +16,8 @@ namespace Server.Engines.Dueling
         public static void Register()
         {
             CommandSystem.Register("Challenge", AccessLevel.Player, Challenge_OnCommand);
+            CommandSystem.Register("DuelState", AccessLevel.Player, e => { var p = e.Mobile as PlayerMobile; if (p != null) DuelSystem.SendClientState(p); });
+            CommandSystem.Register("DuelAccept", AccessLevel.Player, e => { var p = e.Mobile as PlayerMobile; if (p != null && e.Length == 1) DuelSystem.AcceptClientChallenge(p, e.GetString(0)); });
             CommandSystem.Register("Accept", AccessLevel.Player, Accept_OnCommand);
             CommandSystem.Register("Decline", AccessLevel.Player, Decline_OnCommand);
             CommandSystem.Register("DuelStats", AccessLevel.Player, DuelStats_OnCommand);
