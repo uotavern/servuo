@@ -182,11 +182,15 @@ namespace Server.Engines.Dueling
                 case "enter": Enter(p); break;
                 case "join": Join(p, e.Length > 1 ? e.GetString(1).ToLowerInvariant() : "mage", e.Length > 2 && e.GetString(2).ToLowerInvariant() == "practice"); break;
                 case "leave": Leave(p); break;
+                case "skills": ArenaTraining.GiveBall(p, e.Length > 1 ? e.GetInt32(1) : 6); break;
+                case "duel": p.SendGump(new ArenaDuelSetupGump()); break;
+                case "stats": ArenaTraining.GiveStatBall(p); break;
                 case "supplies": ArenaSupplies.Refill(p); break;
                 case "style": ArenaSupplies.Style(p, e.Length > 1 ? e.GetString(1) : "robe", e.Length > 2 ? e.GetInt32(2) : 0); break;
                 default: Open(p); break;
             }
         }
+        public static bool IsQueued(PlayerMobile p) { return Queue.Any(q => q.Player == p) || Bots.ContainsKey(p); }
         public static void Leave(PlayerMobile p)
         {
             Queue.RemoveAll(q => q.Player == p);
@@ -199,12 +203,18 @@ namespace Server.Engines.Dueling
             if (!AccountAvailable(p)) { p.SendMessage(0x35, "[Arena] This account already has a queued or active participant."); return; }
             if (!InLobby(p)) { p.SendMessage(0x35, "[Arena] Say [Arena enter to visit the lobby first."); return; }
             if (Build(build) == null) { p.SendMessage(0x35, "[Arena] Choose mage or warrior."); return; }
+            if (practice)
+            {
+                DuelRules practiceRules; string reason;
+                DuelRules.TryParse("6x", out practiceRules, out reason);
+                if (!practiceRules.CheckSkills(p, out reason)) { p.SendMessage(0x35, "[Arena] " + reason + " Use [Arena skills and [Arena stats first."); return; }
+            }
             DateTime last;
             if (LastJoin.TryGetValue(p, out last) && DateTime.UtcNow - last < TimeSpan.FromSeconds(5)) return;
             LastJoin[p] = DateTime.UtcNow;
             Queue.RemoveAll(q => q.Player == p);
             Queue.Add(new Entry { Player = p, Build = build, Practice = practice, Joined = DateTime.UtcNow });
-            p.SendMessage(0x35, "[Arena] Queued for " + build + (practice ? " practice (potions allowed; no rating)" : " ranked") + ". Your skills and stats will use this arena template. Say [Arena leave to cancel.");
+            p.SendMessage(0x35, "[Arena] Queued for " + build + (practice ? " practice (potions allowed; no rating)" : " ranked") + (practice ? ". Your current skills and stats are preserved (6x cap)." : ". Your skills and stats will use this arena template.") + " Say [Arena leave to cancel.");
             Tick();
         }
         private static bool AccountAvailable(PlayerMobile p)
@@ -300,13 +310,23 @@ namespace Server.Engines.Dueling
         {
             var arena = DuelArena.FindFree();
             if (arena == null || !Idle(a) || !Idle(b)) return false;
+            if (practice)
+            {
+                DuelRules check; string reason;
+                DuelRules.TryParse("6x", out check, out reason);
+                foreach (var p in new[] { a, b })
+                {
+                    if (!check.CheckSkills(p, out reason))
+                    { Leave(p); p.SendMessage(0x35, "[Arena] " + reason); return false; }
+                }
+            }
             // Alternate sides so learning/evaluation does not confound policy and spawn position.
             if ((Side++ & 1) == 1) { var swap = a; a = b; b = swap; }
-            ArenaSupplies.Prepare(a, build);
-            ArenaSupplies.Prepare(b, build);
+            ArenaSupplies.Prepare(a, build, practice);
+            ArenaSupplies.Prepare(b, build, practice);
             if (practice) { ArenaSupplies.StockPotions(a); ArenaSupplies.StockPotions(b); }
             DuelRules rules; string error;
-            DuelRules.TryParse(build == "mage" ? "5x-fists-magic-noarmor-nobandage" : "5x-katana", out rules, out error);
+            DuelRules.TryParse((practice ? "6x" : "5x") + (build == "mage" ? "-fists-magic-noarmor-nobandage" : "-katana"), out rules, out error);
             var match = new DuelMatch(arena, a, b, 3, rules);
             Bot ba, bb;
             Bots.TryGetValue(a, out ba); Bots.TryGetValue(b, out bb);

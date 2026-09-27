@@ -30,7 +30,7 @@ easy for bots and agents to parse.
 | `[DuelReset [arena]`, `[Duel arena build\|go [arena]` | staff | abort and heal, rebuild or visit a ring |
 
 Rules are tokens joined with `-`, e.g. `5x-katana` or `5x-fists-magic-noarmor-nobandage`:
-`5x`/`7x` (the duelling skills sum to 500/700, stats to 225), a weapon
+`5x`/`6x`/`7x` (the duelling skills sum to 500/600/700, stats to 225), a weapon
 (`katana broadsword vikingsword halberd fists any`), `magic`, `nobandage`, `noarmor`.
 A round ends on a death, a forfeit or the 3-minute limit (a draw).
 
@@ -57,7 +57,7 @@ Players say `[Arena` for the gump, or use the subcommands:
 `[Arena enter`, `[Arena join mage|warrior [practice]`, `[Arena leave`, `[Arena supplies`
 and `[Arena style <robe…> [hue]`. Matches are best of 3. Mage fights with
 `5x-fists-magic-noarmor-nobandage`; warrior with `5x-katana`. Practice allows
-potions and is never rated.
+potions, preserves current skills/stats with a 6x cap, and is never rated. Ranked queues still apply the standard 5x template.
 
 Ratings are Elo per character and build: they start at 1000, with K = 32. Only
 matches the server itself refereed count; clients never report results. Every
@@ -149,3 +149,63 @@ host) at the shard.
 3. Open TCP 2593 for players, and 80/443 if you publish the feed through a proxy.
 4. Save the world (`[Save`) before stopping it for maintenance. Back up `Saves/` as a whole.
    Never restore `ArenaService.bin` without the world save it came from.
+
+
+## Training NPC and configurable duel modes
+
+Rowan is installed at Felucca (5183,332,15), next to a readable sign at
+(5184,332,15). Double-click Rowan for free stat balls, 5/6/7GM skill balls,
+combat supplies, the guide or the duel selection menu. While a connected player
+is within ten tiles, Rowan rotates one short tip every 45 seconds.
+
+- Stat ball: whole numbers 10–100 for each stat, sum <=225. Applying consumes it.
+- Skill ball: choose exactly 5, 6 or 7 distinct skills, each set to 100.0;
+  all other skills become zero. Applying consumes it and locks skills.
+- Only one unused skill ball and one unused stat ball per backpack. Use the
+  existing skill ball before requesting a different count. Supplies are free
+  again after consumption. `[Arena skills 5|6|7` / `[Arena stats` also dispense.
+- Both opening and applying recheck lobby, life, no combat, no queue and no
+  active duel. Moving/trading a ball after opening invalidates the dialog.
+- NPC, sign and unused balls persist through world saves. Initialization reuses
+  the saved NPC/sign instead of duplicating them.
+
+`[Arena duel` opens the preset/custom menu. Select a mode, target an opponent,
+then have them accept the invitation with the complete canonical rules. These
+are direct player challenges and preserve the current build. Duel history and
+normal duel wins/losses track them; the separate mage/warrior Elo queues retain
+their existing standardized rules. Agents can use `[Challenge <serial> 3 <preset>`
+and `[Accept` instead of the UI. A stale invitation cannot accept a replacement.
+
+| Preset | Skill cap | Weapons / armor | Magery | Bandages | Potions | Paralyze |
+| --- | --- | --- | --- | --- | --- | --- |
+| `mage5` | 500; Magery, EvalInt, Meditation, Resist, Wrestling only | no / no | yes | no | no | no |
+| `mage7` | 700 | no / no | yes | no | no | no |
+| `standard7` | 700 | yes / yes | yes | yes | no | yes |
+| `dexxer7` | 700 | yes / yes | no | yes | no | no spells |
+| `open7` | 700 | yes / yes | yes | yes | yes | yes |
+
+All presets count **all** base skills, require individual skills <=100, exclude
+post-classic skills (Necromancy onward), and cap stats at 100 each / 225 total.
+All prohibit field spells, summons, travel and resurrection. The custom menu
+selects a 5x/6x/7x cap and toggles Magery, fists, bandages, armor, potions and
+paralyze. It applies the same classic skill and stat limits. These restrictions
+are enforced server-side on invitation acceptance, spellcasting, equipment,
+bandages and potion use.
+
+### Reference and scope
+
+The user requested the familiar Hybrid duel-pit selection style and approved
+these explicit local presets when a detailed Hybrid rule table could not be
+verified. https://www.uogamers.com/ currently provides no detailed rules (checked
+2026-09-27); these presets do **not** claim exact historical Hybrid mechanics.
+The official UO arena flow also documents selectable rules and opponent
+confirmation: https://uo.com/wiki/ultima-online-wiki/combat/player-v-player-arenas/.
+Teams, tournaments, wagers and a full era-specific combat rewrite are not part
+of these 1v1 presets.
+
+### Deployment compatibility
+
+This release adds persisted types ArenaSkillBall, ArenaStatBall, ArenaSteward
+and ArenaTrainingSign. After saving them, rollback must restore the matching
+pre-deployment Saves **and** binaries, or use a compatible forward build.
+ArenaService.bin and Dueling.bin versions remain unchanged.

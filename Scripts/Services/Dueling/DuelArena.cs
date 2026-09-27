@@ -281,7 +281,7 @@ namespace Server.Engines.Dueling
                     return false;
                 }
 
-                if (DuelRules.IsSpellBlocked(s))
+                if (match.Rules.BlocksSpell(s))
                 {
                     m.SendMessage(DuelSystem.MessageHue, "[Duel] That spell is not allowed in the arena.");
                     return false;
@@ -341,9 +341,9 @@ namespace Server.Engines.Dueling
                 return false;
             }
 
-            if (o is BasePotion && ArenaService.IsServiceMatch(Match) && !ArenaService.AllowsPotions(Match))
+            if (o is BasePotion && Match != null && (Match.Rules.NoPotions || (ArenaService.IsServiceMatch(Match) && !ArenaService.AllowsPotions(Match))))
             {
-                m.SendMessage(DuelSystem.MessageHue, "[Arena] Potions are not allowed in ranked AI matches.");
+                m.SendMessage(DuelSystem.MessageHue, "[Arena] Potions are not allowed by this match ruleset.");
                 return false;
             }
 

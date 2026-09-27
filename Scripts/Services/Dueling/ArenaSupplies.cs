@@ -31,7 +31,7 @@ namespace Server.Engines.Dueling
             StockPotions(p);
             Stock(p, typeof(HairRestylingDeed), 1, () => new HairRestylingDeed());
             Stock(p, typeof(HairDye), 1, () => new HairDye());
-            p.SendMessage(0x35, "[Arena] Supplies refilled. Potions are for practice; ranked AI matches use no potions. Hair items are in your backpack.");
+            p.SendMessage(0x35, "[Arena] Supplies refilled. Potions are for practice; ranked matches use no potions. Hair items are in your backpack.");
         }
         public static void StockPotions(PlayerMobile p)
         {
@@ -54,7 +54,7 @@ namespace Server.Engines.Dueling
             if (books.Length == 0) Stock(p, typeof(Spellbook), 1, () => new Spellbook(UInt64.MaxValue));
             else books[0].Content = UInt64.MaxValue;
         }
-        public static void Prepare(PlayerMobile p, string build)
+        public static void Prepare(PlayerMobile p, string build, bool preserveTraining = false)
         {
             if (!p.Alive) p.Resurrect();
             if (p.Mount != null) p.Mount.Rider = null;
@@ -72,15 +72,18 @@ namespace Server.Engines.Dueling
                 }
                 else p.BankBox.DropItem(item);
             }
-            for (int i = 0; i < p.Skills.Length; i++) { p.Skills[i].Base = 0; p.Skills[i].SetLockNoRelay(SkillLock.Locked); }
-            SkillName[] skills = build == "mage" ?
-                new[] { SkillName.Magery, SkillName.EvalInt, SkillName.Meditation, SkillName.MagicResist, SkillName.Wrestling } :
-                new[] { SkillName.Swords, SkillName.Tactics, SkillName.Anatomy, SkillName.Healing, SkillName.MagicResist };
-            foreach (var skill in skills) p.Skills[skill].Base = 100;
-            p.RawStr = build == "mage" ? 90 : 100;
-            p.RawDex = build == "mage" ? 35 : 100;
-            p.RawInt = build == "mage" ? 100 : 25;
-            p.StrLock = p.DexLock = p.IntLock = StatLockType.Locked;
+            if (!preserveTraining)
+            {
+                for (int i = 0; i < p.Skills.Length; i++) { p.Skills[i].Base = 0; p.Skills[i].SetLockNoRelay(SkillLock.Locked); }
+                SkillName[] skills = build == "mage" ?
+                    new[] { SkillName.Magery, SkillName.EvalInt, SkillName.Meditation, SkillName.MagicResist, SkillName.Wrestling } :
+                    new[] { SkillName.Swords, SkillName.Tactics, SkillName.Anatomy, SkillName.Healing, SkillName.MagicResist };
+                foreach (var skill in skills) p.Skills[skill].Base = 100;
+                p.RawStr = build == "mage" ? 90 : 100;
+                p.RawDex = build == "mage" ? 35 : 100;
+                p.RawInt = build == "mage" ? 100 : 25;
+                p.StrLock = p.DexLock = p.IntLock = StatLockType.Locked;
+            }
             Equip(p, new Robe { Hue = robeHue });
             if (cloakHue >= 0) Equip(p, new Cloak { Hue = cloakHue });
             Equip(p, new Boots());

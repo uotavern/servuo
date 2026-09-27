@@ -298,6 +298,8 @@ namespace Server.Engines.Dueling
             if (pm == null || pm.Deleted || pm.NetState == null)
                 return "[Duel] That player is not online.";
 
+            if (ArenaService.IsQueued(pm)) return "[Duel] Leave the arena queue before issuing or accepting a challenge.";
+
             if (FindMatchOf(pm) != null)
                 return String.Format("[Duel] {0} is already in a match.", pm.Name);
 
@@ -353,7 +355,16 @@ namespace Server.Engines.Dueling
 
             challenger.SendMessage(MessageHue, text);
             target.SendMessage(MessageHue, text);
+            target.CloseGump(typeof(ArenaDuelInviteGump));
+            target.SendGump(new ArenaDuelInviteGump(m_Pending[target]));
             Console.WriteLine(text);
+        }
+
+        public static void ReplyToChallenge(PlayerMobile p, DuelChallenge expected, bool accept)
+        {
+            DuelChallenge current;
+            if (!m_Pending.TryGetValue(p, out current) || current != expected || current.Expired) return;
+            if (accept) Accept(p); else Decline(p);
         }
 
         public static void Accept(PlayerMobile pm)

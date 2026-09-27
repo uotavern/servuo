@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Server.Items;
 using Server.Spells;
@@ -24,7 +25,7 @@ namespace Server.Engines.Dueling
 
     /// <summary>
     /// Rule set for a duel, parsed from a token string such as "5x-katana-nobandage".
-    /// Tokens: 5x | 7x (skill cap), katana | broadsword | vikingsword | halberd | fists | any (weapon),
+    /// Tokens: 5x | 6x | 7x (skill cap), katana | broadsword | vikingsword | halberd | fists | any (weapon),
     /// magic (allow spellcasting), nobandage, noarmor. Separators: - , + / or whitespace. Default is "any".
     /// </summary>
     public class DuelRules
@@ -37,17 +38,21 @@ namespace Server.Engines.Dueling
             SkillName.Fencing, SkillName.Macing, SkillName.Archery
         };
 
-        public const string ValidTokens = "5x 7x katana broadsword vikingsword halberd fists any magic nobandage noarmor";
+        public const string ValidTokens = "mage5 mage7 standard7 dexxer7 open7 nopotions noparalyze classic mageonly 5x 6x 7x katana broadsword vikingsword halberd fists any magic nobandage noarmor";
 
         // Classic 5x/7x templates also cap stats: Str + Dex + Int <= 225 with no single stat above 100.
         public const int StatTotalCap = 225;
         public const int StatSingleCap = 100;
 
-        public int SkillCap { get; set; }          // 0 = unlimited, otherwise 500 / 700 (skill points, i.e. 50.0 / 70.0 per skill x10)
+        public int SkillCap { get; set; }          // 0 = unlimited, otherwise 500 / 600 / 700 skill points
         public DuelWeapon Weapon { get; set; }
         public bool Magic { get; set; }            // spellcasting allowed while the round is live (still no fields/summons/travel/resurrection)
         public bool NoBandage { get; set; }
         public bool NoArmor { get; set; }
+        public bool NoPotions { get; set; }
+        public bool NoParalyze { get; set; }
+        public bool Classic { get; set; }
+        public bool MageFive { get; set; }
 
         public static DuelRules Default { get { return new DuelRules(); } }
 
@@ -67,8 +72,18 @@ namespace Server.Engines.Dueling
 
                 switch (tok)
                 {
+                    case "mage5": rules = new DuelRules { SkillCap = 500, Weapon = DuelWeapon.Fists, Magic = true, NoBandage = true, NoArmor = true, NoPotions = true, NoParalyze = true, Classic = true, MageFive = true }; break;
+                    case "mage7": rules = new DuelRules { SkillCap = 700, Weapon = DuelWeapon.Fists, Magic = true, NoBandage = true, NoArmor = true, NoPotions = true, NoParalyze = true, Classic = true }; break;
+                    case "standard7": rules = new DuelRules { SkillCap = 700, Magic = true, NoPotions = true, Classic = true }; break;
+                    case "dexxer7": rules = new DuelRules { SkillCap = 700, NoPotions = true, Classic = true }; break;
+                    case "open7": rules = new DuelRules { SkillCap = 700, Magic = true, Classic = true }; break;
+                    case "nopotions": rules.NoPotions = true; break;
+                    case "noparalyze": rules.NoParalyze = true; break;
+                    case "classic": rules.Classic = true; break;
+                    case "mageonly": rules.MageFive = true; break;
                     case "any": break;
                     case "5x": rules.SkillCap = 500; break;
+                    case "6x": rules.SkillCap = 600; break;
                     case "7x": rules.SkillCap = 700; break;
                     case "katana": rules.Weapon = DuelWeapon.Katana; break;
                     case "broadsword": rules.Weapon = DuelWeapon.Broadsword; break;
@@ -93,6 +108,7 @@ namespace Server.Engines.Dueling
             var parts = new List<string>();
 
             if (SkillCap == 500) parts.Add("5x");
+            else if (SkillCap == 600) parts.Add("6x");
             else if (SkillCap == 700) parts.Add("7x");
 
             if (Weapon != DuelWeapon.Any)
@@ -101,6 +117,10 @@ namespace Server.Engines.Dueling
             if (Magic) parts.Add("magic");
             if (NoBandage) parts.Add("nobandage");
             if (NoArmor) parts.Add("noarmor");
+            if (NoPotions) parts.Add("nopotions");
+            if (NoParalyze) parts.Add("noparalyze");
+            if (Classic) parts.Add("classic");
+            if (MageFive) parts.Add("mageonly");
 
             return parts.Count == 0 ? "any" : String.Join("-", parts);
         }
@@ -124,7 +144,20 @@ namespace Server.Engines.Dueling
                 return true;
 
             string rule = String.Format("{0}x rule", SkillCap / 100);
-            double total = SkillTotal(m);
+            double total = 0;
+            if (Classic)
+            {
+                var mageSkills = new[] { SkillName.Magery, SkillName.EvalInt, SkillName.Meditation, SkillName.MagicResist, SkillName.Wrestling };
+                for (int i = 0; i < m.Skills.Length; i++)
+                {
+                    double value = m.Skills[i].Base;
+                    total += value;
+                    if (value > 100 || (i >= (int)SkillName.Necromancy && value > 0)
+                        || (MageFive && value > 0 && !mageSkills.Contains((SkillName)i)))
+                    { reason = "This preset requires classic skills (100 max each); Mage 5x uses Magery, EvalInt, Meditation, Resist and Wrestling only."; return false; }
+                }
+            }
+            else total = SkillTotal(m);
 
             if (total > SkillCap)
             {
@@ -150,6 +183,12 @@ namespace Server.Engines.Dueling
             }
 
             return true;
+        }
+
+        public bool BlocksSpell(ISpell spell)
+        {
+            return IsSpellBlocked(spell) || (NoParalyze && spell is ParalyzeSpell)
+                || (Classic && !(spell is MagerySpell));
         }
 
         /// <summary>Spells never allowed in the arena even under the magic rule: fields, summons, travel, resurrection.</summary>
