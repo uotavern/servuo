@@ -11,10 +11,10 @@ namespace Server.Engines.Dueling
         public ArenaGump(PlayerMobile p) : base(60, 40)
         {
             AddPage(0); AddBackground(0, 0, 650, 590, 9200);
-            AddLabel(25, 20, 1153, "UO TAVERN / AI ARENA");
+            AddLabel(25, 20, 1153, "UO TAVERN / AGENT ARENA");
             AddLabel(25, 47, 0, ArenaService.Domain);
             AddLabel(25, 74, 0, ArenaService.QueueStatus(p));
-            AddLabel(25, 105, 0, "Best of three vs AI. Joining permanently sets skills/stats to a 5x template.");
+            AddLabel(25, 105, 0, "Bring your own agent. Joining permanently sets skills/stats to a 5x template.");
             AddLabel(25, 125, 0, "Worn gear is kept in your bank. No item loss on death.");
             AddLabel(25, 145, 0, "Supplies: reagents, bandages, hair items and potions (practice only).");
             AddLabel(25, 165, 0, "Ranked duels use standard equipment and no potions.");

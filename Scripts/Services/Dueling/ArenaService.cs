@@ -12,12 +12,13 @@ using Server.Spells;
 
 namespace Server.Engines.Dueling
 {
-    // All entry points and the timer run on ServUO's world thread. The account allowlist
-    // is operator-owned: a player cannot register themselves as an AI or submit a result.
+    // The shard owns pairing and results. In peer mode agents run on participant machines;
+    // readiness/policy labels are declarations, never authority to submit an outcome.
     public static class ArenaService
     {
         public static readonly bool Enabled = Config.Get("Arena.Enabled", false);
         public static readonly bool WelcomeOnLogin = Config.Get("Arena.WelcomeOnLogin", false);
+        public static readonly bool PeerAgents = Config.Get("Arena.PeerAgents", true);
         public static readonly bool SelfPlay = Config.Get("Arena.SelfPlay", false);
         public static readonly string Domain = Config.Get("Arena.Domain", "arena.uotavern.com");
         public static readonly Point3D Lobby = new Point3D(5180, 332, 15);
@@ -30,6 +31,7 @@ namespace Server.Engines.Dueling
         private static readonly Dictionary<DuelMatch, Session> Sessions = new Dictionary<DuelMatch, Session>();
         private static readonly Dictionary<string, ArenaRecord> Records = new Dictionary<string, ArenaRecord>();
         private static readonly Dictionary<PlayerMobile, string> LastResult = new Dictionary<PlayerMobile, string>();
+        private static readonly Dictionary<PlayerMobile, string> LastResultData = new Dictionary<PlayerMobile, string>();
         private static readonly Dictionary<PlayerMobile, DateTime> LastJoin = new Dictionary<PlayerMobile, DateTime>();
         private static bool StorageHealthy = true;
         private static int Side;
@@ -47,6 +49,7 @@ namespace Server.Engines.Dueling
         {
             public Mobile Player;
             public string Build;
+            public bool Peer;
             public int Wins, Losses, Draws, Rating = 1000;
         }
 
@@ -69,7 +72,7 @@ namespace Server.Engines.Dueling
                     Audit("restart_recovery", "\"player\":" + pm.Serial.Value);
                 }
                 if (IsBot(pm)) return;
-                pm.SendMessage(0x35, "[Arena] Welcome! Say [Arena to duel an AI, get supplies and view rankings.");
+                pm.SendMessage(0x35, "[Arena] Welcome! Bring your own agent. Say [Arena for arenas, supplies and rankings.");
                 if (WelcomeOnLogin && DuelSystem.FindMatchOf(pm) == null)
                 {
                     if (InLobby(pm)) Open(pm); else Enter(pm);
@@ -102,11 +105,11 @@ namespace Server.Engines.Dueling
         private static string WebSection()
         {
             string rows = String.Join(",", Records.Values
-                .Where(r => r.Player != null && !r.Player.Deleted && r.Wins + r.Losses + r.Draws > 0)
+                .Where(r => r.Peer == PeerAgents && r.Player != null && !r.Player.Deleted && r.Wins + r.Losses + r.Draws > 0)
                 .OrderBy(r => r.Build).ThenByDescending(r => r.Rating).ThenByDescending(r => r.Wins).ThenBy(r => r.Player.Serial.Value)
                 .Select(r => "{\"name\":" + Json(r.Player.Name) + ",\"build\":" + Json(r.Build) + ",\"online\":" + (r.Player.NetState != null ? "true" : "false") +
                     ",\"wins\":" + r.Wins + ",\"losses\":" + r.Losses + ",\"draws\":" + r.Draws + ",\"rating\":" + r.Rating + "}"));
-            return "\"arena\":{\"domain\":" + Json(Domain) + ",\"queue\":" + Queue.Count + ",\"bots\":" + Bots.Count + ",\"leaderboard\":[" + rows + "]}";
+            return "\"arena\":{\"domain\":" + Json(Domain) + ",\"queue\":" + Queue.Count + ",\"mode\":" + Json(PeerAgents ? "peer_agents" : "hosted_ai") + ",\"participants\":" + Bots.Count + ",\"bots\":" + (PeerAgents ? 0 : Bots.Count) + ",\"leaderboard\":[" + rows + "]}";
         }
 
         public static bool IsServiceMatch(DuelMatch m) { return m != null && Sessions.ContainsKey(m); }
@@ -119,6 +122,7 @@ namespace Server.Engines.Dueling
 
         public static bool IsBot(Mobile m)
         {
+            if (PeerAgents) return false;
             var account = m == null ? null : m.Account as Account;
             return account != null && BotAccounts.Contains(account.Username);
         }
@@ -186,11 +190,13 @@ namespace Server.Engines.Dueling
         public static void Leave(PlayerMobile p)
         {
             Queue.RemoveAll(q => q.Player == p);
+            if (PeerAgents) Bots.Remove(p);
             p.SendMessage(0x35, "[Arena] You left the queue. An active match continues; leaving its ring forfeits a round.");
         }
         public static void Join(PlayerMobile p, string build, bool practice = false)
         {
             if (!Idle(p) || p.AccessLevel != AccessLevel.Player || IsBot(p)) return;
+            if (!AccountAvailable(p)) { p.SendMessage(0x35, "[Arena] This account already has a queued or active participant."); return; }
             if (!InLobby(p)) { p.SendMessage(0x35, "[Arena] Say [Arena enter to visit the lobby first."); return; }
             if (Build(build) == null) { p.SendMessage(0x35, "[Arena] Choose mage or warrior."); return; }
             DateTime last;
@@ -201,10 +207,35 @@ namespace Server.Engines.Dueling
             p.SendMessage(0x35, "[Arena] Queued for " + build + (practice ? " practice (potions allowed; no rating)" : " ranked") + ". Your skills and stats will use this arena template. Say [Arena leave to cancel.");
             Tick();
         }
+        private static bool AccountAvailable(PlayerMobile p)
+        {
+            return !PeerAgents || (!Queue.Any(q => q.Player != p && q.Player.Account == p.Account)
+                && !DuelSystem.Matches.Any(m => m.Phase != DuelPhase.Finished
+                    && (m.A.Account == p.Account || m.B.Account == p.Account)));
+        }
         private static void ReadyCommand(CommandEventArgs e)
         {
             var p = e.Mobile as PlayerMobile;
-            if (p == null || !IsBot(p) || p.AccessLevel != AccessLevel.Player) return;
+            if (p == null || (!PeerAgents && !IsBot(p)) || p.AccessLevel != AccessLevel.Player) return;
+            if (PeerAgents)
+            {
+                if (e.Length != 4 || Build(e.GetString(0)) == null || !Token(e.GetString(1)) || !Token(e.GetString(2))
+                    || (e.GetString(3) != "ranked" && e.GetString(3) != "practice")) return;
+                if (Idle(p) && AccountAvailable(p))
+                {
+                    if (!InLobby(p)) Enter(p);
+                    if (!InLobby(p)) return;
+                    bool practice = e.GetString(3) == "practice";
+                    Bots[p] = new Bot { Build = e.GetString(0), Policy = e.GetString(1), Playbook = e.GetString(2),
+                        Training = practice, Ready = DateTime.UtcNow };
+                    var queued = Queue.FirstOrDefault(q => q.Player == p);
+                    if (queued == null || queued.Build != e.GetString(0) || queued.Practice != practice)
+                        Join(p, e.GetString(0), practice);
+                    else queued.Joined = DateTime.UtcNow;
+                }
+                SendState(p);
+                return;
+            }
             if (e.Length != 4 || Build(e.GetString(0)) == null || !Token(e.GetString(1)) || !Token(e.GetString(2)) || (e.GetString(3) != "training" && e.GetString(3) != "public")) return;
             if (Idle(p))
             {
@@ -224,13 +255,26 @@ namespace Server.Engines.Dueling
             Queue.RemoveAll(q => !Idle(q.Player) || !InLobby(q.Player) || DateTime.UtcNow - q.Joined > TimeSpan.FromMinutes(10));
             foreach (var p in Bots.Keys.Where(p => p.Deleted || p.NetState == null).ToList()) Bots.Remove(p);
             foreach (var p in LastJoin.Keys.Where(p => p.Deleted || p.NetState == null).ToList()) LastJoin.Remove(p);
-            foreach (var p in LastResult.Keys.Where(p => p.Deleted).ToList()) LastResult.Remove(p);
+            foreach (var p in LastResult.Keys.Where(p => p.Deleted).ToList()) { LastResult.Remove(p); LastResultData.Remove(p); }
             foreach (var kv in Sessions)
             {
                 if (kv.Key.A.NetState == null || kv.Key.B.NetState == null) kv.Value.Invalid = true;
                 if ((IsBot(kv.Key.A) && kv.Key.A.NetState == null) || (IsBot(kv.Key.B) && kv.Key.B.NetState == null)) kv.Value.BotFailure = true;
             }
             if (!StorageHealthy) return;
+            if (PeerAgents)
+            {
+                Queue.RemoveAll(q => Bots.ContainsKey(q.Player) && !Ready(q.Player, Bots[q.Player]));
+                foreach (var entry in Queue.ToList())
+                {
+                    if (!Queue.Contains(entry) || DuelArena.FindFree() == null) continue;
+                    var other = Queue.FirstOrDefault(q => q != entry && q.Build == entry.Build && q.Practice == entry.Practice
+                        && q.Player.Account != entry.Player.Account);
+                    if (other != null && Start(entry.Player, other.Player, entry.Build, false, entry.Practice))
+                    { Queue.Remove(entry); Queue.Remove(other); }
+                }
+                return;
+            }
             foreach (var entry in Queue.ToList())
             {
                 var bot = Bots.FirstOrDefault(kv => kv.Value.Build == entry.Build && !kv.Value.Training && Ready(kv.Key, kv.Value));
@@ -278,7 +322,7 @@ namespace Server.Engines.Dueling
         }
         private static string Fields(DuelMatch m, Session s)
         {
-            return "\"id\":" + Json(s.Id) + ",\"build\":" + Json(s.Build) + ",\"training\":" + (s.Training ? "true" : "false") + ",\"practice\":" + (s.Practice ? "true" : "false") +
+            return "\"mode\":" + Json(PeerAgents ? "peer_agents" : "hosted_ai") + ",\"arena\":" + m.Arena.Id + ",\"id\":" + Json(s.Id) + ",\"build\":" + Json(s.Build) + ",\"training\":" + (s.Training ? "true" : "false") + ",\"practice\":" + (s.Practice ? "true" : "false") +
                 ",\"a\":" + m.A.Serial.Value + ",\"b\":" + m.B.Serial.Value + ",\"name_a\":" + Json(m.A.Name) + ",\"name_b\":" + Json(m.B.Name) +
                 ",\"policy_a\":" + Json(s.PolicyA) + ",\"policy_b\":" + Json(s.PolicyB) + ",\"playbook_a\":" + Json(s.PlaybookA) + ",\"playbook_b\":" + Json(s.PlaybookB);
         }
@@ -298,10 +342,12 @@ namespace Server.Engines.Dueling
                 ",\"score_a\":" + m.ScoreA + ",\"score_b\":" + m.ScoreB + ",\"valid\":" + (!aborted && !s.Invalid ? "true" : "false") +
                 ",\"rated\":" + (!aborted && !s.Training && !s.Practice && !s.BotFailure ? "true" : "false") + ",\"aborted\":" + (aborted ? "true" : "false") + ",\"seconds\":" + ((int)(DateTime.UtcNow - s.Started).TotalSeconds);
             bool logged = Audit("match_end", fields);
+            int ratingA = Record(m.A, s.Build).Rating, ratingB = Record(m.B, s.Build).Rating;
             foreach (var p in new[] { m.A, m.B })
             {
                 if (p == null || p.Deleted) continue;
                 LastResult[p] = s.Id;
+                LastResultData[p] = "{" + fields + "}";
                 Bot bot;
                 if (Bots.TryGetValue(p, out bot)) bot.Ready = DateTime.MinValue; // require fresh readiness after every match
                 if (!aborted && logged && !s.Training && !s.Practice && !s.BotFailure && !IsBot(p))
@@ -309,7 +355,7 @@ namespace Server.Engines.Dueling
                     var record = Record(p, s.Build);
                     double result = winner == null ? 0.5 : winner == p ? 1.0 : 0.0;
                     if (result == 1) record.Wins++; else if (result == 0) record.Losses++; else record.Draws++;
-                    double expected = 1.0 / (1.0 + Math.Pow(10, (1000 - record.Rating) / 400.0));
+                    double expected = 1.0 / (1.0 + Math.Pow(10, ((PeerAgents ? (p == m.A ? ratingB : ratingA) : 1000) - record.Rating) / 400.0));
                     record.Rating = Math.Max(0, record.Rating + (int)Math.Round(32 * (result - expected), MidpointRounding.AwayFromZero));
                     p.SendMessage(0x35, String.Format("[Arena] {0}: {1}W {2}L {3}D | {4} rating ({5})", p.Name, record.Wins, record.Losses, record.Draws, record.Rating, s.Build));
                 }
@@ -321,32 +367,36 @@ namespace Server.Engines.Dueling
         }
         public static ArenaRecord Record(Mobile p, string build)
         {
-            string key = p.Serial.Value + ":" + build;
+            string key = p.Serial.Value + ":" + build + ":" + PeerAgents;
             ArenaRecord r;
-            if (!Records.TryGetValue(key, out r)) Records[key] = r = new ArenaRecord { Player = p, Build = build };
+            if (!Records.TryGetValue(key, out r)) Records[key] = r = new ArenaRecord { Player = p, Build = build, Peer = PeerAgents };
             return r;
         }
         public static IEnumerable<ArenaRecord> Leaderboard(string build)
         {
-            return Records.Values.Where(r => r.Build == build && r.Player != null && !r.Player.Deleted && r.Wins + r.Losses + r.Draws > 0)
+            return Records.Values.Where(r => r.Peer == PeerAgents && r.Build == build && r.Player != null && !r.Player.Deleted && r.Wins + r.Losses + r.Draws > 0)
                 .OrderByDescending(r => r.Rating).ThenByDescending(r => r.Wins).ThenBy(r => r.Player.Serial.Value).Take(10);
         }
         public static string QueueStatus(PlayerMobile p)
         {
             int at = Queue.FindIndex(q => q.Player == p);
             int available = Bots.Count(kv => Ready(kv.Key, kv.Value) && !kv.Value.Training);
-            return at < 0 ? available + " AI ready | " + Queue.Count + " waiting" : "Queue position " + (at + 1) + " | " + Queue[at].Build;
+            return at < 0 ? (PeerAgents ? "Participant agents | " + DuelArena.All.Count + " arenas | " : available + " AI ready | ") + Queue.Count + " waiting" : "Queue position " + (at + 1) + " | " + Queue[at].Build;
         }
         private static void SendState(PlayerMobile p)
         {
-            if (p == null || !IsBot(p)) return;
+            if (p == null || p.AccessLevel != AccessLevel.Player || (!PeerAgents && !IsBot(p))) return;
             var m = DuelSystem.FindMatchOf(p);
             Session s;
             string last;
             LastResult.TryGetValue(p, out last);
             if (m != null && Sessions.TryGetValue(m, out s))
                 p.SendMessage(0x35, "[ArenaState] {\"id\":" + Json(s.Id) + ",\"phase\":" + Json(m.Phase.ToString()) + ",\"opponent\":" + m.Opponent(p).Serial.Value + ",\"round\":" + m.Round + ",\"build\":" + Json(s.Build) + ",\"playbook\":" + Json(p == m.A ? s.PlaybookA : s.PlaybookB) + ",\"policy\":" + Json(p == m.A ? s.PolicyA : s.PolicyB) + "}");
-            else p.SendMessage(0x35, "[ArenaState] {\"phase\":\"Idle\",\"last\":" + Json(last) + "}");
+            else
+            {
+                string result; LastResultData.TryGetValue(p, out result);
+                p.SendMessage(0x35, "[ArenaState] {\"phase\":\"Idle\",\"last\":" + Json(last) + ",\"result\":" + (result ?? "null") + "}");
+            }
         }
         private static void Save()
         {
@@ -354,14 +404,14 @@ namespace Server.Engines.Dueling
             {
                 Persistence.Serialize(SavePath + ".tmp", w =>
                 {
-                    w.Write(0);
+                    w.Write(1);
                     var all = Records.Values.Where(r => r.Player != null && !r.Player.Deleted).ToList();
                     w.Write(all.Count);
-                    foreach (var r in all) { w.Write(r.Player); w.Write(r.Build); w.Write(r.Wins); w.Write(r.Losses); w.Write(r.Draws); w.Write(r.Rating); }
+                    foreach (var r in all) { w.Write(r.Player); w.Write(r.Build); w.Write(r.Wins); w.Write(r.Losses); w.Write(r.Draws); w.Write(r.Rating); w.Write(r.Peer); }
                 });
                 if (File.Exists(SavePath)) File.Replace(SavePath + ".tmp", SavePath, null); else File.Move(SavePath + ".tmp", SavePath);
                 Directory.CreateDirectory(Path.Combine("Export", "Arena"));
-                string rows = String.Join(",", Records.Values.Where(r => r.Player != null && !r.Player.Deleted && r.Wins + r.Losses + r.Draws > 0).Select(r =>
+                string rows = String.Join(",", Records.Values.Where(r => r.Peer == PeerAgents && r.Player != null && !r.Player.Deleted && r.Wins + r.Losses + r.Draws > 0).Select(r =>
                     "{\"serial\":" + r.Player.Serial.Value + ",\"name\":" + Json(r.Player.Name) + ",\"build\":" + Json(r.Build) + ",\"wins\":" + r.Wins + ",\"losses\":" + r.Losses + ",\"draws\":" + r.Draws + ",\"rating\":" + r.Rating + "}"));
                 string path = Path.Combine("Export", "Arena", "leaderboard.json");
                 File.WriteAllText(path + ".tmp", "{\"domain\":" + Json(Domain) + ",\"updated\":" + Json(DateTime.UtcNow.ToString("o")) + ",\"players\":[" + rows + "]}", Encoding.UTF8);
@@ -373,11 +423,12 @@ namespace Server.Engines.Dueling
         {
             Persistence.Deserialize(SavePath, r =>
             {
-                r.ReadInt(); int count = r.ReadInt();
+                int version = r.ReadInt(); int count = r.ReadInt();
                 for (int i = 0; i < count; i++)
                 {
                     var record = new ArenaRecord { Player = r.ReadMobile(), Build = r.ReadString(), Wins = r.ReadInt(), Losses = r.ReadInt(), Draws = r.ReadInt(), Rating = r.ReadInt() };
-                    if (record.Player != null) Records[record.Player.Serial.Value + ":" + record.Build] = record;
+                    record.Peer = version >= 1 && r.ReadBool();
+                    if (record.Player != null) Records[record.Player.Serial.Value + ":" + record.Build + ":" + record.Peer] = record;
                 }
             });
         }
