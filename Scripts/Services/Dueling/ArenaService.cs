@@ -85,7 +85,28 @@ namespace Server.Engines.Dueling
             CommandSystem.Register("ArenaState", AccessLevel.Player, e => SendState(e.Mobile as PlayerMobile));
             new ArenaLobbyRegion().Register();
             Timer.DelayCall(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(2), Tick);
+            DuelSystem.DescribeMatch = Describe;
+            DuelWeb.Sections.Add(WebSection);
             Audit("service_start", "\"domain\":" + Json(Domain));
+        }
+
+        /// <summary>"mage · ranked", "warrior · training", ...; null for a plain player challenge.</summary>
+        private static string Describe(DuelMatch m)
+        {
+            Session s;
+            if (m == null || !Sessions.TryGetValue(m, out s)) return null;
+            return s.Build + " · " + (s.Training ? "training" : s.Practice ? "practice" : "ranked");
+        }
+
+        /// <summary>The arena's part of the web feed: every rated player per build, and who is waiting.</summary>
+        private static string WebSection()
+        {
+            string rows = String.Join(",", Records.Values
+                .Where(r => r.Player != null && !r.Player.Deleted && r.Wins + r.Losses + r.Draws > 0)
+                .OrderBy(r => r.Build).ThenByDescending(r => r.Rating).ThenByDescending(r => r.Wins).ThenBy(r => r.Player.Serial.Value)
+                .Select(r => "{\"name\":" + Json(r.Player.Name) + ",\"build\":" + Json(r.Build) + ",\"online\":" + (r.Player.NetState != null ? "true" : "false") +
+                    ",\"wins\":" + r.Wins + ",\"losses\":" + r.Losses + ",\"draws\":" + r.Draws + ",\"rating\":" + r.Rating + "}"));
+            return "\"arena\":{\"domain\":" + Json(Domain) + ",\"queue\":" + Queue.Count + ",\"bots\":" + Bots.Count + ",\"leaderboard\":[" + rows + "]}";
         }
 
         public static bool IsServiceMatch(DuelMatch m) { return m != null && Sessions.ContainsKey(m); }
