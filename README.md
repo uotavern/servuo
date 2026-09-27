@@ -70,5 +70,8 @@ Set the operator-owned bot **account** allowlist, keep bots at Player access,
 and run the `anima3.arena` workers from the companion anima3 repository. Training
 workers self-play separately; human ratings are never accepted from clients.
 Results go to `Logs/Arena/events.jsonl`, rankings to `Saves/ArenaService.bin` and
-`Export/Arena/leaderboard.json`. Save the world before maintenance. The companion
-anima3 `docs/ARENA.md` covers setup, learning, evaluation, deployment and recovery.
+`Export/Arena/leaderboard.json`. Save the world before maintenance.
+
+Commands, rules, both arena modes, the JSON web feed (`Config/Duel.cfg`) and
+where to customise it all: [`Scripts/Services/Dueling/README.md`](Scripts/Services/Dueling/README.md).
+Live scores: <https://www.uotavern.com/forum/duels>.
