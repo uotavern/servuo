@@ -144,7 +144,7 @@ namespace Server.Items
         {
             base.OnHit(attacker, defender, damageBonus);
 
-            if (!Core.AOS && defender is Mobile && (attacker.Player || attacker.Body.IsHuman) && Layer == Layer.TwoHanded && (attacker.Skills[SkillName.Anatomy].Value / 400.0) >= Utility.RandomDouble())
+            if (!Core.AOS && defender is Mobile && (attacker.Player || attacker.Body.IsHuman) && Layer == Layer.TwoHanded && attacker.Skills[SkillName.Anatomy].Value >= 80.0 && attacker.Skills[Skill].Value >= 80.0 && (attacker.Skills[SkillName.Anatomy].Value / 400.0) >= Utility.RandomDouble())
             {
                 StatMod mod = ((Mobile)defender).GetStatMod("Concussion");
 

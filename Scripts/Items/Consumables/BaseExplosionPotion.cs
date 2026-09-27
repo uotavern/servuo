@@ -14,6 +14,8 @@ namespace Server.Items
 	{
 		private const int ExplosionRange = 2; // How long is the blast radius?
 		private Timer m_Timer;
+		private Point3D m_ThrownTo; // where a potion in flight will land (it sits on the internal map for a second)
+		private Map m_ThrownMap;
 
 		public BaseExplosionPotion(PotionEffect effect)
 			: base(0xF0D, effect)
@@ -200,6 +202,22 @@ namespace Server.Items
 
 			object parent = FindParent(from);
 
+			if (Map == Map.Internal && m_ThrownMap != null)
+			{
+				// Still in flight: the countdown can't be shown, and the blast happens at the landing spot.
+				if (timer == 0)
+				{
+					Explode(from, true, m_ThrownTo, m_ThrownMap);
+					m_Timer = null;
+				}
+				else
+				{
+					states[1] = timer - 1;
+				}
+
+				return;
+			}
+
 			if (timer == 0)
 			{
 				Point3D loc;
@@ -255,6 +273,7 @@ namespace Server.Items
 			Map map = (Map)states[2];
 
 			Point3D loc = new Point3D(p);
+			m_ThrownMap = null;
 		    MoveToWorld(loc, map);
 		}
 
@@ -312,6 +331,8 @@ namespace Server.Items
 					Mobile.LiftItemDupe(m_Potion, 1);
 				}
 
+				m_Potion.m_ThrownTo = new Point3D(p);
+				m_Potion.m_ThrownMap = map;
 				m_Potion.Internalize();
 				Timer.DelayCall(
 					TimeSpan.FromSeconds(1.0), new TimerStateCallback(m_Potion.Reposition_OnTick), new object[] {from, p, map});

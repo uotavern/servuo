@@ -171,9 +171,11 @@ namespace Server.Items
                         {
                             attacker.Stam -= 15;
 
-                            if (CheckMove(attacker, SkillName.Anatomy))
+                            // Hybrid: 10 seconds between attempts, success or not; a failed stun stays readied.
+                            StartMoveDelay(attacker);
+
+                            if (CheckMove(attacker, SkillName.Anatomy, 800.0 / 3.0))
                             {
-                                StartMoveDelay(attacker);
 
                                 attacker.StunReady = false;
 
@@ -221,7 +223,7 @@ namespace Server.Items
                                 {
                                     attacker.SendLocalizedMessage(1004001); // You cannot disarm your opponent.
                                 }
-                                else if (CheckMove(attacker, SkillName.ArmsLore))
+                                else if (CheckMove(attacker, SkillName.ArmsLore, 200.0))
                                 {
                                     StartMoveDelay(attacker);
 
@@ -235,6 +237,8 @@ namespace Server.Items
                                 }
                                 else
                                 {
+                                    StartMoveDelay(attacker);
+
                                     attacker.Stam -= 15;
 
                                     attacker.SendLocalizedMessage(1004004); // You failed in your attempt to disarm.
@@ -294,17 +298,16 @@ namespace Server.Items
 
         /* Wrestling moves */
 
-        private static bool CheckMove(Mobile m, SkillName other)
+        /// <summary>
+        /// UO Hybrid odds: stun (Wrestling + Anatomy) * 3 / 800 = 60% at 80/80, 75% at GM;
+        /// disarm (Wrestling + Arms Lore) / 200 = 80% at 80/80, 100% at GM.
+        /// </summary>
+        private static bool CheckMove(Mobile m, SkillName other, double divisor)
         {
             double wresValue = m.Skills[SkillName.Wrestling].Value;
             double scndValue = m.Skills[other].Value;
 
-            /* 40% chance at 80, 80
-            * 50% chance at 100, 100
-            * 60% chance at 120, 120
-            */
-
-            double chance = (wresValue + scndValue) / 400.0;
+            double chance = (wresValue + scndValue) / divisor;
 
             return (chance >= Utility.RandomDouble());
         }
