@@ -67,7 +67,7 @@ namespace Server.Items
         {
             base.OnHit(attacker, defender, damageBonus);
 
-            if (!Core.AOS && defender is Mobile && this.Layer == Layer.TwoHanded && (attacker.Skills[SkillName.Anatomy].Value / 400.0) >= Utility.RandomDouble())
+            if (!Core.AOS && defender is Mobile && this.Layer == Layer.TwoHanded && attacker.Skills[SkillName.Anatomy].Value >= 80.0 && attacker.Skills[Skill].Value >= 80.0 && (attacker.Skills[SkillName.Anatomy].Value / 400.0) >= Utility.RandomDouble())
             {
                 ((Mobile)defender).SendMessage("You receive a paralyzing blow!"); // Is this not localized?
                 ((Mobile)defender).Freeze(TimeSpan.FromSeconds(2.0));
