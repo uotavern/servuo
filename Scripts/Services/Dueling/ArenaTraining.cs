@@ -8,6 +8,16 @@ namespace Server.Engines.Dueling
 {
     public static class ArenaTraining
     {
+        // Pre-AOS combat and support skills, including combat-related crafting passives.
+        public static readonly SkillName[] CombatSkills = {
+            SkillName.Swords, SkillName.Fencing, SkillName.Macing, SkillName.Archery, SkillName.Wrestling,
+            SkillName.Tactics, SkillName.Anatomy, SkillName.Parry, SkillName.Healing,
+            SkillName.Magery, SkillName.EvalInt, SkillName.MagicResist, SkillName.Meditation,
+            SkillName.Poisoning, SkillName.Hiding, SkillName.Stealth, SkillName.DetectHidden,
+            SkillName.ArmsLore, SkillName.Alchemy, SkillName.Inscribe, SkillName.Lumberjacking
+        };
+        public static bool IsCombatSkill(int id) { return CombatSkills.Contains((SkillName)id); }
+
         public static bool CanEdit(PlayerMobile p)
         {
             bool ok = ArenaService.Enabled && p != null && !p.Deleted && p.Alive
@@ -80,18 +90,21 @@ namespace Server.Engines.Dueling
         public ArenaSkillsGump(ArenaSkillBall ball, PlayerMobile p) : base(30, 30)
         {
             Ball = ball;
-            AddPage(0); AddBackground(0, 0, 760, 700, 9200);
+            AddPage(0); AddBackground(0, 0, 760, 540, 9200);
             AddLabel(25, 20, 1153, ball.SkillCount + "GM SKILL BALL - choose exactly " + ball.SkillCount + " skills");
             AddLabel(25, 45, 0, "Apply: selected skills = 100.0, all others = 0.0. This consumes the ball.");
             AddLabel(25, 70, 0, "Practice keeps your skills. Ranked queues replace them with a 5x template.");
-            for (int i = 0; i < p.Skills.Length; i++)
+            AddLabel(25, 100, 1153, "PRE-AOS COMBAT / SUPPORT SKILLS");
+            for (int index = 0; index < ArenaTraining.CombatSkills.Length; index++)
             {
-                int x = 25 + (i / 20) * 245, y = 105 + (i % 20) * 26;
-                AddCheck(x, y, 210, 211, p.Skills[i].Base >= 100, i);
-                AddLabel(x + 30, y, 0, p.Skills[i].Name);
+                int id = (int)ArenaTraining.CombatSkills[index];
+                int x = 25 + (index / 8) * 245, y = 140 + (index % 8) * 35;
+                AddCheck(x, y, 210, 211, p.Skills[id].Base >= 100, id);
+                AddLabel(x + 30, y, 0, p.Skills[id].Name);
             }
-            AddButton(25, 650, 4005, 4007, 1, GumpButtonType.Reply, 0);
-            AddLabel(60, 650, 0, "Apply " + ball.SkillCount + " GM skills");
+            AddLabel(25, 450, 0, "Combat support included; other trade, bard, pet and post-AOS skills excluded.");
+            AddButton(25, 490, 4005, 4007, 1, GumpButtonType.Reply, 0);
+            AddLabel(60, 490, 0, "Apply " + ball.SkillCount + " GM skills");
         }
         public override void OnResponse(NetState sender, RelayInfo info)
         {
@@ -100,8 +113,8 @@ namespace Server.Engines.Dueling
             if (Ball.Deleted || !Ball.IsChildOf(p.Backpack)) return;
             int[] skills = info.Switches;
             if (skills == null || skills.Length != Ball.SkillCount || skills.Distinct().Count() != Ball.SkillCount
-                || skills.Any(i => i < 0 || i >= p.Skills.Length))
-            { p.SendMessage(0x35, "[Arena] Select exactly " + Ball.SkillCount + " different skills. Your ball was not consumed."); p.SendGump(new ArenaSkillsGump(Ball, p)); return; }
+                || skills.Any(i => !ArenaTraining.IsCombatSkill(i)))
+            { p.SendMessage(0x35, "[Arena] Select exactly " + Ball.SkillCount + " different pre-AOS combat skills. Your ball was not consumed."); p.SendGump(new ArenaSkillsGump(Ball, p)); return; }
             for (int i = 0; i < p.Skills.Length; i++) p.Skills[i].Base = 0;
             foreach (int i in skills) p.Skills[i].Base = 100;
             for (int i = 0; i < p.Skills.Length; i++) p.Skills[i].SetLockNoRelay(SkillLock.Locked);

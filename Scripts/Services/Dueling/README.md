@@ -225,3 +225,13 @@ button as well as custom challenges. The invitation/history explicitly shows
 Normal mage/warrior queues keep explosions disabled. Explosion use is checked
 at activation, targeting and detonation, so pre-armed potions cannot bypass a
 match restriction. Explosions cannot be armed in the lobby or idle rings.
+
+## Pre-AOS skill-ball selection
+
+Skill balls expose 21 combat/support skills: Swords, Fencing, Macing, Archery,
+Wrestling, Tactics, Anatomy, Parry, Healing, Magery, EvalInt, MagicResist,
+Meditation, Poisoning, Hiding, Stealth, DetectHidden, ArmsLore, Alchemy,
+Inscribe and Lumberjacking. Tracking is deliberately excluded for fixed 1v1
+arenas. Pure trade, bard, pet and post-AOS skills are excluded. The same explicit
+allowlist validates client submissions; forged IDs do not consume the ball or
+change skills. This filters skill selection, not the entire combat-era engine.
