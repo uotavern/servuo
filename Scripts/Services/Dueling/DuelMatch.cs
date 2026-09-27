@@ -468,6 +468,9 @@ namespace Server.Engines.Dueling
 
             m.Combatant = null;
             m.Warmode = false;
+            var opponent = Opponent(m);
+            m.RemoveAggressed(opponent);
+            m.RemoveAggressor(opponent);
 
             if (Arena.Contains(m))
                 m.MoveToWorld(ExitOf(m), DuelArena.ArenaMap);
