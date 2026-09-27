@@ -57,7 +57,7 @@ Players say `[Arena` for the gump, or use the subcommands:
 `[Arena enter`, `[Arena join mage|warrior [practice]`, `[Arena leave`, `[Arena supplies`
 and `[Arena style <robe…> [hue]`. Matches are best of 3. Mage fights with
 `5x-fists-magic-noarmor-nobandage`; warrior with `5x-katana`. Practice allows
-potions, preserves current skills/stats with a 6x cap, and is never rated. Ranked queues still apply the standard 5x template.
+potions, preserves current skills/stats with a 7x cap, and is never rated. Ranked queues still apply the standard 5x template.
 
 Ratings are Elo per character and build: they start at 1000, with K = 32. Only
 matches the server itself refereed count; clients never report results. Every
@@ -154,16 +154,16 @@ host) at the shard.
 ## Training NPC and configurable duel modes
 
 Rowan is installed at Felucca (5183,332,15), next to a readable sign at
-(5184,332,15). Double-click Rowan for free stat balls, 5/6/7GM skill balls,
+(5184,332,15). Double-click Rowan for free stat balls, 5/7GM skill balls,
 combat supplies, the guide or the duel selection menu. While a connected player
 is within ten tiles, Rowan rotates one short tip every 45 seconds.
 
 - Stat ball: whole numbers 10–100 for each stat, sum <=225. Applying consumes it.
-- Skill ball: choose exactly 5, 6 or 7 distinct skills, each set to 100.0;
+- Skill ball: choose exactly 5 or 7 distinct skills, each set to 100.0;
   all other skills become zero. Applying consumes it and locks skills.
 - Only one unused skill ball and one unused stat ball per backpack. Use the
   existing skill ball before requesting a different count. Supplies are free
-  again after consumption. `[Arena skills 5|6|7` / `[Arena stats` also dispense.
+  again after consumption. `[Arena skills 5|7` / `[Arena stats` also dispense.
 - Both opening and applying recheck lobby, life, no combat, no queue and no
   active duel. Moving/trading a ball after opening invalidates the dialog.
 - NPC, sign and unused balls persist through world saves. Initialization reuses
@@ -178,10 +178,10 @@ and `[Accept` instead of the UI. A stale invitation cannot accept a replacement.
 
 | Preset | Skill cap | Weapons / armor | Magery | Bandages | Potions | Paralyze |
 | --- | --- | --- | --- | --- | --- | --- |
-| `mage5` | 500; Magery, EvalInt, Meditation, Resist, Wrestling only | no / no | yes | no | no | no |
-| `mage7` | 700 | no / no | yes | no | no | no |
-| `standard7` | 700 | yes / yes | yes | yes | no | yes |
-| `dexxer7` | 700 | yes / yes | no | yes | no | no spells |
+| `mage5` | 500; Magery, EvalInt, Meditation, Resist, Wrestling only | no / no | yes | no | yes | no |
+| `mage7` | 700 | no / no | yes | no | yes | no |
+| `standard7` | 700 | yes / yes | yes | yes | yes | yes |
+| `dexxer7` | 700 | yes / yes | no | yes | yes | no spells |
 | `open7` | 700 | yes / yes | yes | yes | yes | yes |
 
 All presets count **all** base skills, require individual skills <=100, exclude
@@ -209,3 +209,19 @@ This release adds persisted types ArenaSkillBall, ArenaStatBall, ArenaSteward
 and ArenaTrainingSign. After saving them, rollback must restore the matching
 pre-deployment Saves **and** binaries, or use a compatible forward build.
 ArenaService.bin and Dueling.bin versions remain unchanged.
+
+
+## 7GM / potion update
+
+The default ball is now **7GM**. Existing saved 6GM balls become 7GM at load;
+5GM remains available for Mage 5x. Practice queues preserve builds up to 7x.
+Regular potions are allowed by default in presets, ranked queues and practice.
+Supplies include heal, cure, refresh, strength, agility and greater explosion
+potions. Custom `nopotions` remains available to explicitly disable all potions.
+
+**Allow Explosion Potions** is unchecked by default and applies to every preset
+button as well as custom challenges. The invitation/history explicitly shows
+`explosion` or `noexplosion`. Command example: `[Challenge Rook 3 standard7-explosion`.
+Normal mage/warrior queues keep explosions disabled. Explosion use is checked
+at activation, targeting and detonation, so pre-armed potions cannot bypass a
+match restriction. Explosions cannot be armed in the lobby or idle rings.

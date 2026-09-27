@@ -38,7 +38,7 @@ namespace Server.Engines.Dueling
             SkillName.Fencing, SkillName.Macing, SkillName.Archery
         };
 
-        public const string ValidTokens = "mage5 mage7 standard7 dexxer7 open7 nopotions noparalyze classic mageonly 5x 6x 7x katana broadsword vikingsword halberd fists any magic nobandage noarmor";
+        public const string ValidTokens = "mage5 mage7 standard7 dexxer7 open7 explosion noexplosion nopotions noparalyze classic mageonly 5x 6x 7x katana broadsword vikingsword halberd fists any magic nobandage noarmor";
 
         // Classic 5x/7x templates also cap stats: Str + Dex + Int <= 225 with no single stat above 100.
         public const int StatTotalCap = 225;
@@ -50,6 +50,7 @@ namespace Server.Engines.Dueling
         public bool NoBandage { get; set; }
         public bool NoArmor { get; set; }
         public bool NoPotions { get; set; }
+        public bool ExplosionPotions { get; set; }
         public bool NoParalyze { get; set; }
         public bool Classic { get; set; }
         public bool MageFive { get; set; }
@@ -72,11 +73,13 @@ namespace Server.Engines.Dueling
 
                 switch (tok)
                 {
-                    case "mage5": rules = new DuelRules { SkillCap = 500, Weapon = DuelWeapon.Fists, Magic = true, NoBandage = true, NoArmor = true, NoPotions = true, NoParalyze = true, Classic = true, MageFive = true }; break;
-                    case "mage7": rules = new DuelRules { SkillCap = 700, Weapon = DuelWeapon.Fists, Magic = true, NoBandage = true, NoArmor = true, NoPotions = true, NoParalyze = true, Classic = true }; break;
-                    case "standard7": rules = new DuelRules { SkillCap = 700, Magic = true, NoPotions = true, Classic = true }; break;
-                    case "dexxer7": rules = new DuelRules { SkillCap = 700, NoPotions = true, Classic = true }; break;
+                    case "mage5": rules = new DuelRules { SkillCap = 500, Weapon = DuelWeapon.Fists, Magic = true, NoBandage = true, NoArmor = true, NoParalyze = true, Classic = true, MageFive = true }; break;
+                    case "mage7": rules = new DuelRules { SkillCap = 700, Weapon = DuelWeapon.Fists, Magic = true, NoBandage = true, NoArmor = true, NoParalyze = true, Classic = true }; break;
+                    case "standard7": rules = new DuelRules { SkillCap = 700, Magic = true, Classic = true }; break;
+                    case "dexxer7": rules = new DuelRules { SkillCap = 700, Classic = true }; break;
                     case "open7": rules = new DuelRules { SkillCap = 700, Magic = true, Classic = true }; break;
+                    case "explosion": rules.ExplosionPotions = true; break;
+                    case "noexplosion": rules.ExplosionPotions = false; break;
                     case "nopotions": rules.NoPotions = true; break;
                     case "noparalyze": rules.NoParalyze = true; break;
                     case "classic": rules.Classic = true; break;
@@ -118,6 +121,7 @@ namespace Server.Engines.Dueling
             if (NoBandage) parts.Add("nobandage");
             if (NoArmor) parts.Add("noarmor");
             if (NoPotions) parts.Add("nopotions");
+            parts.Add(ExplosionPotions ? "explosion" : "noexplosion");
             if (NoParalyze) parts.Add("noparalyze");
             if (Classic) parts.Add("classic");
             if (MageFive) parts.Add("mageonly");

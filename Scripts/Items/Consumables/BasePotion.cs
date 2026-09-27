@@ -130,6 +130,7 @@ namespace Server.Items
 
         public override void OnDoubleClick(Mobile from)
         {
+            if (!Server.Engines.Dueling.DuelSystem.AllowPotion(from, this)) return;
             if (!this.Movable)
                 return;
 

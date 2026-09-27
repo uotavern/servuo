@@ -67,6 +67,7 @@ namespace Server.Items
 
 		public override void Drink(Mobile from)
 		{
+            if (!Server.Engines.Dueling.DuelSystem.AllowPotion(from, this)) return;
 			if (Core.AOS && (from.Paralyzed || from.Frozen || (from.Spell != null && from.Spell.IsCasting)))
 			{
 				from.SendLocalizedMessage(1062725); // You can not use a purple potion while paralyzed.
@@ -115,6 +116,8 @@ namespace Server.Items
 			{
 				return;
 			}
+
+            if (from != null && !Server.Engines.Dueling.DuelSystem.AllowPotion(from, this, false)) { Consume(); return; }
 
             bool damageThrower = false;
 
@@ -269,6 +272,7 @@ namespace Server.Items
 
 			protected override void OnTarget(Mobile from, object targeted)
 			{
+                if (!Server.Engines.Dueling.DuelSystem.AllowPotion(from, m_Potion)) return;
 				if (m_Potion.Deleted || m_Potion.Map == Map.Internal)
 				{
 					return;

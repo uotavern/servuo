@@ -117,7 +117,7 @@ namespace Server.Engines.Dueling
         public static bool AllowsPotions(DuelMatch m)
         {
             Session s;
-            return m != null && Sessions.TryGetValue(m, out s) && s.Practice;
+            return m != null && Sessions.TryGetValue(m, out s) && !m.Rules.NoPotions;
         }
 
         public static bool IsBot(Mobile m)
@@ -182,7 +182,7 @@ namespace Server.Engines.Dueling
                 case "enter": Enter(p); break;
                 case "join": Join(p, e.Length > 1 ? e.GetString(1).ToLowerInvariant() : "mage", e.Length > 2 && e.GetString(2).ToLowerInvariant() == "practice"); break;
                 case "leave": Leave(p); break;
-                case "skills": ArenaTraining.GiveBall(p, e.Length > 1 ? e.GetInt32(1) : 6); break;
+                case "skills": ArenaTraining.GiveBall(p, e.Length > 1 ? e.GetInt32(1) : 7); break;
                 case "duel": p.SendGump(new ArenaDuelSetupGump()); break;
                 case "stats": ArenaTraining.GiveStatBall(p); break;
                 case "supplies": ArenaSupplies.Refill(p); break;
@@ -206,7 +206,7 @@ namespace Server.Engines.Dueling
             if (practice)
             {
                 DuelRules practiceRules; string reason;
-                DuelRules.TryParse("6x", out practiceRules, out reason);
+                DuelRules.TryParse("7x", out practiceRules, out reason);
                 if (!practiceRules.CheckSkills(p, out reason)) { p.SendMessage(0x35, "[Arena] " + reason + " Use [Arena skills and [Arena stats first."); return; }
             }
             DateTime last;
@@ -214,7 +214,7 @@ namespace Server.Engines.Dueling
             LastJoin[p] = DateTime.UtcNow;
             Queue.RemoveAll(q => q.Player == p);
             Queue.Add(new Entry { Player = p, Build = build, Practice = practice, Joined = DateTime.UtcNow });
-            p.SendMessage(0x35, "[Arena] Queued for " + build + (practice ? " practice (potions allowed; no rating)" : " ranked") + (practice ? ". Your current skills and stats are preserved (6x cap)." : ". Your skills and stats will use this arena template.") + " Say [Arena leave to cancel.");
+            p.SendMessage(0x35, "[Arena] Queued for " + build + (practice ? " practice (potions allowed; no rating)" : " ranked") + (practice ? ". Your current skills and stats are preserved (7x cap)." : ". Your skills and stats will use this arena template.") + " Say [Arena leave to cancel.");
             Tick();
         }
         private static bool AccountAvailable(PlayerMobile p)
@@ -313,7 +313,7 @@ namespace Server.Engines.Dueling
             if (practice)
             {
                 DuelRules check; string reason;
-                DuelRules.TryParse("6x", out check, out reason);
+                DuelRules.TryParse("7x", out check, out reason);
                 foreach (var p in new[] { a, b })
                 {
                     if (!check.CheckSkills(p, out reason))
@@ -324,9 +324,9 @@ namespace Server.Engines.Dueling
             if ((Side++ & 1) == 1) { var swap = a; a = b; b = swap; }
             ArenaSupplies.Prepare(a, build, practice);
             ArenaSupplies.Prepare(b, build, practice);
-            if (practice) { ArenaSupplies.StockPotions(a); ArenaSupplies.StockPotions(b); }
+            ArenaSupplies.StockPotions(a); ArenaSupplies.StockPotions(b);
             DuelRules rules; string error;
-            DuelRules.TryParse((practice ? "6x" : "5x") + (build == "mage" ? "-fists-magic-noarmor-nobandage" : "-katana"), out rules, out error);
+            DuelRules.TryParse((practice ? "7x" : "5x") + (build == "mage" ? "-fists-magic-noarmor-nobandage" : "-katana"), out rules, out error);
             var match = new DuelMatch(arena, a, b, 3, rules);
             Bot ba, bb;
             Bots.TryGetValue(a, out ba); Bots.TryGetValue(b, out bb);

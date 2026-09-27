@@ -31,13 +31,16 @@ namespace Server.Engines.Dueling
             StockPotions(p);
             Stock(p, typeof(HairRestylingDeed), 1, () => new HairRestylingDeed());
             Stock(p, typeof(HairDye), 1, () => new HairDye());
-            p.SendMessage(0x35, "[Arena] Supplies refilled. Potions are for practice; ranked matches use no potions. Hair items are in your backpack.");
+            p.SendMessage(0x35, "[Arena] Supplies refilled. Regular potions are allowed; explosion potions require an enabled duel option. Hair items are in your backpack.");
         }
         public static void StockPotions(PlayerMobile p)
         {
             Stock(p, typeof(GreaterHealPotion), 5, () => new GreaterHealPotion());
             Stock(p, typeof(GreaterCurePotion), 5, () => new GreaterCurePotion());
             Stock(p, typeof(TotalRefreshPotion), 5, () => new TotalRefreshPotion());
+            Stock(p, typeof(GreaterExplosionPotion), 5, () => new GreaterExplosionPotion());
+            Stock(p, typeof(GreaterStrengthPotion), 5, () => new GreaterStrengthPotion());
+            Stock(p, typeof(GreaterAgilityPotion), 5, () => new GreaterAgilityPotion());
         }
         public static void StockCombat(PlayerMobile p)
         {

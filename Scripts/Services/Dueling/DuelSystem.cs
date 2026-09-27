@@ -196,6 +196,18 @@ namespace Server.Engines.Dueling
             return false;
         }
 
+        public static bool AllowPotion(Mobile from, BasePotion potion, bool message = true)
+        {
+            var match = FindMatchOf(from);
+            bool explosion = potion is BaseExplosionPotion;
+            bool allowed = match == null
+                ? !(explosion && ArenaService.Enabled && (ArenaService.InLobby(from) || DuelArena.Find(from) != null))
+                : !match.Rules.NoPotions && (!explosion || (match.Rules.ExplosionPotions && match.Phase == DuelPhase.Fighting));
+            if (!allowed && message)
+                from.SendMessage(MessageHue, explosion ? "[Duel] Explosion potions require a live duel with the Explosion Potions option enabled." : "[Duel] Potions are disabled by this ruleset.");
+            return allowed;
+        }
+
         public static bool AllowBandage(Mobile healer, Mobile patient)
         {
             if (healer == null)

@@ -11,11 +11,11 @@ namespace Server.Engines.Dueling
     {
         private static int Tip;
         private static readonly string[] Tips = {
-            "Need a build? Double-click me for a free stat ball and 5/6/7GM skill balls!",
-            "Blue skill balls set 5, 6 or 7 skills to 100.0 and reset all others.",
+            "Need a build? Double-click me for a free stat ball and 5/7GM skill balls!",
+            "Blue skill balls set 5 or 7 skills to 100.0 and reset all others.",
             "The gold stat ball sets STR, DEX and INT: 10-100 each, 225 total maximum.",
             "Prepare outside the queue. Practice keeps your build; ranked uses standard 5x templates.",
-            "Read the sign beside me. I also refill reagents, bandages and practice potions."
+            "Read the sign beside me. I also refill reagents, bandages and potions."
         };
         public static void Initialize()
         {
@@ -78,15 +78,15 @@ namespace Server.Engines.Dueling
             AddLabel(25, 20, 1153, "ARENA TRAINING GUIDE");
             string[] lines = {
                 "1. Double-click Rowan beside this sign to receive free training balls.",
-                "2. Double-click the BLUE skill ball in your backpack. Select 5, 6 or 7 skills.",
+                "2. Double-click the BLUE skill ball in your backpack. Select 5 or 7 skills.",
                 "   Applying sets those skills to 100.0 and ALL other skills to zero.",
                 "3. Double-click the GOLD stat ball. Enter STR, DEX and INT.",
                 "   Each: 10-100. Total: at most 225. Apply consumes the ball.",
                 "4. Both balls are free again after use. Only one of each per backpack.",
                 "5. Leave the queue before editing. Balls cannot be used in a match.",
-                "6. Practice preserves your build (6x); ranked replaces it with 5x.",
+                "6. Practice preserves your build (7x); ranked replaces it with 5x.",
                 "7. Rowan also supplies reagents, bandages, hair items and potions.",
-                "Commands: [Arena enter / [Arena skills 5|6|7 / [Arena stats",
+                "Commands: [Arena enter / [Arena skills 5|7 / [Arena stats",
                 "Say [Arena duel for 5x/7x Mage, Standard, Dexxer and custom challenges."
             };
             for (int i = 0; i < lines.Length; i++) AddLabel(25, 60 + i * 27, 0, lines[i]);
@@ -100,7 +100,7 @@ namespace Server.Engines.Dueling
             Steward = steward;
             AddPage(0); AddBackground(0, 0, 540, 425, 9200);
             AddLabel(25, 20, 1153, "ROWAN / FREE ARENA SUPPLIES");
-            string[] labels = { "Get 6GM skill ball", "Get stat ball", "Refill combat / cosmetic supplies", "Read training guide", "Get 5GM skill ball", "Get 7GM skill ball", "Choose duel mode / challenge" };
+            string[] labels = { "Get 7GM skill ball", "Get stat ball", "Refill combat / cosmetic supplies", "Read training guide", "Get 5GM skill ball", "Choose explosion-potion rules", "Choose duel mode / challenge" };
             for (int i = 0; i < labels.Length; i++)
             { AddButton(25, 65 + i * 45, 4005, 4007, i + 1, GumpButtonType.Reply, 0); AddLabel(60, 65 + i * 45, 0, labels[i]); }
         }
@@ -115,7 +115,7 @@ namespace Server.Engines.Dueling
                 case 3: ArenaSupplies.Refill(p); break;
                 case 4: p.SendGump(new ArenaTrainingGuideGump()); return;
                 case 5: ArenaTraining.GiveBall(p, 5); break;
-                case 6: ArenaTraining.GiveBall(p, 7); break;
+                case 6: p.SendGump(new ArenaDuelSetupGump()); return;
                 case 7: p.SendGump(new ArenaDuelSetupGump()); return;
                 default: return;
             }

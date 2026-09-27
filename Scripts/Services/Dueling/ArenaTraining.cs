@@ -18,9 +18,9 @@ namespace Server.Engines.Dueling
                 p.SendMessage(0x35, "[Arena] Customize while alive, out of combat and out of the queue in the lobby.");
             return ok;
         }
-        public static void GiveBall(PlayerMobile p, int count = 6)
+        public static void GiveBall(PlayerMobile p, int count = 7)
         {
-            if (!CanEdit(p) || p.Backpack == null || count < 5 || count > 7) return;
+            if (!CanEdit(p) || p.Backpack == null || (count != 5 && count != 7)) return;
             if (p.Backpack.FindItemsByType(typeof(ArenaSkillBall), true).Length > 0)
             { p.SendMessage(0x35, "[Arena] You already have a skill ball in your backpack."); return; }
             var ball = new ArenaSkillBall(count);
@@ -42,12 +42,12 @@ namespace Server.Engines.Dueling
     {
         public int SkillCount { get; private set; }
         [Constructable]
-        public ArenaSkillBall() : this(6) { }
+        public ArenaSkillBall() : this(7) { }
         public ArenaSkillBall(int count) : base(0xE2D)
-        { SkillCount = count >= 5 && count <= 7 ? count : 6; Name = "arena " + SkillCount + "GM skill ball"; Hue = 1153; Weight = 1; LootType = LootType.Blessed; }
+        { SkillCount = count == 5 ? 5 : 7; Name = "arena " + SkillCount + "GM skill ball"; Hue = 1153; Weight = 1; LootType = LootType.Blessed; }
         public ArenaSkillBall(Serial serial) : base(serial) { }
         public override void Serialize(GenericWriter writer) { base.Serialize(writer); writer.Write(1); writer.Write(SkillCount); }
-        public override void Deserialize(GenericReader reader) { base.Deserialize(reader); int v = reader.ReadInt(); SkillCount = v >= 1 ? reader.ReadInt() : 6; }
+        public override void Deserialize(GenericReader reader) { base.Deserialize(reader); int v = reader.ReadInt(); SkillCount = v >= 1 ? reader.ReadInt() : 7; if (SkillCount != 5) SkillCount = 7; Name = "arena " + SkillCount + "GM skill ball"; }
         public override void OnDoubleClick(Mobile from)
         {
             var p = from as PlayerMobile;

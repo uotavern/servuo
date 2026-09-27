@@ -16,23 +16,23 @@ namespace Server.Engines.Dueling
             AddLabel(25, 20, 1153, "DUEL MODES / challenge another player or participant agent");
             AddLabel(25, 48, 0, "Preserves your build. Opponent must accept. Results appear in duel history.");
             string[] labels = {
-                "5x Mage: five mage skills; no weapons, armor, bandages, potions or paralyze.",
-                "7x Mage: classic skills; no weapons, armor, bandages, potions or paralyze.",
-                "7x Standard: weapons, armor, Magery and bandages; no potions.",
-                "7x Dexxer: weapons, armor and bandages; no spells or potions.",
+                "5x Mage: five mage skills; no weapons, armor, bandages or paralyze.",
+                "7x Mage: classic skills; no weapons, armor, bandages or paralyze.",
+                "7x Standard: weapons, armor, Magery and bandages; regular potions.",
+                "7x Dexxer: weapons, armor and bandages; no spells; regular potions.",
                 "7x Open spar: weapons, armor, Magery, bandages and potions."
             };
             for (int i = 0; i < labels.Length; i++)
             { AddButton(25, 88 + i * 42, 4005, 4007, i + 1, GumpButtonType.Reply, 0); AddLabel(60, 88 + i * 42, 0, labels[i]); }
-            AddLabel(25, 310, 0, "All presets: classic skills, each <= 100; STR/DEX/INT <= 100, total <= 225.");
-            AddLabel(25, 335, 0, "No fields, summons, travel or resurrection. Prepare with Rowan's 5/6/7GM balls.");
+            AddLabel(25, 310, 0, "Regular potions allowed. Explosion option below applies to ALL modes.");
+            AddCheck(25, 335, 210, 211, false, 300); AddLabel(55, 335, 0, "Allow Explosion Potions (OFF by default; shown in invitation)");
             AddLabel(25, 375, 1153, "CUSTOM: choose a cap and restrictions, then select your opponent.");
             string[] caps = { "5x", "6x", "7x" };
             AddGroup(1);
             for (int i = 0; i < 3; i++) { AddRadio(25 + i * 130, 410, 208, 209, i == 2, 100 + i); AddLabel(55 + i * 130, 410, 0, caps[i]); }
             string[] options = { "Magery", "No bandages", "No armor", "No potions", "No paralyze", "Fists only" };
             for (int i = 0; i < options.Length; i++)
-            { int x = 25 + (i % 3) * 230, y = 450 + (i / 3) * 35; AddCheck(x, y, 210, 211, i == 0 || i == 3, 200 + i); AddLabel(x + 30, y, 0, options[i]); }
+            { int x = 25 + (i % 3) * 230, y = 450 + (i / 3) * 35; AddCheck(x, y, 210, 211, i == 0, 200 + i); AddLabel(x + 30, y, 0, options[i]); }
             AddButton(25, 535, 4005, 4007, 10, GumpButtonType.Reply, 0); AddLabel(60, 535, 0, "Challenge with custom rules");
             AddLabel(25, 575, 0, "Best of 3; free arena assigned automatically. [Challenge supports arena:N / rounds.");
         }
@@ -49,6 +49,7 @@ namespace Server.Engines.Dueling
                 for (int i = 0; i < tokens.Length; i++) if (info.IsSwitched(200 + i)) text += "-" + tokens[i];
             }
             else return;
+            text += info.IsSwitched(300) ? "-explosion" : "-noexplosion";
             DuelRules rules; string error;
             if (!DuelRules.TryParse(text, out rules, out error)) return;
             error = DuelSystem.CheckAvailable(p, rules, null);

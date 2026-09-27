@@ -341,11 +341,8 @@ namespace Server.Engines.Dueling
                 return false;
             }
 
-            if (o is BasePotion && Match != null && (Match.Rules.NoPotions || (ArenaService.IsServiceMatch(Match) && !ArenaService.AllowsPotions(Match))))
-            {
-                m.SendMessage(DuelSystem.MessageHue, "[Arena] Potions are not allowed by this match ruleset.");
+            if (o is BasePotion && !DuelSystem.AllowPotion(m, (BasePotion)o))
                 return false;
-            }
 
             if (o is Bandage && !DuelSystem.AllowBandage(m, m))
                 return false;
