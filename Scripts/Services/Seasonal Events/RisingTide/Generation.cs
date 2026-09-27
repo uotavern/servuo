@@ -12,6 +12,13 @@ namespace Server.Engines.RisingTide
     {
         public static void Initialize()
         {
+            if (Config.Get("Arena.DisableRisingTide", false))
+            {
+                Remove();
+                PointsSystem.RisingTide.Enabled = false;
+                return;
+            }
+
             EventSink.WorldSave += OnWorldSave;
 
             if (BlackMarketMerchant.InstanceTram != null)
@@ -83,6 +90,9 @@ namespace Server.Engines.RisingTide
 
         public static void Generate()
         {
+            if (Config.Get("Arena.DisableRisingTide", false))
+                return;
+
             if (BlackMarketMerchant.InstanceTram == null)
             {
                 BlackMarketMerchant.InstanceTram = new BlackMarketMerchant();
