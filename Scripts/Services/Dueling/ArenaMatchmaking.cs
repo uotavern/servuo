@@ -111,6 +111,7 @@ namespace Server.Engines.Dueling
         }
         public static void ClosePanels(PlayerMobile p)
         {
+            p.CloseGump(typeof(ArenaCosmeticsGump));
             p.CloseGump(typeof(ArenaResultGump));
             p.CloseGump(typeof(ArenaQuickSetupGump));
             p.CloseGump(typeof(ArenaGump));

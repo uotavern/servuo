@@ -194,6 +194,7 @@ namespace Server.Engines.Dueling
                 case "duel": Open(p); break;
                 case "stats": ArenaTraining.GiveStatBall(p); break;
                 case "supplies": ArenaSupplies.Refill(p); break;
+                case "cosmetics": case "dyes": ArenaSupplies.Cosmetics(p); ArenaCosmeticsGump.Open(p); break;
                 case "style": ArenaSupplies.Style(p, e.Length > 1 ? e.GetString(1) : "robe", e.Length > 2 ? e.GetInt32(2) : 0); break;
                 default: Open(p); break;
             }

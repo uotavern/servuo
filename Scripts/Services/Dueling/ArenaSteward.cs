@@ -11,6 +11,8 @@ namespace Server.Engines.Dueling
     {
         private static int Tip;
         private static readonly string[] Tips = {
+            "Want a new look? My Hair / clothing dyes menu has free hair dye, cloth and leather dye tubs!",
+            "Double-click Dyes and target a tub to choose its color. Then use the tub on your own clothes or leather.",
             "Need a build? Double-click me for a free stat ball and 5/7GM skill balls!",
             "Blue skill balls set 5 or 7 skills to 100.0 and reset all others.",
             "The gold stat ball sets STR, DEX and INT: 10-100 each, 225 total maximum.",
@@ -91,7 +93,8 @@ namespace Server.Engines.Dueling
                 "8. A central stone wall disappears after five seconds: FIGHT!",
                 "9. Showdown disables healing after 3 minutes. Round limit: 5 minutes.",
                 "10. The blue moongate tours arena sidelines; use a return gate to come back.",
-                "Rankings and replays: arena.uotavern.com / [Arena leave cancels waiting."
+                "Rankings and replays: arena.uotavern.com / [Arena leave cancels waiting.",
+                "Cosmetics: Rowan gives hair dye, dyes, cloth tubs and leather tubs."
             };
             for (int i = 0; i < lines.Length; i++) AddLabel(25, 60 + i * 27, 0, lines[i]);
             AddButton(25,380,4005,4007,1,GumpButtonType.Reply,0);AddLabel(60,380,0,"Back to Rowan");

@@ -12,10 +12,10 @@ namespace Server.Engines.Dueling
             return p != null && p.Alive && p.AccessLevel == AccessLevel.Player && ArenaService.InLobby(p) && DuelSystem.FindMatchOf(p) == null;
         }
         // Tops up a bounded amount instead of handing out a new full bag on every click.
-        private static void Stock(PlayerMobile p, Type type, int amount, Func<Item> create)
+        private static void Stock(PlayerMobile p, Type type, int amount, Func<Item> create, bool exact = false)
         {
             if (p.Backpack == null) return;
-            int have = p.Backpack.FindItemsByType(type, true).Sum(i => i.Amount)
+            int have = p.Backpack.FindItemsByType(type, true).Where(i => !exact || i.GetType() == type).Sum(i => i.Amount)
                 + p.Items.Where(i => i.Parent == p && type.IsInstanceOfType(i)).Sum(i => i.Amount);
             for (int i = have; i < amount;)
             {
@@ -30,9 +30,24 @@ namespace Server.Engines.Dueling
             if (!CanUse(p)) { if (p != null) p.SendMessage(0x35, "[Arena] Supplies are available while alive and idle in the lobby."); return; }
             StockCombat(p);
             StockPotions(p);
+            StockCosmetics(p);
+            p.SendMessage(0x35, "[Arena] Supplies refilled, including hair dye, dyes and cloth/leather dye tubs. Rowan's Hair / clothing dyes menu explains how to use them.");
+        }
+        private static void StockCosmetics(PlayerMobile p)
+        {
             Stock(p, typeof(HairRestylingDeed), 1, () => new HairRestylingDeed());
             Stock(p, typeof(HairDye), 1, () => new HairDye());
-            p.SendMessage(0x35, "[Arena] Supplies refilled. Regular potions are allowed; explosion potions require an enabled duel option. Hair items are in your backpack.");
+            Stock(p, typeof(Dyes), 1, () => new Dyes());
+            // LeatherDyeTub derives from DyeTub; it must not suppress a missing cloth tub.
+            Stock(p, typeof(DyeTub), 1, () => new DyeTub { DyedHue = 93 }, true);
+            Stock(p, typeof(LeatherDyeTub), 1, () => new LeatherDyeTub { DyedHue = 2420, IsRewardItem = false });
+        }
+        public static void Cosmetics(PlayerMobile p)
+        {
+            if (!CanUse(p) || ArenaService.IsQueued(p))
+            { if(p != null)p.SendMessage("[Arena] Leave the queue and visit Rowan in the lobby for cosmetics.");return; }
+            StockCosmetics(p);
+            p.SendMessage("[Arena] Cosmetic kit: hair styling deed, hair dye, dyes, cloth tub and leather tub (one of each). Put the item to dye in your backpack.");
         }
         public static void ArmorKit(PlayerMobile p)
         {
