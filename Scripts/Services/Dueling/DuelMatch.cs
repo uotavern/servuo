@@ -190,15 +190,12 @@ namespace Server.Engines.Dueling
         private void PlaceStartWalls()
         {
             ClearStartWalls();
-            foreach (Point3D mark in new[] { Arena.MarkA, Arena.MarkB })
+            // One three-tile wall between both fighters, perpendicular to their start line.
+            for (int offset = -1; offset <= 1; offset++)
             {
-                int x = mark.X + (mark.X < Arena.Center.X ? 1 : -1);
-                for (int offset = -1; offset <= 1; offset++)
-                {
-                    Point3D spot = new Point3D(x, mark.Y + offset, Arena.Z);
-                    if (Arena.Floor.Contains(spot))
-                        m_StartWalls.Add(new DuelStartWall(spot, DuelArena.ArenaMap));
-                }
+                Point3D spot = new Point3D(Arena.Center.X, Arena.Center.Y + offset, Arena.Z);
+                if (Arena.Floor.Contains(spot))
+                    m_StartWalls.Add(new DuelStartWall(spot, DuelArena.ArenaMap));
             }
             A.Direction = A.GetDirectionTo(B);
             B.Direction = B.GetDirectionTo(A);
