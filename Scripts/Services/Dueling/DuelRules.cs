@@ -38,7 +38,7 @@ namespace Server.Engines.Dueling
             SkillName.Fencing, SkillName.Macing, SkillName.Archery
         };
 
-        public const string ValidTokens = "mage5 mage7 standard7 dexxer7 open7 explosion noexplosion nopotions noparalyze classic mageonly 5x 6x 7x katana broadsword vikingsword halberd fists any magic nobandage noarmor";
+        public const string ValidTokens = "training mage5 mage7 standard7 dexxer7 open7 explosion noexplosion nopotions noparalyze classic mageonly 5x 6x 7x katana broadsword vikingsword halberd fists any magic nobandage noarmor";
 
         // Classic 5x/7x templates also cap stats: Str + Dex + Int <= 225 with no single stat above 100.
         public const int StatTotalCap = 225;
@@ -54,6 +54,7 @@ namespace Server.Engines.Dueling
         public bool NoParalyze { get; set; }
         public bool Classic { get; set; }
         public bool MageFive { get; set; }
+        public bool Training { get; set; }
 
         public static DuelRules Default { get { return new DuelRules(); } }
 
@@ -78,6 +79,7 @@ namespace Server.Engines.Dueling
                     case "standard7": rules = new DuelRules { SkillCap = 700, Magic = true, Classic = true }; break;
                     case "dexxer7": rules = new DuelRules { SkillCap = 700, Classic = true }; break;
                     case "open7": rules = new DuelRules { SkillCap = 700, Magic = true, Classic = true }; break;
+                    case "training": rules.Training = true; break;
                     case "explosion": rules.ExplosionPotions = true; break;
                     case "noexplosion": rules.ExplosionPotions = false; break;
                     case "nopotions": rules.NoPotions = true; break;
@@ -102,6 +104,7 @@ namespace Server.Engines.Dueling
                 }
             }
 
+            rules.Training = tokens.Any(t => t.Equals("training", StringComparison.OrdinalIgnoreCase));
             return true;
         }
 
@@ -125,6 +128,7 @@ namespace Server.Engines.Dueling
             if (NoParalyze) parts.Add("noparalyze");
             if (Classic) parts.Add("classic");
             if (MageFive) parts.Add("mageonly");
+            if (Training) parts.Add("training");
 
             return parts.Count == 0 ? "any" : String.Join("-", parts);
         }

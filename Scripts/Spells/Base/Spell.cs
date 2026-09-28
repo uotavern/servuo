@@ -566,6 +566,7 @@ namespace Server.Spells
 
 		public virtual void DoFizzle()
 		{
+            Server.Engines.Dueling.DuelReplay.Action(Caster, null, "fizzle", GetType().Name);
 			m_Caster.LocalOverheadMessage(MessageType.Regular, 0x3B2, 502632); // The spell fizzles.
 
 			if (m_Caster.Player)
@@ -1229,6 +1230,7 @@ namespace Server.Spells
 			{
                 if (ValidateBeneficial(target))
                 {
+                    Server.Engines.Dueling.DuelReplay.Action(Caster, target, "spell_target", GetType().Name);
                     Caster.DoBeneficial(target);
                 }
 
@@ -1249,6 +1251,7 @@ namespace Server.Spells
 			}
 			else if (Caster.CanBeHarmful(target) && CheckSequence())
 			{
+                Server.Engines.Dueling.DuelReplay.Action(Caster, target as Mobile, "spell_target", GetType().Name);
 				Caster.DoHarmful(target);
 				return true;
 			}

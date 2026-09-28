@@ -5177,6 +5177,9 @@ m_Stream.Write( (int) renderMode );
 
 	public abstract class Packet
 	{
+		// Read-only observation before compression. Subscribers must copy data synchronously.
+		public static event Action<int, byte[], int> VisualCompiled;
+
 		protected PacketWriter m_Stream;
 
 		private readonly int m_PacketID;
@@ -5417,6 +5420,15 @@ m_Stream.Write( (int) renderMode );
 
 			m_CompiledBuffer = ms.GetBuffer();
 			int length = (int)ms.Length;
+
+			// Explicit visual-only allowlist: never expose login, chat or inventory packets.
+			if (VisualCompiled != null && (m_PacketID == 0x6E || m_PacketID == 0xE2 ||
+				m_PacketID == 0x70 || m_PacketID == 0xC0 || m_PacketID == 0xC7 ||
+				m_PacketID == 0xAF || m_PacketID == 0x54 || m_PacketID == 0x2F))
+			{
+				try { VisualCompiled(m_PacketID, m_CompiledBuffer, length); }
+				catch (Exception e) { Console.WriteLine("[Visual observer] " + e.Message); }
+			}
 
 			if (compress)
 			{

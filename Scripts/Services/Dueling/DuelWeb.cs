@@ -80,11 +80,22 @@ namespace Server.Engines.Dueling
             {
                 byte[] buffer;
 
-                lock (m_Lock)
-                    buffer = m_Snapshot;
+                bool gzip = false;
+                string path = context.Request.Url.AbsolutePath;
+                if (path == "/duel/" || path == "/duel")
+                {
+                    lock (m_Lock) buffer = m_Snapshot;
+                }
+                else if (!DuelReplay.Read(path, out buffer, out gzip))
+                {
+                    context.Response.StatusCode = 404;
+                    context.Response.Close();
+                    return;
+                }
 
                 var response = context.Response;
-                response.ContentType = "application/json; charset=utf-8";
+                response.ContentType = gzip ? "application/x-ndjson; charset=utf-8" : "application/json; charset=utf-8";
+                if (gzip) response.AddHeader("Content-Encoding", "gzip");
                 response.AddHeader("Access-Control-Allow-Origin", "*");
                 response.AddHeader("Cache-Control", "public, max-age=3");
 
@@ -134,6 +145,8 @@ namespace Server.Engines.Dueling
             j.Key("generated").Time(DateTime.UtcNow);
             j.Key("online").Num(NetState.Instances.Count(ns => ns.Mobile != null));
             j.Key("arenas").Num(DuelArena.All.Count);
+            j.Key("replayEnabled").Bool(DuelReplay.Enabled);
+            j.Key("replaySampleMs").Num(DuelReplay.SampleMs);
             j.Key("showdownAfterSeconds").Num(DuelMatch.ShowdownAfterSeconds);
             j.Key("roundLimitSeconds").Num((int)DuelMatch.RoundTimeLimit.TotalSeconds);
 
@@ -141,6 +154,8 @@ namespace Server.Engines.Dueling
             foreach (DuelMatch m in DuelSystem.Matches.Where(m => m.Phase != DuelPhase.Finished).OrderBy(m => m.Arena.Id))
             {
                 j.Open('{');
+                j.Key("id").Str(m.Id);
+                j.Key("training").Bool(m.Rules.Training);
                 j.Key("arena").Num(m.Arena.Id);
                 j.Key("a").Str(m.A.Name);
                 j.Key("b").Str(m.B.Name);

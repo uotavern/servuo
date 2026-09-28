@@ -141,6 +141,7 @@ namespace Server.Engines.Dueling
         /// <summary>Sends a fixed-format system message to both fighters and everyone near this arena, and logs it to the console.</summary>
         public void Announce(string text)
         {
+            DuelReplay.Event(this, "announcement", "\"text\":" + ArenaService.Json(text));
             var seen = new HashSet<Mobile>();
 
             foreach (Mobile m in new[] { A, B })
@@ -175,6 +176,7 @@ namespace Server.Engines.Dueling
 
             Arena.EvictOthers(A, B);
             BeginRound();
+            DuelReplay.Start(this);
         }
 
         private void BeginRound()
@@ -385,7 +387,8 @@ namespace Server.Engines.Dueling
 
             AnnounceRoundDetail();
             Results.Add(new DuelRoundResult(winner.Name, reason ?? String.Format("hp {0}%", HpPercent(winner)), seconds));
-            DuelSystem.RecordRound(winner, loser);
+            if (!Rules.Training) DuelSystem.RecordRound(winner, loser);
+            DuelReplay.Event(this, "round_end", "\"round\":" + Round + ",\"winner\":" + winner.Serial.Value + ",\"reason\":" + ArenaService.Json(reason ?? "defeat"));
             ArenaService.NoteRound(this, reason, seconds, m_HarmfulA, m_HarmfulB);
             AfterRound();
         }
@@ -399,6 +402,7 @@ namespace Server.Engines.Dueling
             Announce(String.Format("[Duel] Round {0}: Draw: time limit ({1} seconds).", Round, seconds));
             AnnounceRoundDetail();
             Results.Add(new DuelRoundResult(null, "time limit", seconds));
+            DuelReplay.Event(this, "round_end", "\"round\":" + Round + ",\"winner\":null,\"reason\":\"time_limit\"");
             ArenaService.NoteRound(this, "time_limit", seconds, m_HarmfulA, m_HarmfulB);
             AfterRound();
         }
@@ -439,8 +443,12 @@ namespace Server.Engines.Dueling
             else
                 Announce(String.Format("[Duel] Match: {0} {1} - {2} {3}. Draw.", A.Name, ScoreA, ScoreB, B.Name));
 
-            DuelSystem.RecordMatch(A, B, winner);
-            DuelSystem.RecordHistory(this, null);
+            if (!Rules.Training)
+            {
+                DuelSystem.RecordMatch(A, B, winner);
+                DuelSystem.RecordHistory(this, null);
+            }
+            DuelReplay.Finish(this, winner, null);
 
             ReleaseFighter(A);
             ReleaseFighter(B);
@@ -459,7 +467,8 @@ namespace Server.Engines.Dueling
             StopTimer();
 
             Announce(String.Format("[Duel] Match aborted: {0}.", reason));
-            DuelSystem.RecordHistory(this, reason);
+            if (!Rules.Training) DuelSystem.RecordHistory(this, reason);
+            DuelReplay.Finish(this, null, reason);
 
             ReleaseFighter(A);
             ReleaseFighter(B);

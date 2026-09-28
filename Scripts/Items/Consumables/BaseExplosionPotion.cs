@@ -121,6 +121,7 @@ namespace Server.Items
 
             if (from != null && !Server.Engines.Dueling.DuelSystem.AllowPotion(from, this, false)) { Consume(); return; }
 
+            Server.Engines.Dueling.DuelReplay.Projectile(from, "potion_explode", loc);
             bool damageThrower = false;
 
             if (from != null)
@@ -324,6 +325,7 @@ namespace Server.Items
                     to = (Mobile)p;
                 }
 
+                Server.Engines.Dueling.DuelReplay.Projectile(from, "potion_throw", p);
 				Effects.SendMovingEffect(from, to, m_Potion.ItemID, 7, 0, false, false, m_Potion.Hue, 0);
 
 				if (m_Potion.Amount > 1)

@@ -411,7 +411,7 @@ namespace Server.Engines.Dueling
             string last;
             LastResult.TryGetValue(p, out last);
             if (m != null && Sessions.TryGetValue(m, out s))
-                p.SendMessage(0x35, "[ArenaState] {\"id\":" + Json(s.Id) + ",\"phase\":" + Json(m.Phase.ToString()) + ",\"opponent\":" + m.Opponent(p).Serial.Value + ",\"round\":" + m.Round + ",\"build\":" + Json(s.Build) + ",\"playbook\":" + Json(p == m.A ? s.PlaybookA : s.PlaybookB) + ",\"policy\":" + Json(p == m.A ? s.PolicyA : s.PolicyB) + ",\"showdown\":" + (m.Showdown ? "true" : "false") + ",\"showdownRemaining\":" + m.ShowdownRemaining + "}");
+                p.SendMessage(0x35, "[ArenaState] {\"replayId\":" + Json(m.Id) + ",\"id\":" + Json(s.Id) + ",\"phase\":" + Json(m.Phase.ToString()) + ",\"opponent\":" + m.Opponent(p).Serial.Value + ",\"round\":" + m.Round + ",\"build\":" + Json(s.Build) + ",\"playbook\":" + Json(p == m.A ? s.PlaybookA : s.PlaybookB) + ",\"policy\":" + Json(p == m.A ? s.PolicyA : s.PolicyB) + ",\"showdown\":" + (m.Showdown ? "true" : "false") + ",\"showdownRemaining\":" + m.ShowdownRemaining + "}");
             else
             {
                 string result; LastResultData.TryGetValue(p, out result);

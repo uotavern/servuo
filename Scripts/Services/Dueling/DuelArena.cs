@@ -275,7 +275,9 @@ namespace Server.Engines.Dueling
         {
             if ((skill == (int)SkillName.Healing || skill == (int)SkillName.Veterinary || skill == (int)SkillName.SpiritSpeak)
                 && !DuelSystem.AllowHealing(m)) return false;
-            return base.OnSkillUse(m, skill);
+            bool allowed = base.OnSkillUse(m, skill);
+            if (allowed) DuelReplay.Action(m, null, "skill_attempt", ((SkillName)skill).ToString());
+            return allowed;
         }
 
         public override bool OnBeginSpellCast(Mobile m, ISpell s)
@@ -300,7 +302,9 @@ namespace Server.Engines.Dueling
                     return false;
                 }
 
-                return base.OnBeginSpellCast(m, s);
+                bool allowed = base.OnBeginSpellCast(m, s);
+                if (allowed) DuelReplay.Action(m, null, "cast", s.GetType().Name);
+                return allowed;
             }
 
             m.SendMessage(DuelSystem.MessageHue, "[Duel] Spellcasting is not allowed in the arena.");

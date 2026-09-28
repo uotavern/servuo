@@ -2191,6 +2191,7 @@ namespace Server.Mobiles
                 return;
 
             BestialSetHelper.OnHeal(this, from, ref amount);
+            Server.Engines.Dueling.DuelReplay.Action(from, this, "heal", null, amount);
 
             if (Core.SA && amount > 0 && from != null && from != this)
             {
@@ -3455,6 +3456,7 @@ namespace Server.Mobiles
 
 		protected override void OnLocationChange(Point3D oldLocation)
 		{
+            Server.Engines.Dueling.DuelReplay.Position(this);
 			CheckLightLevels(false);
 
 			DesignContext context = m_DesignContext;
@@ -3574,6 +3576,7 @@ namespace Server.Mobiles
 
 		public override void OnDamage(int amount, Mobile from, bool willKill)
 		{
+            Server.Engines.Dueling.DuelReplay.Action(from, this, "damage", willKill ? "lethal" : null, amount);
 			int disruptThreshold;
 
 			if (!Core.AOS)
