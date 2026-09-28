@@ -5217,6 +5217,7 @@ namespace Server
 							if (regp == null)
 							{
 								regp = Packet.Acquire(new UnicodeMessage(m_Serial, Body, type, hue, 3, m_Language, Name, text));
+								PublicSpeechBroadcast?.Invoke(this, type, hue, text);
 							}
 
 							ns.Send(regp);
@@ -11867,6 +11868,8 @@ namespace Server
 			}
 		}
 
+		public static event Action<Mobile, MessageType, int, string> PublicSpeechBroadcast;
+
 		#region Overhead messages
 		public void PublicOverheadMessage(MessageType type, int hue, bool ascii, string text)
 		{
@@ -11877,6 +11880,7 @@ namespace Server
 		{
 			if (m_Map != null)
 			{
+				PublicSpeechBroadcast?.Invoke(this, type, hue, text);
 				Packet p = null;
 
 				if (ascii)

@@ -60,6 +60,7 @@ namespace Server.Engines.Dueling
             thread.Name = "Duel replay writer";
             thread.Start();
             Network.Packet.VisualCompiled += VisualPacket;
+            Mobile.PublicSpeechBroadcast += Speech;
             Timer.DelayCall(TimeSpan.FromMilliseconds(SampleMs), TimeSpan.FromMilliseconds(SampleMs), SampleAll);
         }
 
@@ -88,6 +89,18 @@ namespace Server.Engines.Dueling
             if (p.FacialHairItemID != 0) gear.Add("{\"serial\":0,\"graphic\":" + p.FacialHairItemID + ",\"hue\":" + p.FacialHairHue + ",\"layer\":16}");
             return "{\"stats\":[" + p.RawStr + "," + p.RawDex + "," + p.RawInt + "],\"serial\":" + p.Serial.Value + ",\"name\":" + Q(p.Name) + ",\"body\":" + p.Body.BodyID +
                 ",\"hue\":" + p.Hue + ",\"equipment\":[" + String.Join(",", gear) + "]}";
+        }
+
+        // Only public fighter speech: no commands, party/guild/private messages or whispers.
+        private static void Speech(Mobile speaker, Network.MessageType type, int hue, string text)
+        {
+            if (type != Network.MessageType.Regular && type != Network.MessageType.Emote &&
+                type != Network.MessageType.Yell && type != Network.MessageType.Spell) return;
+            if (String.IsNullOrWhiteSpace(text)) return;
+            var match = DuelSystem.FindMatchOf(speaker);
+            if (match == null || (speaker != match.A && speaker != match.B)) return;
+            Event(match, "speech", "\"actor\":" + speaker.Serial.Value + ",\"messageType\":" + (int)type +
+                ",\"hue\":" + hue + ",\"text\":" + Q(text.Length > 512 ? text.Substring(0, 512) : text));
         }
 
         private static string Fighter(Mobile p)
