@@ -93,7 +93,7 @@ namespace Server.Engines.Dueling
             AddPage(0); AddBackground(0, 0, 760, 540, 9200);
             AddLabel(25, 20, 1153, ball.SkillCount + "GM SKILL BALL - choose exactly " + ball.SkillCount + " skills");
             AddLabel(25, 45, 0, "Apply: selected skills = 100.0, all others = 0.0. This consumes the ball.");
-            AddLabel(25, 70, 0, "Practice keeps your skills. Ranked queues replace them with a 5x template.");
+            AddLabel(25, 70, 0, "The duel board keeps your skills. For 5x, choose the five mage skills.");
             AddLabel(25, 100, 1153, "PRE-AOS COMBAT / SUPPORT SKILLS");
             for (int index = 0; index < ArenaTraining.CombatSkills.Length; index++)
             {

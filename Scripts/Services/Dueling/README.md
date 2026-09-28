@@ -1,3 +1,35 @@
+## Simple lobby and duel board (September 2026)
+
+- `[Arena`, `[Arena duel`, and lobby login open one duel board. Two templates:
+  **5x Mage** (`mage5-noexplosion`) and **7x + EX pot** (`standard7-explosion`).
+  Both retain the player's build and use best of three. No hidden skill/stat replacement.
+- Auto match pairs compatible Auto entries; List me requires an accepted invitation.
+  Direct targeting and selecting a waiting character share the same invitation.
+  Stale list responses are revalidated. Invitations suspend automatic matching.
+- Optional arena selector defaults to a uniformly random free arena. Explicit choices
+  must agree (or be paired with Random). Auto entries wait if that arena is occupied.
+  Direct challenges report a busy arena rather than silently choosing somewhere else.
+- New template queue results use normal public duel records, not legacy queue Elo.
+  Existing mage/warrior ranked commands and agent protocol remain supported.
+- Waiting entries expire after ten minutes and leave on disconnect, invalid build,
+  lobby exit, match start or `[Arena leave`. Restart clears the ephemeral waiting list.
+- Main lobby: **50x50 interior**, Felucca x5198..5247, y309..358, z15.
+  Arrival (5223,334,15), Rowan (5226,334,15), guide sign (5227,334,15),
+  tour moongate (5223,337,15). Floor and perimeter installation is idempotent;
+  only owned ArenaLobbyTile objects are reconciled. No existing terrain is deleted.
+- Rowan opens the same Preparation menu as the board: all combat supplies, leather
+  armor in backpack, clothes/hair, 5/7GM and stat balls, and duel help. Arena equipment
+  counts include worn pieces when restocking. Appearance changes retain prior bank behavior.
+- Tour gate selects any arena's outside exit mark. A gate by every arena returns to
+  Rowan. Combat, queue membership and outstanding invitations block travel. The region
+  blocks harmful actions throughout the 50x50 lobby. Completed matches return to it.
+- Match start closes only arena-specific gumps, leaving unrelated client windows alone.
+
+Local protocol verification: separate shard on 2599; ordinary clients exercised
+supplies/armor/help, arena14 gate return, auto queue arena13, incompatible arena choices,
+listed invitation decline/accept, stale list rejection, direct target arena12 and 5x
+random matching. Use ordinary accounts for UI flows, staff only to reset test matches.
+
 # Dueling and the UO Tavern Arena
 
 A T2A-friendly player duel system for ServUO, plus an optional ranked arena and a

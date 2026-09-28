@@ -116,7 +116,8 @@ namespace Server.Engines.Dueling
 
         public static DuelArena FindFree()
         {
-            return All.FirstOrDefault(a => !a.Busy);
+            var free = All.Where(a => !a.Busy).ToArray();
+            return free.Length == 0 ? null : free[Utility.Random(free.Length)];
         }
 
         /// <summary>The arena whose bounds contain the mobile's location, or null.</summary>

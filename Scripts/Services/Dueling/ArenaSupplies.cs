@@ -15,7 +15,8 @@ namespace Server.Engines.Dueling
         private static void Stock(PlayerMobile p, Type type, int amount, Func<Item> create)
         {
             if (p.Backpack == null) return;
-            int have = p.Backpack.FindItemsByType(type, true).Sum(i => i.Amount);
+            int have = p.Backpack.FindItemsByType(type, true).Sum(i => i.Amount)
+                + p.Items.Where(i => i.Parent == p && type.IsInstanceOfType(i)).Sum(i => i.Amount);
             for (int i = have; i < amount;)
             {
                 Item item = create();
@@ -32,6 +33,17 @@ namespace Server.Engines.Dueling
             Stock(p, typeof(HairRestylingDeed), 1, () => new HairRestylingDeed());
             Stock(p, typeof(HairDye), 1, () => new HairDye());
             p.SendMessage(0x35, "[Arena] Supplies refilled. Regular potions are allowed; explosion potions require an enabled duel option. Hair items are in your backpack.");
+        }
+        public static void ArmorKit(PlayerMobile p)
+        {
+            if (!CanUse(p) || ArenaService.IsQueued(p)) { if(p!=null)p.SendMessage("[Arena] Leave the queue and visit Rowan in the lobby."); return; }
+            Stock(p, typeof(LeatherChest), 1, () => new LeatherChest());
+            Stock(p, typeof(LeatherLegs), 1, () => new LeatherLegs());
+            Stock(p, typeof(LeatherArms), 1, () => new LeatherArms());
+            Stock(p, typeof(LeatherGloves), 1, () => new LeatherGloves());
+            Stock(p, typeof(LeatherGorget), 1, () => new LeatherGorget());
+            Stock(p, typeof(LeatherCap), 1, () => new LeatherCap());
+            p.SendMessage("[Arena] A leather armor set is in your backpack. Equip it for 7x; armor is not allowed in 5x.");
         }
         public static void StockPotions(PlayerMobile p)
         {

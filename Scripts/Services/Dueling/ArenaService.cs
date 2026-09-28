@@ -21,7 +21,8 @@ namespace Server.Engines.Dueling
         public static readonly bool PeerAgents = Config.Get("Arena.PeerAgents", true);
         public static readonly bool SelfPlay = Config.Get("Arena.SelfPlay", false);
         public static readonly string Domain = Config.Get("Arena.Domain", "arena.uotavern.com");
-        public static readonly Point3D Lobby = new Point3D(5180, 332, 15);
+        public static readonly Rectangle2D LobbyBounds = new Rectangle2D(5198, 309, 50, 50);
+        public static readonly Point3D Lobby = new Point3D(5223, 334, 15);
         private static readonly string SavePath = Path.Combine("Saves", "ArenaService.bin");
         private static readonly string LogPath = Path.Combine("Logs", "Arena", "events.jsonl");
         private static readonly HashSet<string> BotAccounts = new HashSet<string>(
@@ -109,7 +110,7 @@ namespace Server.Engines.Dueling
                 .OrderBy(r => r.Build).ThenByDescending(r => r.Rating).ThenByDescending(r => r.Wins).ThenBy(r => r.Player.Serial.Value)
                 .Select(r => "{\"name\":" + Json(r.Player.Name) + ",\"build\":" + Json(r.Build) + ",\"online\":" + (r.Player.NetState != null ? "true" : "false") +
                     ",\"wins\":" + r.Wins + ",\"losses\":" + r.Losses + ",\"draws\":" + r.Draws + ",\"rating\":" + r.Rating + "}"));
-            return "\"arena\":{\"domain\":" + Json(Domain) + ",\"queue\":" + Queue.Count + ",\"mode\":" + Json(PeerAgents ? "peer_agents" : "hosted_ai") + ",\"participants\":" + Bots.Count + ",\"bots\":" + (PeerAgents ? 0 : Bots.Count) + ",\"leaderboard\":[" + rows + "]}";
+            return "\"arena\":{\"domain\":" + Json(Domain) + ",\"queue\":" + (Queue.Count + ArenaMatchmaking.Count) + ",\"mode\":" + Json(PeerAgents ? "peer_agents" : "hosted_ai") + ",\"participants\":" + Bots.Count + ",\"bots\":" + (PeerAgents ? 0 : Bots.Count) + ",\"leaderboard\":[" + rows + "]}";
         }
 
         public static bool IsServiceMatch(DuelMatch m) { return m != null && Sessions.ContainsKey(m); }
@@ -126,7 +127,7 @@ namespace Server.Engines.Dueling
             var account = m == null ? null : m.Account as Account;
             return account != null && BotAccounts.Contains(account.Username);
         }
-        public static bool InLobby(Mobile m) { return m != null && m.Map == DuelArena.ArenaMap && m.InRange(Lobby, 12); }
+        public static bool InLobby(Mobile m) { return m != null && m.Map == DuelArena.ArenaMap && LobbyBounds.Contains(m.Location); }
         private static bool Idle(PlayerMobile p) { return p != null && !p.Deleted && p.NetState != null && DuelSystem.FindMatchOf(p) == null; }
         private static string Build(string value) { return value == "mage" || value == "warrior" ? value : null; }
         private static bool Token(string value) { return value.Length > 0 && value.Length <= 48 && value.All(c => Char.IsLetterOrDigit(c) || c == '-' || c == '_'); }
@@ -159,7 +160,12 @@ namespace Server.Engines.Dueling
         public static void Open(PlayerMobile p)
         {
             if (p == null) return;
-            p.CloseGump(typeof(ArenaGump));
+            ArenaDuelSetupGump.Open(p);
+        }
+        public static void OpenPreparation(PlayerMobile p)
+        {
+            if(p == null || DuelSystem.FindMatchOf(p) != null)return;
+            ArenaMatchmaking.ClosePanels(p);
             p.SendGump(new ArenaGump(p));
         }
         public static void Enter(PlayerMobile p)
@@ -183,16 +189,18 @@ namespace Server.Engines.Dueling
                 case "join": Join(p, e.Length > 1 ? e.GetString(1).ToLowerInvariant() : "mage", e.Length > 2 && e.GetString(2).ToLowerInvariant() == "practice"); break;
                 case "leave": Leave(p); break;
                 case "skills": ArenaTraining.GiveBall(p, e.Length > 1 ? e.GetInt32(1) : 7); break;
-                case "duel": p.SendGump(new ArenaDuelSetupGump()); break;
+                case "duel": Open(p); break;
                 case "stats": ArenaTraining.GiveStatBall(p); break;
                 case "supplies": ArenaSupplies.Refill(p); break;
                 case "style": ArenaSupplies.Style(p, e.Length > 1 ? e.GetString(1) : "robe", e.Length > 2 ? e.GetInt32(2) : 0); break;
                 default: Open(p); break;
             }
         }
-        public static bool IsQueued(PlayerMobile p) { return Queue.Any(q => q.Player == p) || Bots.ContainsKey(p); }
+        public static bool IsLegacyQueued(PlayerMobile p) { return Queue.Any(q => q.Player == p) || Bots.ContainsKey(p); }
+        public static bool IsQueued(PlayerMobile p) { return IsLegacyQueued(p) || ArenaMatchmaking.Contains(p); }
         public static void Leave(PlayerMobile p)
         {
+            ArenaMatchmaking.Remove(p);
             Queue.RemoveAll(q => q.Player == p);
             if (PeerAgents) Bots.Remove(p);
             p.SendMessage(0x35, "[Arena] You left the queue. An active match continues; leaving its ring forfeits a round.");
@@ -200,6 +208,8 @@ namespace Server.Engines.Dueling
         public static void Join(PlayerMobile p, string build, bool practice = false)
         {
             if (!Idle(p) || p.AccessLevel != AccessLevel.Player || IsBot(p)) return;
+            if (DuelSystem.HasPending(p)) { p.SendMessage("[Arena] Resolve your duel invitation first."); return; }
+            if (ArenaMatchmaking.Contains(p)) { p.SendMessage("[Arena] Leave the duel waiting list first."); return; }
             if (!AccountAvailable(p)) { p.SendMessage(0x35, "[Arena] This account already has a queued or active participant."); return; }
             if (!InLobby(p)) { p.SendMessage(0x35, "[Arena] Say [Arena enter to visit the lobby first."); return; }
             if (Build(build) == null) { p.SendMessage(0x35, "[Arena] Choose mage or warrior."); return; }
@@ -217,7 +227,7 @@ namespace Server.Engines.Dueling
             p.SendMessage(0x35, "[Arena] Queued for " + build + (practice ? " practice (potions allowed; no rating)" : " ranked") + (practice ? ". Your current skills and stats are preserved (7x cap)." : ". Your skills and stats will use this arena template.") + " Say [Arena leave to cancel.");
             Tick();
         }
-        private static bool AccountAvailable(PlayerMobile p)
+        internal static bool AccountAvailable(PlayerMobile p)
         {
             return !PeerAgents || (!Queue.Any(q => q.Player != p && q.Player.Account == p.Account)
                 && !DuelSystem.Matches.Any(m => m.Phase != DuelPhase.Finished
@@ -455,7 +465,7 @@ namespace Server.Engines.Dueling
     }
     public class ArenaLobbyRegion : BaseRegion
     {
-        public ArenaLobbyRegion() : base("UO Tavern Arena Lobby", DuelArena.ArenaMap, 61, new Rectangle2D(5167, 325, 27, 21)) { }
+        public ArenaLobbyRegion() : base("UO Tavern Arena Lobby", DuelArena.ArenaMap, 61, ArenaService.LobbyBounds) { }
         public override bool AllowHarmful(Mobile from, IDamageable target) { return false; }
         public override bool OnBeginSpellCast(Mobile m, ISpell s) { return false; }
         public override bool AllowHousing(Mobile m, Point3D p) { return false; }

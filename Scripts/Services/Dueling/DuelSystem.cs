@@ -335,7 +335,7 @@ namespace Server.Engines.Dueling
             if (pm == null || pm.Deleted || pm.NetState == null)
                 return "[Duel] That player is not online.";
 
-            if (ArenaService.IsQueued(pm)) return "[Duel] Leave the arena queue before issuing or accepting a challenge.";
+            if (ArenaService.IsLegacyQueued(pm)) return "[Duel] Leave the arena queue before issuing or accepting a challenge.";
 
             if (FindMatchOf(pm) != null)
                 return String.Format("[Duel] {0} is already in a match.", pm.Name);
@@ -354,6 +354,15 @@ namespace Server.Engines.Dueling
             return null;
         }
 
+        public static bool HasPending(PlayerMobile p)
+        {
+            return m_Pending.Values.Any(c => !c.Expired && (c.Challenger == p || c.Target == p));
+        }
+        public static void ClearPendingFor(PlayerMobile p)
+        {
+            foreach(var kv in m_Pending.Where(kv=>kv.Value.Challenger==p || kv.Value.Target==p).ToList())
+            { kv.Value.Target.CloseGump(typeof(ArenaDuelInviteGump)); m_Pending.Remove(kv.Key); }
+        }
         public static void Challenge(PlayerMobile challenger, PlayerMobile target, int rounds, DuelRules rules, DuelArena arena)
         {
             if (challenger == target)
@@ -392,7 +401,7 @@ namespace Server.Engines.Dueling
 
             challenger.SendMessage(MessageHue, text);
             target.SendMessage(MessageHue, text);
-            target.CloseGump(typeof(ArenaDuelInviteGump));
+            ArenaMatchmaking.ClosePanels(target);
             target.SendGump(new ArenaDuelInviteGump(m_Pending[target]));
             Console.WriteLine(text);
         }
@@ -481,6 +490,7 @@ namespace Server.Engines.Dueling
             }
 
             m_Pending.Remove(pm);
+            pm.CloseGump(typeof(ArenaDuelInviteGump));
 
             string text = String.Format("[Duel] {0} declined the challenge from {1}.", pm.Name, challenge.Challenger.Name);
             pm.SendMessage(MessageHue, text);
@@ -495,6 +505,7 @@ namespace Server.Engines.Dueling
             foreach (var kv in m_Pending.Where(kv => kv.Value.Challenger == challenger).ToList())
             {
                 m_Pending.Remove(kv.Key);
+                kv.Value.Target.CloseGump(typeof(ArenaDuelInviteGump));
                 kv.Key.SendMessage(MessageHue, String.Format("[Duel] {0} cancelled the challenge.", challenger.Name));
                 any = true;
             }
@@ -507,6 +518,7 @@ namespace Server.Engines.Dueling
             foreach (var kv in m_Pending.Where(kv => kv.Value.Expired).ToList())
             {
                 m_Pending.Remove(kv.Key);
+                kv.Value.Target.CloseGump(typeof(ArenaDuelInviteGump));
 
                 string text = String.Format("[Duel] The challenge from {0} to {1} has expired.", kv.Value.Challenger.Name, kv.Value.Target.Name);
                 kv.Value.Challenger.SendMessage(MessageHue, text);
@@ -544,8 +556,9 @@ namespace Server.Engines.Dueling
                 return false;
             }
 
-            m_Pending.Remove(a);
-            m_Pending.Remove(b);
+            ClearPendingFor(a); ClearPendingFor(b);
+            ArenaMatchmaking.Remove(a); ArenaMatchmaking.Remove(b);
+            ArenaMatchmaking.ClosePanels(a); ArenaMatchmaking.ClosePanels(b);
 
             var match = new DuelMatch(arena, a, b, rounds, rules ?? DuelRules.Default);
 

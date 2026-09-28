@@ -203,6 +203,7 @@ namespace Server.Engines.Dueling
 
         private void BeginRound()
         {
+            ArenaMatchmaking.ClosePanels(A); ArenaMatchmaking.ClosePanels(B);
             Round++;
             Phase = DuelPhase.Countdown;
             m_Countdown = CountdownSeconds;
@@ -526,7 +527,7 @@ namespace Server.Engines.Dueling
             m.RemoveAggressor(opponent);
 
             if (Arena.Contains(m))
-                m.MoveToWorld(ExitOf(m), DuelArena.ArenaMap);
+                m.MoveToWorld(ArenaService.Enabled ? new Point3D(ArenaService.Lobby.X+(m==A ? -1 : 1),ArenaService.Lobby.Y,ArenaService.Lobby.Z) : ExitOf(m), DuelArena.ArenaMap);
         }
 
         private void StopTimer()
