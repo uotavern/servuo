@@ -65,7 +65,7 @@ namespace Server.Engines.Dueling
             return Waiting.Where(e => e.Template == template && Present(e.Player) && !DuelSystem.HasPending(e.Player)
                 && DateTime.UtcNow-e.Joined < TimeSpan.FromMinutes(10)).ToList();
         }
-        public static string ArenaName(int id) { return id==0 ? "Random free arena" : "Arena " + id; }
+        public static string ArenaName(int id) { return id==0 ? "Random free arena" : DuelArena.Get(id)==null ? "Unavailable arena" : DuelArena.Get(id).Name; }
         public static string Status(PlayerMobile p)
         {
             var entry=Waiting.FirstOrDefault(e=>e.Player==p);

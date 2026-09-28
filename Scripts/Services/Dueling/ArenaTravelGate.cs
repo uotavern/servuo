@@ -15,8 +15,9 @@ namespace Server.Engines.Dueling
         }
         private static void Install()
         {
+            foreach(var retired in World.Items.Values.OfType<ArenaTravelGate>().Where(g=>g.ArenaId!=0 && DuelArena.Get(g.ArenaId)==null).ToList())retired.Delete();
             Ensure(0,new Point3D(ArenaService.Lobby.X,ArenaService.Lobby.Y+3,ArenaService.Lobby.Z));
-            foreach(var arena in DuelArena.All)Ensure(arena.Id,new Point3D(arena.ExitB.X+1,arena.ExitB.Y,arena.Z));
+            foreach(var arena in DuelArena.All)Ensure(arena.Id,arena.GateLocation);
         }
         private static void Ensure(int id,Point3D location)
         {
@@ -59,9 +60,9 @@ namespace Server.Engines.Dueling
             int index=0;
             foreach(var a in DuelArena.All)
             {
-                int x=25+(index%2)*285,y=140+(index/2)*36;
+                int x=25,y=140+index*65;
                 AddButton(x,y,4005,4007,100+a.Id,GumpButtonType.Reply,0);
-                AddLabel(x+35,y,0,"Arena "+a.Id+" / "+(a.Busy ? "In match" : "Open")+(a.Id==13 ? " / Large" : a.Id==14 ? " / Corridor" : ""));index++;
+                AddLabel(x+35,y,0,a.Id+" / "+a.Name+" / "+(a.Busy ? "In match" : "Open"));index++;
             }
             AddLabel(25,410,0,"Tours only. Choose the match arena separately on the duel board.");
         }
@@ -73,7 +74,7 @@ namespace Server.Engines.Dueling
             var arena=DuelArena.Get(info.ButtonID-100);if(arena==null)return;
             // Exit marks are the established safe positions outside the arena fence.
             p.MoveToWorld(arena.ExitB,DuelArena.ArenaMap);
-            p.SendMessage("[Arena] Arena "+arena.Id+" sidelines. The blue gate beside you returns to Rowan.");
+            p.SendMessage("[Arena] "+arena.Name+" sidelines. The blue gate beside you returns to Rowan.");
         }
     }
 }

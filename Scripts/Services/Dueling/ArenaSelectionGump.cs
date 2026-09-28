@@ -15,9 +15,9 @@ namespace Server.Engines.Dueling
             int i=0;
             foreach(var a in DuelArena.All)
             {
-                int x=25+(i%2)*285,y=145+(i/2)*36;
+                int x=25,y=145+i*65;
                 AddButton(x,y,4005,4007,100+a.Id,GumpButtonType.Reply,0);
-                AddLabel(x+35,y,0,(a.Id==current ? "* " : "")+"Arena "+a.Id+(a.Id==13 ? " Large" : a.Id==14 ? " Corridor" : "")+(a.Busy ? " (busy)" : ""));i++;
+                AddLabel(x+35,y,0,(a.Id==current ? "* " : "")+a.Id+" / "+a.Name+(a.Busy ? " (busy)" : ""));i++;
             }
         }
         public override void OnResponse(NetState sender,RelayInfo info)

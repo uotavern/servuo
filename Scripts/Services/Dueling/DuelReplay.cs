@@ -73,7 +73,7 @@ namespace Server.Engines.Dueling
                 ",\"rules\":" + Q(m.Rules.ToString()) + ",\"training\":" + B(m.Rules.Training) +
                 ",\"sampleMs\":" + SampleMs + ",\"showdownAfterSeconds\":" + DuelMatch.ShowdownAfterSeconds +
                 ",\"roundLimitSeconds\":" + (int)DuelMatch.RoundTimeLimit.TotalSeconds + ",\"rounds\":" + m.Rounds +
-                ",\"arena\":{\"id\":" + m.Arena.Id + ",\"map\":\"Felucca\",\"shape\":" + Q(m.Arena.Shape) +
+                ",\"arena\":{\"id\":" + m.Arena.Id + ",\"map\":\"Felucca\",\"shape\":" + Q(m.Arena.Shape) + ",\"name\":" + Q(m.Arena.Name) +
                 ",\"floor\":[" + m.Arena.Floor.X + "," + m.Arena.Floor.Y + "," + m.Arena.Floor.Width + "," + m.Arena.Floor.Height +
                 "],\"z\":" + m.Arena.Z + "},\"players\":[" + Identity(m.A) + "," + Identity(m.B) + "]";
             Write(r, "header", header);

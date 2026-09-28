@@ -1,3 +1,29 @@
+## Native UO venues (September 2026)
+
+The generated fourteen grass rings have been replaced with three existing Felucca venues:
+
+| ID | Venue | Fighting bounds | Start height | Spectator arrival |
+| --- | --- | --- | --- | --- |
+| 1 | Lost Lands Coliseum | x6070..6096, y3713..3728 | 20 | (6100,3721,25) |
+| 2 | Ocllo Arena | x3749..3773, y2757..2772 | 5 | (3781,2768,5) |
+| 3 | Jhelom Fighting Pit | x1385..1414, y3729..3756 | -21 | (1417,3744,0) |
+
+Original UO stone walls, stairs, stands and floor art remain intact. No artificial
+fence perimeter is overlaid: this also removes the protruding iron-fence corners.
+Startup removes only owned DuelArenaFence objects and obsolete DuelStone/gate placements;
+map statics, other shard objects, past results and recorded replay coordinates are retained.
+The 50x50 shared lobby remains the preparation/return point. Its gate and the duel
+selector now show venue names. Random chooses among these three free venues.
+Tour destinations use their own elevation, independently of the lower fighting floor.
+Old IDs 4..14 are retired; commands must select 1..3 or omit the arena for Random.
+
+Coordinates were checked against the installed UO map and ServUO's
+`PVP Arena System/Definitions.cs` and `Data/Locations/felucca.xml`, then visually
+inspected using the live UO renderer. These are existing UO venues, not a claimed
+reconstruction of an unverified historical Hybrid custom map.
+`[DuelVenueCheck` (GM) checks start/center/exit/gate standing surfaces, initial line
+of sight, retired fence count and gate count against the loaded shard world.
+
 ## Simple lobby and duel board (September 2026)
 
 - `[Arena`, `[Arena duel`, and lobby login open one duel board. Two templates:
@@ -25,10 +51,11 @@
   blocks harmful actions throughout the 50x50 lobby. Completed matches return to it.
 - Match start closes only arena-specific gumps, leaving unrelated client windows alone.
 
-Local protocol verification: separate shard on 2599; ordinary clients exercised
-supplies/armor/help, arena14 gate return, auto queue arena13, incompatible arena choices,
-listed invitation decline/accept, stale list rejection, direct target arena12 and 5x
-random matching. Use ordinary accounts for UI flows, staff only to reset test matches.
+Local protocol verification uses a separate shard on 2599. The lobby release covered
+supplies/armor/help, automatic/listed/direct matching, incompatible arena choices,
+invitation decline/accept and stale entries. The native-venue migration checks geometry,
+tour return, selected matching, walking and magic damage at each of the three venues.
+Use ordinary accounts for UI flows, staff only to inspect/reset test matches.
 
 # Dueling and the UO Tavern Arena
 
@@ -47,7 +74,7 @@ There are three layers. Each one works without the next:
 
 ## Duels
 
-Fourteen fenced rings are built in Felucca on first start (`DuelArena.Setup`).
+Three native venues are registered in Felucca on startup (`DuelArena.Setup`).
 Matches run in parallel, fighters keep their items on death, there are no murder
 counts, and every event is a plain `[Duel] ...` system message. That makes the journal
 easy for bots and agents to parse.
@@ -129,7 +156,7 @@ WebHost=*       # 127.0.0.1 when a reverse proxy serves it
 
 ```jsonc
 {
-  "shard": "UO Tavern Arena", "generated": "2026-09-27T15:07:33Z", "online": 2, "arenas": 14,
+  "shard": "UO Tavern Arena", "generated": "2026-09-27T15:07:33Z", "online": 2, "arenas": 3,
   "live":      [{ "arena": 1, "a": "Anima", "b": "Tavern Mage 3", "scoreA": 0, "scoreB": 1,
                   "round": 2, "rounds": 3, "rules": "5x-fists-magic-nobandage-noarmor",
                   "kind": "mage · ranked", "phase": "fighting", "seconds": 17,

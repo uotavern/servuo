@@ -89,7 +89,7 @@ namespace Server.Engines.Dueling
             AddLabel(25, 55, 0, "From: " + challenge.Challenger.Name);
             AddLabel(25, 90, 0, ArenaMatchmaking.RuleName(challenge.Rules));
             AddLabel(25, 125, 0, "Best of " + challenge.Rounds + " / Your current build / 5-second countdown");
-            AddLabel(25, 160, 0, "Arena: " + (challenge.Arena==null ? "Random free arena" : challenge.Arena.Id.ToString()));
+            AddLabel(25, 160, 0, "Arena: " + (challenge.Arena==null ? "Random free arena" : challenge.Arena.Name));
             AddLabel(25, 195, 0, "Accept to enter the arena. Decline to keep waiting.");
             AddButton(25, 250, 4005, 4007, 1, GumpButtonType.Reply, 0); AddLabel(60, 250, 0, "Accept");
             AddButton(300, 250, 4005, 4007, 2, GumpButtonType.Reply, 0); AddLabel(335, 250, 0, "Decline");

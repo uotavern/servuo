@@ -8,13 +8,7 @@ using Server.Spells;
 
 namespace Server.Engines.Dueling
 {
-    /// <summary>
-    /// One fenced dueling ring with its own region, start marks, lobby exits and duel stone.
-    /// Arena 1 sits on the z=20 plateau SW of the Minoc ridge; the rest are laid out on the empty grass strip
-    /// in the north-east map quadrant (z=15, no spawns, x5120-5375 y304-511), far enough apart that spells,
-    /// corpses and announcements cannot cross. Standard rings have a 9x5 floor; 13 is a 21x13 "large" ring
-    /// and 14 a 25x3 corridor.
-    /// </summary>
+    /// <summary>Duels in existing UO venues; map walls and stands are retained.</summary>
     public class DuelArena
     {
         public static readonly List<DuelArena> All = new List<DuelArena>();
@@ -26,11 +20,13 @@ namespace Server.Engines.Dueling
         public int Id { get; private set; }
         public int Z { get; private set; }
         public string Shape { get; private set; }
+        public string Name { get; private set; }
+        public Point3D GateLocation { get; private set; }
 
-        /// <summary>Region bounds: fence ring included.</summary>
+        /// <summary>Existing fighting floor bounds; stands and exits are outside.</summary>
         public Rectangle2D Bounds { get; private set; }
 
-        /// <summary>Walkable floor inside the fence.</summary>
+        /// <summary>Bounding rectangle of the native arena floor.</summary>
         public Rectangle2D Floor { get; private set; }
 
         public Point3D MarkA { get; private set; }
@@ -48,64 +44,35 @@ namespace Server.Engines.Dueling
 
         public bool Busy { get { return Match != null && Match.Phase != DuelPhase.Finished; } }
 
-        /// <param name="outerX">Top-left corner of the fence rectangle.</param>
-        /// <param name="floorWidth">Walkable floor size inside the fence (fence rectangle is 2 larger).</param>
-        /// <param name="markInset">Distance of each start mark from its side of the floor.</param>
-        private DuelArena(int id, string shape, int outerX, int outerY, int z, int floorWidth, int floorHeight, int markInset)
+        private DuelArena(int id, string name, Rectangle2D floor, Point3D a, Point3D b,
+            Point3D exitA, Point3D exitB, Point3D stone, Point3D gate)
         {
-            Id = id;
-            Shape = shape;
-            Z = z;
-
-            int outerWidth = floorWidth + 2, outerHeight = floorHeight + 2;
-
-            Bounds = new Rectangle2D(outerX, outerY, outerWidth, outerHeight);
-            Floor = new Rectangle2D(outerX + 1, outerY + 1, floorWidth, floorHeight);
-
-            int midY = outerY + 1 + floorHeight / 2;
-            int lobbyY = outerY + outerHeight + 1; // one tile of grass between the south fence and the lobby row
-
-            MarkA = new Point3D(outerX + 1 + markInset, midY, z);
-            MarkB = new Point3D(outerX + floorWidth - markInset, midY, z);
-            ExitA = new Point3D(MarkA.X, lobbyY, z);
-            ExitB = new Point3D(MarkB.X, lobbyY, z);
-            StoneLocation = new Point3D(outerX + outerWidth / 2, lobbyY, z);
-            Center = new Point3D(outerX + outerWidth / 2, midY, z);
+            Id=id; Name=name; Shape=name; Z=a.Z; Bounds=Floor=floor;
+            MarkA=a; MarkB=b; ExitA=exitA; ExitB=exitB;
+            StoneLocation=stone; GateLocation=gate;
+            Center=new Point3D((a.X+b.X)/2,(a.Y+b.Y)/2,a.Z);
         }
 
-        private static DuelArena Standard(int id, int outerX, int outerY, int z)
-        {
-            return new DuelArena(id, "standard 9x5", outerX, outerY, z, 9, 5, 1);
-        }
-
-        /// <summary>Creates the arena definitions and registers their regions. Called once from DuelSystem.Initialize.</summary>
         public static void Setup()
         {
-            if (All.Count > 0)
-                return;
-
-            All.Add(Standard(1, 2597, 488, 20)); // Minoc ridge plateau
-
-            // NE grass strip: three columns 80 tiles apart, rows 58 tiles apart.
-            All.Add(Standard(2, 5175, 317, 15));
-            All.Add(Standard(3, 5255, 317, 15));
-            All.Add(Standard(4, 5335, 317, 15));
-            All.Add(Standard(5, 5175, 375, 15));
-            All.Add(Standard(6, 5255, 375, 15));
-            All.Add(Standard(7, 5335, 375, 15));
-            All.Add(Standard(8, 5175, 433, 15));
-            All.Add(Standard(9, 5255, 433, 15));
-            All.Add(Standard(10, 5335, 433, 15));
-            All.Add(Standard(11, 5175, 491, 15));
-            All.Add(Standard(12, 5255, 491, 15));
-
-            All.Add(new DuelArena(13, "large 21x13", 5305, 483, 15, 21, 13, 3));  // kiting room; marks 14 apart
-            All.Add(new DuelArena(14, "corridor 25x3", 5130, 325, 15, 25, 3, 5)); // no kiting; marks 14 apart
-
-            foreach (DuelArena arena in All)
+            if(All.Count>0)return;
+            // Existing Felucca PvP venues, also described in ArenaSystem/Definitions.cs.
+            All.Add(new DuelArena(1, "Lost Lands Coliseum", new Rectangle2D(6070,3713,27,16),
+                new Point3D(6076,3721,20), new Point3D(6090,3721,20),
+                new Point3D(6100,3720,25), new Point3D(6100,3721,25),
+                new Point3D(6102,3721,25), new Point3D(6101,3722,25)));
+            All.Add(new DuelArena(2, "Ocllo Arena", new Rectangle2D(3749,2757,25,16),
+                new Point3D(3754,2765,5), new Point3D(3768,2765,5),
+                new Point3D(3781,2764,5), new Point3D(3781,2768,5),
+                new Point3D(3782,2766,5), new Point3D(3782,2768,5)));
+            // Jhelom's sunken fighting pit; upper east walkway is outside the fight region.
+            All.Add(new DuelArena(3, "Jhelom Fighting Pit", new Rectangle2D(1385,3729,30,28),
+                new Point3D(1392,3743,-21), new Point3D(1406,3743,-21),
+                new Point3D(1417,3741,0), new Point3D(1417,3744,0),
+                new Point3D(1418,3742,0), new Point3D(1418,3744,0)));
+            foreach(var arena in All)
             {
-                arena.Region = new DuelRegion(arena);
-                arena.Region.Register();
+                arena.Region=new DuelRegion(arena);arena.Region.Register();
             }
         }
 
@@ -146,76 +113,53 @@ namespace Server.Engines.Dueling
 
         #region Construction
 
-        // Short iron fence set: 0x0849 runs along world Y (west/east edges), 0x084B along world X (north/south edges), 0x084A is the post.
-        private const int FenceAlongY = 0x0849;
-        private const int FencePost = 0x084A;
-        private const int FenceAlongX = 0x084B;
+        public string CheckLayout()
+        {
+            var points=new[] {MarkA,MarkB,Center,ExitA,ExitB,GateLocation};
+            var failures=new List<string>();var labels=new[] {"start A","start B","center","exit A","exit B","gate"};
+            for(int i=0;i<points.Length;i++)
+            {
+                var p=points[i];
+                if(!ArenaMap.CanFit(p.X,p.Y,p.Z,16,false,false,true))failures.Add(labels[i]);
+            }
+            bool los=ArenaMap.LineOfSight(new Point3D(MarkA.X,MarkA.Y,MarkA.Z+14),new Point3D(MarkB.X,MarkB.Y,MarkB.Z+14));
+            return Name+": surfaces="+(failures.Count==0 ? "PASS" : String.Join(",",failures))+", start LOS="+los;
+        }
 
         public bool IsBuilt()
         {
-            return World.Items.Values.Any(i => i is DuelArenaFence && !i.Deleted && ((DuelArenaFence)i).ArenaId == Id);
+            return World.Items.Values.OfType<DuelStone>().Any(i=>!i.Deleted && i.ArenaId==Id
+                && i.Map==ArenaMap && i.Location==StoneLocation);
         }
 
-        /// <summary>Builds every arena whose fence is missing. Returns the number of arenas built.</summary>
         public static int EnsureAllBuilt()
         {
-            int built = 0;
-
-            foreach (DuelArena arena in All)
+            // Retire only objects owned by the old generated rings. Never touch map statics.
+            foreach(var item in World.Items.Values.Where(i=>i is DuelArenaFence ||
+                (i is DuelStone && (Get(((DuelStone)i).ArenaId)==null ||
+                 i.Location!=Get(((DuelStone)i).ArenaId).StoneLocation || i.Map!=ArenaMap))).ToList())item.Delete();
+            int built=0;
+            foreach(var arena in All)if(!arena.IsBuilt())
             {
-                if (arena.IsBuilt())
-                    continue;
-
-                int pieces = arena.Build();
-                Console.WriteLine("[Duel] Arena {0} built: {1} fence pieces, stone at {2}.", arena.Id, pieces, arena.StoneLocation);
-                built++;
+                arena.Build();built++;
+                Console.WriteLine("[Duel] Native venue {0}: {1} ready.",arena.Id,arena.Name);
             }
-
             return built;
         }
 
         public void Clear()
         {
-            foreach (Item item in World.Items.Values.Where(i => (i is DuelArenaFence && ((DuelArenaFence)i).ArenaId == Id) || (i is DuelStone && ((DuelStone)i).ArenaId == Id)).ToList())
-                item.Delete();
+            foreach(Item item in World.Items.Values.Where(i =>
+                (i is DuelArenaFence && ((DuelArenaFence)i).ArenaId==Id) ||
+                (i is DuelStone && ((DuelStone)i).ArenaId==Id)).ToList())item.Delete();
         }
 
-        /// <summary>Places fence pieces on every ring tile at the arena's ground level (cliff tiles need none) plus the duel stone.</summary>
         public int Build()
         {
             Clear();
-
-            Map map = ArenaMap;
-            int count = 0;
-
-            int x0 = Bounds.Start.X, y0 = Bounds.Start.Y;
-            int x1 = Bounds.End.X - 1, y1 = Bounds.End.Y - 1;
-
-            for (int x = x0; x <= x1; x++)
-            {
-                for (int y = y0; y <= y1; y++)
-                {
-                    bool onX = (y == y0 || y == y1);
-                    bool onY = (x == x0 || x == x1);
-
-                    if (!onX && !onY)
-                        continue;
-
-                    if (map.Tiles.GetLandTile(x, y).Z != Z)
-                        continue; // cliff face above/below the floor already blocks this tile
-
-                    int itemId = (onX && onY) ? FencePost : (onX ? FenceAlongX : FenceAlongY);
-
-                    var fence = new DuelArenaFence(itemId, Id);
-                    fence.MoveToWorld(new Point3D(x, y, Z), map);
-                    count++;
-                }
-            }
-
-            var stone = new DuelStone(Id);
-            stone.MoveToWorld(StoneLocation, map);
-
-            return count;
+            var stone=new DuelStone(Id);stone.Name=Name+" / duel board";
+            stone.MoveToWorld(StoneLocation,ArenaMap);
+            return 1;
         }
 
         #endregion

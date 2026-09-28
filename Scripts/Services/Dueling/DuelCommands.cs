@@ -22,6 +22,7 @@ namespace Server.Engines.Dueling
             CommandSystem.Register("Decline", AccessLevel.Player, Decline_OnCommand);
             CommandSystem.Register("DuelStats", AccessLevel.Player, DuelStats_OnCommand);
             CommandSystem.Register("Duel", AccessLevel.Player, Duel_OnCommand);
+            CommandSystem.Register("DuelVenueCheck", AccessLevel.GameMaster, e => { foreach(var a in DuelArena.All) e.Mobile.SendMessage(a.CheckLayout()); e.Mobile.SendMessage("Legacy arena fences: "+World.Items.Values.OfType<DuelArenaFence>().Count()+"; tour gates: "+World.Items.Values.OfType<ArenaTravelGate>().Count()); });
             CommandSystem.Register("DuelReset", AccessLevel.GameMaster, DuelReset_OnCommand);
         }
 
