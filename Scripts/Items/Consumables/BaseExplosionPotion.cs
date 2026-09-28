@@ -90,6 +90,7 @@ namespace Server.Items
 			if (m_Timer == null)
 			{
 				from.SendLocalizedMessage(500236); // You should throw it now!
+                ReplayState(from, "prime");
 
 				if (Core.ML)
 				{
@@ -112,6 +113,20 @@ namespace Server.Items
 			}
 		}
 
+        private void ReplayState(Mobile from, string phase, int count = -1)
+        {
+            if (from == null) return;
+            var holder = RootParent as Mobile;
+            bool flight = Map == Map.Internal && m_ThrownMap != null;
+            Point3D pos = flight ? m_ThrownTo : GetWorldLocation();
+            Server.Engines.Dueling.DuelReplay.Event(Server.Engines.Dueling.DuelSystem.FindMatchOf(from), "potion_state",
+                "\"actor\":" + from.Serial.Value + ",\"item\":" + Serial.Value + ",\"graphic\":" + ItemID +
+                ",\"hue\":" + Hue + ",\"phase\":" + Server.Engines.Dueling.ArenaService.Json(phase) +
+                ",\"count\":" + count + ",\"holder\":" + (holder == null ? 0 : holder.Serial.Value) +
+                ",\"flight\":" + (flight ? "true" : "false") + ",\"pos\":[" + pos.X + "," + pos.Y + "," + pos.Z +
+                "],\"from\":[" + from.X + "," + from.Y + "," + from.Z + "]");
+        }
+
 		public void Explode(Mobile from, bool direct, Point3D loc, Map map)
 		{
 			if (Deleted)
@@ -121,6 +136,7 @@ namespace Server.Items
 
             if (from != null && !Server.Engines.Dueling.DuelSystem.AllowPotion(from, this, false)) { Consume(); return; }
 
+            ReplayState(from, "explode", 0);
             Server.Engines.Dueling.DuelReplay.Projectile(from, "potion_explode", loc);
             bool damageThrower = false;
 
@@ -202,6 +218,7 @@ namespace Server.Items
 			int timer = (int)states[1];
 
 			object parent = FindParent(from);
+            ReplayState(from, "tick", timer);
 
 			if (Map == Map.Internal && m_ThrownMap != null)
 			{
@@ -276,6 +293,7 @@ namespace Server.Items
 			Point3D loc = new Point3D(p);
 			m_ThrownMap = null;
 		    MoveToWorld(loc, map);
+            ReplayState(from, "land");
 		}
 
 		private class ThrowTarget : Target
@@ -336,6 +354,7 @@ namespace Server.Items
 				m_Potion.m_ThrownTo = new Point3D(p);
 				m_Potion.m_ThrownMap = map;
 				m_Potion.Internalize();
+                m_Potion.ReplayState(from, "throw");
 				Timer.DelayCall(
 					TimeSpan.FromSeconds(1.0), new TimerStateCallback(m_Potion.Reposition_OnTick), new object[] {from, p, map});
 			}
