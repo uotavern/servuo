@@ -8,16 +8,17 @@ namespace Server.Engines.Dueling
         private readonly int Template;
         public ArenaSelectionGump(int template,int current):base(50,40)
         {
-            Template=template;AddPage(0);AddBackground(0,0,610,440,9200);
+            Template=template;AddPage(0);AddBackground(0,0,670,470,9200);
             AddLabel(25,20,1153,"DUEL / ARENA");
             AddButton(25,60,4005,4007,1,GumpButtonType.Reply,0);AddLabel(60,60,0,"Random free arena (default)");
             AddLabel(25,100,0,"Auto match waits if your chosen arena is occupied.");
             int i=0;
             foreach(var a in DuelArena.All)
             {
-                int x=25,y=145+i*65;
+                int x=25+(i%2)*325,y=140+(i/2)*60;
                 AddButton(x,y,4005,4007,100+a.Id,GumpButtonType.Reply,0);
-                AddLabel(x+35,y,0,(a.Id==current ? "* " : "")+a.Id+" / "+a.Name+(a.Busy ? " (busy)" : ""));i++;
+                AddLabel(x+35,y,0,(a.Id==current ? "* " : "")+a.Id+" / "+a.Name);
+                AddLabel(x+35,y+23,0,(a.Temporary ? "Temporary ring" : "Native venue")+(a.Busy ? " / Busy" : " / Open"));i++;
             }
         }
         public override void OnResponse(NetState sender,RelayInfo info)

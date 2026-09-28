@@ -1,6 +1,7 @@
 ## Native UO venues (September 2026)
 
-The generated fourteen grass rings have been replaced with three existing Felucca venues:
+Ten venues are active: three existing Felucca arenas plus seven temporary landmark rings.
+The native venues retain their original architecture:
 
 | ID | Venue | Fighting bounds | Start height | Spectator arrival |
 | --- | --- | --- | --- | --- |
@@ -13,16 +14,33 @@ fence perimeter is overlaid: this also removes the protruding iron-fence corners
 Startup removes only owned DuelArenaFence objects and obsolete DuelStone/gate placements;
 map statics, other shard objects, past results and recorded replay coordinates are retained.
 The 50x50 shared lobby remains the preparation/return point. Its gate and the duel
-selector now show venue names. Random chooses among these three free venues.
+selector show all ten venue names in two columns. Random chooses uniformly among all free venues.
 Tour destinations use their own elevation, independently of the lower fighting floor.
-Old IDs 4..14 are retired; commands must select 1..3 or omit the arena for Random.
+IDs 4..10 are temporary 13x9 stone-paved fighting floors with low stone borders;
+IDs 11..14 remain retired. No map statics or other owners' objects are removed.
+
+| ID | Temporary venue | Fighting bounds (z1) | Spectator arrival (z0) |
+| --- | --- | --- | --- |
+| 4 | Britain Fields | x1222..1234, y1713..1721 | (1230,1723) |
+| 5 | Buccaneers Den | x2672..2684, y2172..2180 | (2680,2182) |
+| 6 | Yew Abbey | x626..638, y858..866 | (634,868) |
+| 7 | Trinsic West Gate | x1798..1810, y2776..2784 | (1806,2786) |
+| 8 | Moonglow Gate | x4445..4457, y1148..1156 | (4453,1158) |
+| 9 | Vesper Cemetery | x2785..2797, y880..888 | (2793,890) |
+| 10 | Cove Gate | x2285..2297, y1205..1213 | (2293,1215) |
+
+The border uses HouseFoundation's connected stone edges (0x63/0x64), NW post
+(0x66) and SE joined corner (0x65), without redundant corner posts. Each ring has
+117 floor tiles and 48 border pieces, owned by `DuelArenaTile`. Startup checks exact
+art/location/count and reconciles missing, duplicate or stale owned pieces.
+Replays capture these dynamic pieces along with the original map.
 
 Coordinates were checked against the installed UO map and ServUO's
 `PVP Arena System/Definitions.cs` and `Data/Locations/felucca.xml`, then visually
 inspected using the live UO renderer. These are existing UO venues, not a claimed
 reconstruction of an unverified historical Hybrid custom map.
 `[DuelVenueCheck` (GM) checks start/center/exit/gate standing surfaces, initial line
-of sight, retired fence count and gate count against the loaded shard world.
+of sight, every temporary floor tile, retired fence count and gate/tile counts against the loaded shard world.
 
 ## Simple lobby and duel board (September 2026)
 
@@ -74,7 +92,7 @@ There are three layers. Each one works without the next:
 
 ## Duels
 
-Three native venues are registered in Felucca on startup (`DuelArena.Setup`).
+Ten venues are registered in Felucca on startup (`DuelArena.Setup`).
 Matches run in parallel, fighters keep their items on death, there are no murder
 counts, and every event is a plain `[Duel] ...` system message. That makes the journal
 easy for bots and agents to parse.

@@ -53,18 +53,19 @@ namespace Server.Engines.Dueling
         private readonly ArenaTravelGate Gate;
         public ArenaTravelGump(ArenaTravelGate gate):base(50,40)
         {
-            Gate=gate;AddPage(0);AddBackground(0,0,610,445,9200);
+            Gate=gate;AddPage(0);AddBackground(0,0,670,485,9200);
             AddLabel(25,20,1153,"MOONGATE / ARENA TOUR");
             AddLabel(25,55,0,"Visit the sidelines. You will never be placed inside an active ring.");
             AddButton(25,90,4005,4007,1,GumpButtonType.Reply,0);AddLabel(60,90,0,"Return to Rowan / main lobby");
             int index=0;
             foreach(var a in DuelArena.All)
             {
-                int x=25,y=140+index*65;
+                int x=25+(index%2)*325,y=140+(index/2)*60;
                 AddButton(x,y,4005,4007,100+a.Id,GumpButtonType.Reply,0);
-                AddLabel(x+35,y,0,a.Id+" / "+a.Name+" / "+(a.Busy ? "In match" : "Open"));index++;
+                AddLabel(x+35,y,0,a.Id+" / "+a.Name);
+                AddLabel(x+35,y+23,0,(a.Temporary ? "Temporary ring" : "Native venue")+" / "+(a.Busy ? "In match" : "Open"));index++;
             }
-            AddLabel(25,410,0,"Tours only. Choose the match arena separately on the duel board.");
+            AddLabel(25,450,0,"Tours only. Choose the match arena separately on the duel board.");
         }
         public override void OnResponse(NetState sender,RelayInfo info)
         {
