@@ -37,6 +37,8 @@ namespace Server.Engines.Dueling
     {
         public static readonly int ShowdownAfterSeconds = Math.Max(1, Config.Get("Duel.ShowdownAfterSeconds", 180));
         public static readonly TimeSpan RoundTimeLimit = TimeSpan.FromSeconds(Math.Max(ShowdownAfterSeconds + 1, Config.Get("Duel.RoundTimeLimitSeconds", 300)));
+        public bool Ranked {get;set;}
+        public string LadderResult {get;set;}
         public bool Showdown { get { return Phase == DuelPhase.Fighting && DateTime.UtcNow - m_RoundStart >= TimeSpan.FromSeconds(ShowdownAfterSeconds); } }
         public int ShowdownRemaining { get { return Phase == DuelPhase.Fighting ? Math.Max(0, ShowdownAfterSeconds - ElapsedSeconds()) : ShowdownAfterSeconds; } }
         private bool m_ShowdownAnnounced, m_ShowdownWarned;
@@ -362,6 +364,7 @@ namespace Server.Engines.Dueling
                     offlineSince = DateTime.UtcNow;
                 else if (DateTime.UtcNow - offlineSince >= OfflineForfeit)
                 {
+                    ArenaExperience.DisconnectRounds++;
                     EndRound(Opponent(m), m, "forfeit: disconnected");
                     return true;
                 }
@@ -475,6 +478,7 @@ namespace Server.Engines.Dueling
                 DuelSystem.RecordMatch(A, B, winner);
                 DuelSystem.RecordHistory(this, null);
             }
+            ArenaLadder.Finish(this,winner);
             DuelReplay.Finish(this, winner, null);
 
             ReleaseFighter(A);
@@ -482,6 +486,7 @@ namespace Server.Engines.Dueling
 
             DuelSystem.OnMatchFinished(this);
             ArenaService.Finished(this, winner, false);
+            ArenaExperience.Result(this,winner,null);
         }
 
         /// <summary>Staff abort or a fighter vanished: heal everyone, put them in the lobby, no stats recorded.</summary>
@@ -503,6 +508,7 @@ namespace Server.Engines.Dueling
 
             DuelSystem.OnMatchFinished(this);
             ArenaService.Finished(this, null, true);
+            ArenaExperience.Result(this,null,reason);
         }
 
         /// <summary>Resurrects/heals the fighter and moves them to the lobby spot outside the fence.</summary>

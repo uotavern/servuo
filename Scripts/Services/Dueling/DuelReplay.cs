@@ -24,6 +24,7 @@ namespace Server.Engines.Dueling
         private const int MaxLines = 150000;
         private const long MaxBytes = 32 * 1024 * 1024;
         private const long ArchiveBudget = 512 * 1024 * 1024;
+        public static int Failures, DroppedRows;
         private static readonly Regex SafeId = new Regex("^[0-9a-f]{32}$");
         private static readonly Dictionary<DuelMatch, Recording> Active = new Dictionary<DuelMatch, Recording>();
         private static readonly BlockingCollection<Action> Work = new BlockingCollection<Action>(8192);
@@ -52,9 +53,9 @@ namespace Server.Engines.Dueling
             var thread = new Thread(() =>
             {
                 try { Directory.CreateDirectory(DirectoryPath); RefreshIndex(); }
-                catch (Exception e) { Console.WriteLine("[Replay] init: " + e.Message); }
+                catch (Exception e) { Interlocked.Increment(ref Failures); Console.WriteLine("[Replay] init: " + e.Message); }
                 foreach (var work in Work.GetConsumingEnumerable())
-                    try { work(); } catch (Exception e) { Console.WriteLine("[Replay] writer: " + e.Message); }
+                    try { work(); } catch (Exception e) { Interlocked.Increment(ref Failures); Console.WriteLine("[Replay] writer: " + e.Message); }
             });
             thread.IsBackground = true;
             thread.Name = "Duel replay writer";
@@ -70,7 +71,7 @@ namespace Server.Engines.Dueling
             var r = new Recording { Match = m, Partial = Path.Combine(DirectoryPath, m.Id + ".partial") };
             Active[m] = r;
             string header = "\"schema\":1,\"visualVersion\":1,\"id\":" + Q(m.Id) + ",\"started\":" + Q(m.Started.ToString("o")) +
-                ",\"rules\":" + Q(m.Rules.ToString()) + ",\"training\":" + B(m.Rules.Training) +
+                ",\"rules\":" + Q(m.Rules.ToString()) + ",\"ranked\":" + B(m.Ranked) + ",\"training\":" + B(m.Rules.Training) +
                 ",\"sampleMs\":" + SampleMs + ",\"showdownAfterSeconds\":" + DuelMatch.ShowdownAfterSeconds +
                 ",\"roundLimitSeconds\":" + (int)DuelMatch.RoundTimeLimit.TotalSeconds + ",\"rounds\":" + m.Rounds +
                 ",\"arena\":{\"id\":" + m.Arena.Id + ",\"map\":\"Felucca\",\"shape\":" + Q(m.Arena.Shape) + ",\"name\":" + Q(m.Arena.Name) +
@@ -87,7 +88,7 @@ namespace Server.Engines.Dueling
                 .Select(i => "{\"serial\":" + i.Serial.Value + ",\"graphic\":" + i.ItemID + ",\"hue\":" + i.Hue + ",\"layer\":" + (int)i.Layer + "}").ToList();
             if (p.HairItemID != 0) gear.Add("{\"serial\":0,\"graphic\":" + p.HairItemID + ",\"hue\":" + p.HairHue + ",\"layer\":11}");
             if (p.FacialHairItemID != 0) gear.Add("{\"serial\":0,\"graphic\":" + p.FacialHairItemID + ",\"hue\":" + p.FacialHairHue + ",\"layer\":16}");
-            return "{\"stats\":[" + p.RawStr + "," + p.RawDex + "," + p.RawInt + "],\"serial\":" + p.Serial.Value + ",\"name\":" + Q(p.Name) + ",\"body\":" + p.Body.BodyID +
+            return "{\"profile\":"+ArenaExperience.ProfileJson(p)+",\"stats\":[" + p.RawStr + "," + p.RawDex + "," + p.RawInt + "],\"serial\":" + p.Serial.Value + ",\"name\":" + Q(p.Name) + ",\"body\":" + p.Body.BodyID +
                 ",\"hue\":" + p.Hue + ",\"equipment\":[" + String.Join(",", gear) + "]}";
         }
 
@@ -181,7 +182,7 @@ namespace Server.Engines.Dueling
         {
             if (r.Failed) return;
             int seq = r.Sequence++;
-            if (seq >= MaxLines) { Interlocked.Increment(ref r.Dropped); return; }
+            if (seq >= MaxLines) { Interlocked.Increment(ref r.Dropped); Interlocked.Increment(ref DroppedRows); return; }
             string line = "{\"seq\":" + seq + ",\"t\":" + r.Clock.ElapsedMilliseconds + ",\"type\":" + Q(type) +
                 (String.IsNullOrEmpty(fields) ? "" : "," + fields) + "}";
             if (!Work.TryAdd(() =>
@@ -190,7 +191,7 @@ namespace Server.Engines.Dueling
                 try
                 {
                     int size = Encoding.UTF8.GetByteCount(line) + 1;
-                    if (r.Bytes + size > MaxBytes) { Interlocked.Increment(ref r.Dropped); return; }
+                    if (r.Bytes + size > MaxBytes) { Interlocked.Increment(ref r.Dropped); Interlocked.Increment(ref DroppedRows); return; }
                     if (r.Writer == null) r.Writer = new StreamWriter(r.Partial, false, new UTF8Encoding(false));
                     r.Writer.WriteLine(line);
                     r.Bytes += size;
@@ -198,13 +199,13 @@ namespace Server.Engines.Dueling
                 }
                 catch (Exception e)
                 {
-                    r.Failed = true;
+                    r.Failed = true; Interlocked.Increment(ref Failures);
                     if (r.Writer != null) { r.Writer.Dispose(); r.Writer = null; }
                     Console.WriteLine("[Replay] " + r.Match.Id + ": " + e.Message);
                 }
             }))
             {
-                Interlocked.Increment(ref r.Dropped);
+                Interlocked.Increment(ref r.Dropped); Interlocked.Increment(ref DroppedRows);
                 if (type == "header") r.Failed = true;
             }
         }
@@ -233,9 +234,9 @@ namespace Server.Engines.Dueling
             Frame(r);
             Active.Remove(m);
             long duration = r.Clock.ElapsedMilliseconds;
-            string result = "\"id\":" + Q(m.Id) + ",\"training\":" + B(m.Rules.Training) +
+            string result = "\"id\":" + Q(m.Id) + ",\"ranked\":" + B(m.Ranked) + ",\"training\":" + B(m.Rules.Training) +
                 ",\"winner\":" + (winner == null ? "null" : winner.Serial.Value.ToString()) +
-                ",\"score\":[" + m.ScoreA + "," + m.ScoreB + "],\"aborted\":" + Q(aborted);
+                ",\"score\":[" + m.ScoreA + "," + m.ScoreB + "],\"aborted\":" + Q(aborted) + ",\"ratingResult\":" + Q(m.LadderResult);
             string meta = "\"schema\":1,\"visualVersion\":1," + result + ",\"started\":" + Q(m.Started.ToString("o")) +
                 ",\"ended\":" + Q(DateTime.UtcNow.ToString("o")) + ",\"durationMs\":" + duration +
                 ",\"rules\":" + Q(m.Rules.ToString()) + ",\"arena\":" + m.Arena.Id +
@@ -262,7 +263,7 @@ namespace Server.Engines.Dueling
                     File.Delete(r.Partial);
                     RefreshIndex();
                 }
-                catch (Exception e) { Console.WriteLine("[Replay] finalize " + m.Id + ": " + e.Message); }
+                catch (Exception e) { Interlocked.Increment(ref Failures); Console.WriteLine("[Replay] finalize " + m.Id + ": " + e.Message); }
                 finally { if (r.Writer != null) { r.Writer.Dispose(); r.Writer = null; } }
             };
             // Never wait for disk or a full queue on the simulation thread. Earlier enqueued rows stay ordered.

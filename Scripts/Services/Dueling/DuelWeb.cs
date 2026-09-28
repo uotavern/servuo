@@ -156,6 +156,8 @@ namespace Server.Engines.Dueling
                 j.Open('{');
                 j.Key("id").Str(m.Id);
                 j.Key("training").Bool(m.Rules.Training);
+                j.Key("ranked").Bool(m.Ranked);
+                j.Key("arenaName").Str(m.Arena.Name);
                 j.Key("arena").Num(m.Arena.Id);
                 j.Key("a").Str(m.A.Name);
                 j.Key("b").Str(m.B.Name);

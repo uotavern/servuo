@@ -44,14 +44,16 @@ namespace Server.Engines.Dueling
         public DuelRules Rules { get; private set; }
         public DuelArena Arena { get; private set; } // requested arena, or null for "any free"
         public DateTime Expires { get; private set; }
+        public bool Ranked { get; private set; }
 
-        public DuelChallenge(PlayerMobile challenger, PlayerMobile target, int rounds, DuelRules rules, DuelArena arena)
+        public DuelChallenge(PlayerMobile challenger, PlayerMobile target, int rounds, DuelRules rules, DuelArena arena, bool ranked=false)
         {
             Challenger = challenger;
             Target = target;
             Rounds = rounds;
             Rules = rules;
             Arena = arena;
+            Ranked = ranked;
             Expires = DateTime.UtcNow + Lifetime;
         }
 
@@ -363,8 +365,10 @@ namespace Server.Engines.Dueling
             foreach(var kv in m_Pending.Where(kv=>kv.Value.Challenger==p || kv.Value.Target==p).ToList())
             { kv.Value.Target.CloseGump(typeof(ArenaDuelInviteGump)); m_Pending.Remove(kv.Key); }
         }
-        public static void Challenge(PlayerMobile challenger, PlayerMobile target, int rounds, DuelRules rules, DuelArena arena)
+        public static void Challenge(PlayerMobile challenger, PlayerMobile target, int rounds, DuelRules rules, DuelArena arena, bool ranked=false)
         {
+            if(target==null)return;
+            if(ranked && !ArenaLadder.Eligible(challenger,target,rules)){challenger.SendMessage("[Arena] Ranked duels need two ordinary accounts and a supported template.");return;}
             if (challenger == target)
             {
                 challenger.SendMessage(MessageHue, "[Duel] You cannot challenge yourself.");
@@ -391,11 +395,13 @@ namespace Server.Engines.Dueling
                 return;
             }
 
-            // A new challenge to the same player replaces the old one; the challenger's earlier pending challenges are dropped.
+            if(HasPending(challenger) || HasPending(target))
+            {challenger.SendMessage("[Duel] A player already has a pending invitation. Reply or cancel it first.");return;}
+            // One outstanding invitation per participant.
             foreach (Mobile key in m_Pending.Where(kv => kv.Value.Challenger == challenger).Select(kv => kv.Key).ToList())
                 m_Pending.Remove(key);
 
-            m_Pending[target] = new DuelChallenge(challenger, target, rounds, rules, arena);
+            m_Pending[target] = new DuelChallenge(challenger, target, rounds, rules, arena, ranked);
 
             string text = String.Format("[Duel] {0} has challenged {1}: best of {2}, rules {3}. Say [Accept to fight.", challenger.Name, target.Name, rounds, rules);
 
@@ -428,7 +434,7 @@ namespace Server.Engines.Dueling
             if (m_Pending.TryGetValue(p, out c) && !c.Expired)
                 invite = "{\"id\":" + ArenaService.Json(c.Id) + ",\"opponent\":" + c.Challenger.Serial.Value +
                     ",\"name\":" + ArenaService.Json(c.Challenger.Name) + ",\"rounds\":" + c.Rounds +
-                    ",\"rules\":" + ArenaService.Json(c.Rules.ToString()) + "}";
+                    ",\"rules\":" + ArenaService.Json(c.Rules.ToString()) + ",\"ranked\":"+(c.Ranked?"true":"false")+"}";
             p.SendMessage(MessageHue, "[DuelState] {\"phase\":\"Idle\",\"challenge\":" + invite + "}");
         }
 
@@ -476,7 +482,7 @@ namespace Server.Engines.Dueling
             pm.SendMessage(MessageHue, text);
             challenger.SendMessage(MessageHue, text);
 
-            StartMatch(challenger, pm, challenge.Rounds, challenge.Rules, null, challenge.Arena);
+            StartMatch(challenger, pm, challenge.Rounds, challenge.Rules, null, challenge.Arena,challenge.Ranked);
         }
 
         public static void Decline(PlayerMobile pm)
@@ -527,8 +533,9 @@ namespace Server.Engines.Dueling
         }
 
         /// <summary>Starts a match immediately (used by [Accept and the staff [Duel start shortcut). Returns false with a message to 'issuer' on failure.</summary>
-        public static bool StartMatch(PlayerMobile a, PlayerMobile b, int rounds, DuelRules rules, Mobile issuer = null, DuelArena requested = null)
+        public static bool StartMatch(PlayerMobile a, PlayerMobile b, int rounds, DuelRules rules, Mobile issuer = null, DuelArena requested = null, bool ranked=false)
         {
+            if(ranked && !ArenaLadder.Eligible(a,b,rules)){if(issuer!=null)issuer.SendMessage("[Arena] Ranked match unavailable.");return false;}
             if (a == b)
             {
                 if (issuer != null) issuer.SendMessage(MessageHue, "[Duel] A fighter cannot duel themselves.");
@@ -560,7 +567,7 @@ namespace Server.Engines.Dueling
             ArenaMatchmaking.Remove(a); ArenaMatchmaking.Remove(b);
             ArenaMatchmaking.ClosePanels(a); ArenaMatchmaking.ClosePanels(b);
 
-            var match = new DuelMatch(arena, a, b, rounds, rules ?? DuelRules.Default);
+            var match = new DuelMatch(arena, a, b, rounds, rules ?? DuelRules.Default) {Ranked=ranked};
 
             arena.Match = match;
             Matches.Add(match);
@@ -668,7 +675,7 @@ namespace Server.Engines.Dueling
 
         public static string Describe(DuelMatch match)
         {
-            return DescribeMatch != null ? DescribeMatch(match) : null;
+            return (DescribeMatch != null ? DescribeMatch(match) : null) ?? ((match.Ranked ? "ranked / " : "friendly / ")+ArenaMatchmaking.RuleName(match.Rules));
         }
 
         public static void RecordHistory(DuelMatch match, string aborted)

@@ -186,6 +186,8 @@ namespace Server.Engines.Dueling
             switch (verb)
             {
                 case "enter": Enter(p); break;
+                case "list": ArenaMatchmaking.Join(p,e.Length>1 && e.GetString(1)=="5" ? 0 : 1,false,0,e.Length>2 && e.GetString(2)=="ranked"); break;
+                case "quick": if(ArenaTraining.CanEdit(p))p.SendGump(new ArenaQuickSetupGump(e.Length>1 && e.GetString(1)=="5" ? 0 : 1,0,false));break;
                 case "join": Join(p, e.Length > 1 ? e.GetString(1).ToLowerInvariant() : "mage", e.Length > 2 && e.GetString(2).ToLowerInvariant() == "practice"); break;
                 case "leave": Leave(p); break;
                 case "skills": ArenaTraining.GiveBall(p, e.Length > 1 ? e.GetInt32(1) : 7); break;
