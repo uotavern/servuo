@@ -2178,6 +2178,11 @@ namespace Server.Mobiles
             return value;
         }
 
+        public override bool CanRegenHits
+        {
+            get { return !Server.Engines.Dueling.DuelSystem.IsShowdown(this) && base.CanRegenHits; }
+        }
+
         public override void OnHeal(ref int amount, Mobile from)
         {
             base.OnHeal(ref amount, from);

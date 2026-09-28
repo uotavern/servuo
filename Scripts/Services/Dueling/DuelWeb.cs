@@ -134,6 +134,8 @@ namespace Server.Engines.Dueling
             j.Key("generated").Time(DateTime.UtcNow);
             j.Key("online").Num(NetState.Instances.Count(ns => ns.Mobile != null));
             j.Key("arenas").Num(DuelArena.All.Count);
+            j.Key("showdownAfterSeconds").Num(DuelMatch.ShowdownAfterSeconds);
+            j.Key("roundLimitSeconds").Num((int)DuelMatch.RoundTimeLimit.TotalSeconds);
 
             j.Key("live").Open('[');
             foreach (DuelMatch m in DuelSystem.Matches.Where(m => m.Phase != DuelPhase.Finished).OrderBy(m => m.Arena.Id))
@@ -150,6 +152,9 @@ namespace Server.Engines.Dueling
                 j.Key("kind").Str(DuelSystem.Describe(m));
                 j.Key("phase").Str(m.Phase.ToString().ToLowerInvariant());
                 j.Key("seconds").Num(m.ElapsedSeconds());
+                j.Key("showdown").Bool(m.Showdown);
+                j.Key("showdownRemaining").Num(m.ShowdownRemaining);
+                j.Key("roundLimitSeconds").Num((int)DuelMatch.RoundTimeLimit.TotalSeconds);
                 j.Key("started").Time(m.Started);
                 j.Key("results");
                 Results(j, m.Results);

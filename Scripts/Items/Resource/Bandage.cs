@@ -314,6 +314,7 @@ namespace Server.Items
         public void EndHeal()
         {
             StopHeal();
+            if (!Server.Engines.Dueling.DuelSystem.AllowBandage(m_Healer, m_Patient)) return;
 
             int healerNumber = -1, patientNumber = -1;
             bool playSound = true;

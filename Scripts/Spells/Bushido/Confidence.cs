@@ -188,11 +188,13 @@ namespace Server.Spells.Bushido
 
                 if (m_Ticks >= 5)
                 {
-                    m_Mobile.Hits += (m_Hits - (m_Hits * 4 / 5));
+                    if (Server.Engines.Dueling.DuelSystem.AllowHealing(m_Mobile, false))
+                        m_Mobile.Hits += (m_Hits - (m_Hits * 4 / 5));
                     StopRegenerating(m_Mobile);
                 }
 
-                m_Mobile.Hits += (m_Hits / 5);
+                if (Server.Engines.Dueling.DuelSystem.AllowHealing(m_Mobile, false))
+                    m_Mobile.Hits += (m_Hits / 5);
             }
         }
     }

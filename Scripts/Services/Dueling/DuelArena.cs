@@ -266,8 +266,21 @@ namespace Server.Engines.Dueling
             return false;
         }
 
+        public override bool OnHeal(Mobile m, ref int amount)
+        {
+            return DuelSystem.AllowHealing(m, false) && base.OnHeal(m, ref amount);
+        }
+
+        public override bool OnSkillUse(Mobile m, int skill)
+        {
+            if ((skill == (int)SkillName.Healing || skill == (int)SkillName.Veterinary || skill == (int)SkillName.SpiritSpeak)
+                && !DuelSystem.AllowHealing(m)) return false;
+            return base.OnSkillUse(m, skill);
+        }
+
         public override bool OnBeginSpellCast(Mobile m, ISpell s)
         {
+            if (DuelSystem.IsHealingSpell(s) && !DuelSystem.AllowHealing(m)) return false;
             if (m.IsStaff())
                 return base.OnBeginSpellCast(m, s);
 

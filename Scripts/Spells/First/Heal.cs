@@ -34,6 +34,11 @@ namespace Server.Spells.First
 
         public void Target(Mobile m)
         {
+            if (!Server.Engines.Dueling.DuelSystem.AllowHealing(Caster) || !Server.Engines.Dueling.DuelSystem.AllowHealing(m))
+            {
+                FinishSequence();
+                return;
+            }
             if (!this.Caster.CanSee(m))
             {
                 this.Caster.SendLocalizedMessage(500237); // Target can not be seen.

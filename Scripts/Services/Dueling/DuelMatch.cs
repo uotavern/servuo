@@ -35,7 +35,11 @@ namespace Server.Engines.Dueling
     /// </summary>
     public class DuelMatch
     {
-        public static readonly TimeSpan RoundTimeLimit = TimeSpan.FromMinutes(3.0);
+        public static readonly int ShowdownAfterSeconds = Math.Max(1, Config.Get("Duel.ShowdownAfterSeconds", 180));
+        public static readonly TimeSpan RoundTimeLimit = TimeSpan.FromSeconds(Math.Max(ShowdownAfterSeconds + 1, Config.Get("Duel.RoundTimeLimitSeconds", 300)));
+        public bool Showdown { get { return Phase == DuelPhase.Fighting && DateTime.UtcNow - m_RoundStart >= TimeSpan.FromSeconds(ShowdownAfterSeconds); } }
+        public int ShowdownRemaining { get { return Phase == DuelPhase.Fighting ? Math.Max(0, ShowdownAfterSeconds - ElapsedSeconds()) : ShowdownAfterSeconds; } }
+        private bool m_ShowdownAnnounced, m_ShowdownWarned;
         public static readonly TimeSpan OfflineForfeit = TimeSpan.FromSeconds(30.0);
         public const int CountdownSeconds = 5;
 
@@ -180,6 +184,7 @@ namespace Server.Engines.Dueling
             m_Countdown = CountdownSeconds;
             m_OfflineSinceA = m_OfflineSinceB = DateTime.MinValue;
             m_HarmfulA = m_HarmfulB = 0;
+            m_ShowdownAnnounced = m_ShowdownWarned = false;
 
             PrepareFighter(A);
             PrepareFighter(B);
@@ -256,6 +261,7 @@ namespace Server.Engines.Dueling
             B.Frozen = false;
 
             Announce("[Duel] FIGHT!");
+            Announce(String.Format("[Duel] Showdown in {0} seconds: no HP healing or regeneration. Round limit: {1} seconds.", ShowdownAfterSeconds, (int)RoundTimeLimit.TotalSeconds));
         }
 
         private void OnTick()
@@ -290,6 +296,16 @@ namespace Server.Engines.Dueling
                 EnforceRules(A);
                 EnforceRules(B);
 
+                if (!m_ShowdownWarned && !Showdown && ShowdownRemaining <= 30)
+                {
+                    m_ShowdownWarned = true;
+                    Announce(String.Format("[Duel] Showdown in {0} seconds! Healing will be disabled.", ShowdownRemaining));
+                }
+                if (Showdown && !m_ShowdownAnnounced)
+                {
+                    m_ShowdownAnnounced = true;
+                    Announce("[Duel] SHOWDOWN! Healing spells, bandages, heal potions and HP regeneration are disabled until this round ends.");
+                }
                 if (DateTime.UtcNow - m_RoundStart >= RoundTimeLimit)
                     EndRoundDraw();
             }

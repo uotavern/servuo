@@ -139,7 +139,7 @@ host) at the shard.
 - **Arena templates, gear and potions**: `ArenaSupplies` (skills per build, equipment, `StockPotions`).
 - **Match format, rating math and lobby position**: `ArenaService`.
   Look for `new DuelMatch(arena, a, b, 3, rules)`, the `32 * (result - expected)` update and `Lobby`.
-- **Round time limit, countdown and offline forfeit**: the constants at the top of `DuelMatch`.
+- **Round time limit, countdown and offline forfeit**: `Config/Duel.cfg` for Showdown/round timeout; countdown and offline forfeit constants in `DuelMatch`.
 
 ## Running an arena shard
 
@@ -239,3 +239,19 @@ change skills. This filters skill selection, not the entire combat-era engine.
 Participant clients may poll `[DuelState` for their own direct match or incoming challenge.
 `[DuelAccept <challenge-id>` accepts only that still-current, unexpired invitation.
 This does not require staff access and does not register a hosted AI worker.
+
+## Showdown (all direct and queued duels)
+
+Each round starts a fresh clock at FIGHT. At 180 seconds, Showdown disables HP healing:
+Heal/Greater Heal, bandages, heal potions and natural HP regeneration. A 30-second warning
+and transition announcement are sent to both fighters. Healing started before Showdown
+is checked again when it resolves. Cure, mana/stamina recovery and offensive spells/potions
+remain governed by the ordinary rules. At 300 seconds the round is a draw; the next round
+resets Showdown and restores healing. Lobby healing is unaffected.
+
+`Duel.ShowdownAfterSeconds` (default 180) and `Duel.RoundTimeLimitSeconds` (default 300)
+are restart-time configuration. Values are clamped so the showdown threshold is positive
+and the round limit is later. Showdown stays a boolean rather than a new duel phase.
+`[DuelState` and `[ArenaState` add `showdown` / `showdownRemaining`; the public web feed
+adds these per live match and the configured time limits. Clients should stop attempting
+healing during Showdown; server enforcement does not depend on client cooperation.

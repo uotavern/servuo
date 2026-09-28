@@ -197,9 +197,31 @@ namespace Server.Engines.Dueling
             return false;
         }
 
+        public static bool IsShowdown(Mobile m)
+        {
+            var match = FindMatchOf(m);
+            return match != null && match.Showdown;
+        }
+
+        public static bool AllowHealing(Mobile m, bool message = true)
+        {
+            if (!IsShowdown(m)) return true;
+            if (message) m.SendMessage(MessageHue, "[Duel] SHOWDOWN: HP healing is disabled until this round ends.");
+            return false;
+        }
+
+        public static bool IsHealingSpell(ISpell spell)
+        {
+            string name = spell.GetType().Name;
+            return name == "HealSpell" || name == "GreaterHealSpell" || name == "CloseWoundsSpell"
+                || name == "GiftOfRenewalSpell" || name == "Confidence" || name == "CleansingWindsSpell"
+                || name == "HealingStoneSpell";
+        }
+
         public static bool AllowPotion(Mobile from, BasePotion potion, bool message = true)
         {
             var match = FindMatchOf(from);
+            if (potion is BaseHealPotion && !AllowHealing(from, message)) return false;
             bool explosion = potion is BaseExplosionPotion;
             bool allowed = match == null
                 ? !(explosion && ArenaService.Enabled && (ArenaService.InLobby(from) || DuelArena.Find(from) != null))
@@ -219,6 +241,8 @@ namespace Server.Engines.Dueling
                 healer.SendMessage(MessageHue, "[Duel] You cannot heal a duelist during a match.");
                 return false;
             }
+
+            if (!AllowHealing(healer) || (patient != null && !AllowHealing(patient))) return false;
 
             var match = FindMatchOf(healer);
 
@@ -387,7 +411,7 @@ namespace Server.Engines.Dueling
             {
                 p.SendMessage(MessageHue, "[DuelState] {\"phase\":" + ArenaService.Json(m.Phase.ToString()) +
                     ",\"id\":" + ArenaService.Json(m.Id) + ",\"opponent\":" + m.Opponent(p).Serial.Value +
-                    ",\"round\":" + m.Round + ",\"rules\":" + ArenaService.Json(m.Rules.ToString()) + "}");
+                    ",\"round\":" + m.Round + ",\"rules\":" + ArenaService.Json(m.Rules.ToString()) + ",\"showdown\":" + (m.Showdown ? "true" : "false") + ",\"showdownRemaining\":" + m.ShowdownRemaining + "}");
                 return;
             }
             DuelChallenge c;

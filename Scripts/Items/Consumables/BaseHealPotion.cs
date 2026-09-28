@@ -42,6 +42,7 @@ namespace Server.Items
 
         public override void Drink(Mobile from)
         {
+            if (!Server.Engines.Dueling.DuelSystem.AllowHealing(from)) return;
             if (from.Hits < from.HitsMax)
             {
                 if (from.Poisoned || MortalStrike.IsWounded(from))

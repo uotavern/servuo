@@ -30,6 +30,8 @@ namespace Server.Engines.Dueling
             m.SendMessage(DuelSystem.MessageHue, "[Duel] Commands: [Challenge <name|0xSerial> [rounds] [rules] [arena:N] | [Accept | [Decline | [DuelStats [name] | [Duel status | [Duel cancel");
             m.SendMessage(DuelSystem.MessageHue, "[Duel] Rules: " + DuelRules.ValidTokens + " (join with '-', e.g. 5x-katana). Default: best of 3, rules any, any free arena.");
 
+            m.SendMessage(DuelSystem.MessageHue, "[Duel] Every round: Showdown after " + DuelMatch.ShowdownAfterSeconds + "s (no HP healing/regen), draw after " + (int)DuelMatch.RoundTimeLimit.TotalSeconds + "s.");
+
             if (m.AccessLevel >= AccessLevel.GameMaster)
                 m.SendMessage(DuelSystem.MessageHue, "[Duel] Staff: [Duel start <A> <B> [rounds] [rules] | [DuelReset [arena] | [Duel arena build [arena] | [Duel arena go [arena]");
         }

@@ -228,7 +228,8 @@ namespace Server.SkillHandlers
                             min = max;
                         }
 
-                        Caster.Hits += Utility.RandomMinMax(min, max);
+                        if (Server.Engines.Dueling.DuelSystem.AllowHealing(Caster))
+                            Caster.Hits += Utility.RandomMinMax(min, max);
 
                         Caster.FixedParticles(0x375A, 1, 15, 9501, 2100, 4, EffectLayer.Waist);
                     }

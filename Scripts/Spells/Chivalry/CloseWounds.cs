@@ -64,6 +64,11 @@ namespace Server.Spells.Chivalry
 
         public void Target(Mobile m)
         {
+            if (!Server.Engines.Dueling.DuelSystem.AllowHealing(Caster) || !Server.Engines.Dueling.DuelSystem.AllowHealing(m))
+            {
+                FinishSequence();
+                return;
+            }
             if (!this.Caster.InRange(m, 2))
             {
                 this.Caster.SendLocalizedMessage(1060178); // You are too far away to perform that action!
