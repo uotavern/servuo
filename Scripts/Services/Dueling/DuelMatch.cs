@@ -179,6 +179,31 @@ namespace Server.Engines.Dueling
             DuelReplay.Start(this);
         }
 
+        private readonly List<Item> m_StartWalls = new List<Item>();
+
+        private void ClearStartWalls()
+        {
+            foreach (Item wall in m_StartWalls) wall.Delete();
+            m_StartWalls.Clear();
+        }
+
+        private void PlaceStartWalls()
+        {
+            ClearStartWalls();
+            foreach (Point3D mark in new[] { Arena.MarkA, Arena.MarkB })
+            {
+                int x = mark.X + (mark.X < Arena.Center.X ? 1 : -1);
+                for (int offset = -1; offset <= 1; offset++)
+                {
+                    Point3D spot = new Point3D(x, mark.Y + offset, Arena.Z);
+                    if (Arena.Floor.Contains(spot))
+                        m_StartWalls.Add(new DuelStartWall(spot, DuelArena.ArenaMap));
+                }
+            }
+            A.Direction = A.GetDirectionTo(B);
+            B.Direction = B.GetDirectionTo(A);
+        }
+
         private void BeginRound()
         {
             Round++;
@@ -190,6 +215,7 @@ namespace Server.Engines.Dueling
 
             PrepareFighter(A);
             PrepareFighter(B);
+            PlaceStartWalls();
 
             Announce(String.Format("[Duel] Round {0} of {1} begins in {2}...", Round, Rounds, m_Countdown));
 
@@ -256,6 +282,7 @@ namespace Server.Engines.Dueling
 
         private void Fight()
         {
+            ClearStartWalls();
             Phase = DuelPhase.Fighting;
             m_RoundStart = DateTime.UtcNow;
 
@@ -409,6 +436,7 @@ namespace Server.Engines.Dueling
 
         private void AfterRound()
         {
+            ClearStartWalls();
             StopTimer();
 
             Announce(String.Format("[Duel] Score: {0} {1} - {2} {3} ({4} seconds).", A.Name, ScoreA, ScoreB, B.Name, m_LastRoundSeconds));
@@ -434,6 +462,7 @@ namespace Server.Engines.Dueling
         private void Finish()
         {
             Phase = DuelPhase.Finished;
+            ClearStartWalls();
             StopTimer();
 
             PlayerMobile winner = ScoreA > ScoreB ? A : (ScoreB > ScoreA ? B : null);
@@ -464,6 +493,7 @@ namespace Server.Engines.Dueling
                 return;
 
             Phase = DuelPhase.Finished;
+            ClearStartWalls();
             StopTimer();
 
             Announce(String.Format("[Duel] Match aborted: {0}.", reason));
