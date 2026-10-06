@@ -235,8 +235,10 @@ namespace Server.Engines.Dueling
             RemoveDeathRobe(m);
             DuelSystem.RestoreOuterTorso(m);
 
-            if (ArenaService.IsServiceMatch(this))
+            if (ArenaService.IsServiceMatch(this) || Rules.Training)
             {
+                m.StunReady = false;
+                m.DisarmReady = false;
                 foreach (var mod in new List<StatMod>(m.StatMods)) m.RemoveStatMod(mod.Name);
             }
             m.MoveToWorld(MarkOf(m), DuelArena.ArenaMap);
