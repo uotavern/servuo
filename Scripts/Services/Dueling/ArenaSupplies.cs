@@ -28,10 +28,20 @@ namespace Server.Engines.Dueling
         public static void Refill(PlayerMobile p)
         {
             if (!CanUse(p)) { if (p != null) p.SendMessage(0x35, "[Arena] Supplies are available while alive and idle in the lobby."); return; }
+            StoreEmptyBottles(p);
             StockCombat(p);
             StockPotions(p);
             StockCosmetics(p);
-            p.SendMessage(0x35, "[Arena] Supplies refilled, including hair dye, dyes and cloth/leather dye tubs. Rowan's Hair / clothing dyes menu explains how to use them.");
+            p.SendMessage(0x35, "[Arena] Empty bottles stored in your bank. Supplies refilled, including hair dye, dyes and cloth/leather dye tubs. Rowan's Hair / clothing dyes menu explains how to use them.");
+        }
+        // Repeated duels produce one weight unit per empty bottle. Preserve them
+        // in the bank before topping up so the kit cannot silently run dry.
+        private static void StoreEmptyBottles(PlayerMobile p)
+        {
+            if (p.Backpack == null) return;
+            foreach (Item bottle in p.Backpack.FindItemsByType(typeof(Bottle), true))
+                if (bottle.GetType() == typeof(Bottle))
+                    p.BankBox.DropItem(bottle);
         }
         private static void StockCosmetics(PlayerMobile p)
         {
