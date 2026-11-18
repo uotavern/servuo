@@ -209,73 +209,125 @@ def pids_matching_servuo():
     return [int(p) for p in result.stdout.split() if int(p) != os.getpid()]
 
 
-def proc_paths(pid, strict):
-    """Paths a process uses: cwd, command-line arguments (resolved against cwd), mapped and open files."""
+def proc_info(pid, strict):
+    """cwd, argv (resolved against cwd), exe and the mapped/open files of a process via /proc."""
     base = PROC/str(pid)
-    paths = []
     try:
         cwd = os.readlink(str(base/'cwd'))
-        paths.append(cwd)
-        args = (base/'cmdline').read_bytes().split(b'\0')
-        for arg in args:
-            if arg:
-                text = arg.decode(errors='replace')
-                paths.append(text if text.startswith('/') else os.path.join(cwd, text))
+        argv = [a.decode(errors='replace') for a in (base/'cmdline').read_bytes().split(b'\0') if a]
+        try:
+            exe = os.readlink(str(base/'exe'))
+        except OSError:
+            exe = ''
+        files = []
         for line in (base/'maps').read_text(errors='replace').splitlines():
             parts = line.split(None, 5)
             if len(parts) == 6 and parts[5].startswith('/'):
-                paths.append(parts[5].replace(' (deleted)', ''))
+                files.append(parts[5].replace(' (deleted)', ''))
         for fd in os.listdir(str(base/'fd')):
             target = os.readlink(str(base/'fd'/fd))
             if target.startswith('/'):
-                paths.append(target.replace(' (deleted)', ''))
+                files.append(target.replace(' (deleted)', ''))
     except (FileNotFoundError, ProcessLookupError):
-        return []  # exited meanwhile
+        return None  # exited meanwhile
     except PermissionError:
         if strict:
             fail('cannot inspect pid %d; run as root to prove the shard is stopped' % pid)
-        return []
-    return paths
+        return None
+    return {'cwd': cwd, 'argv': argv, 'exe': exe, 'files': files}
 
 
-def lsof_paths(pid):
+def lsof_info(pid):
+    """Same shape as proc_info for hosts without /proc (macOS fixtures): lsof for files, ps for argv."""
     try:
-        result = subprocess.run(['lsof', '-nP', '-p', str(pid), '-Fn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        result = subprocess.run(['lsof', '-nP', '-p', str(pid), '-Ffn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        args = subprocess.run(['ps', '-o', 'args=', '-p', str(pid)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     except FileNotFoundError:
-        fail('neither /proc nor lsof is available to inspect pid %d' % pid)
+        fail('neither /proc nor lsof/ps is available to inspect pid %d' % pid)
     if result.returncode not in (0, 1):
         fail('lsof failed for pid %d (rc %d)' % (pid, result.returncode))
-    return [line[1:] for line in result.stdout.splitlines() if line.startswith('n/')]
+    cwd, files, fd = '', [], None
+    for line in result.stdout.splitlines():
+        if line.startswith('f'):
+            fd = line[1:]
+        elif line.startswith('n/'):
+            if fd == 'cwd':
+                cwd = line[1:]
+            else:
+                files.append(line[1:])
+    argv = args.stdout.split()
+    return {'cwd': cwd, 'argv': argv, 'exe': argv[0] if argv else '', 'files': files}
+
+
+def is_servuo(info):
+    """A mono or ServUO.exe process; only these count when the shard is merely their cwd/argument."""
+    names = [os.path.basename(info['exe'])] + [os.path.basename(a) for a in info['argv'][:1]]
+    return any(n.startswith('mono') for n in names) or any(os.path.basename(a) == 'ServUO.exe' for a in info['argv'])
+
+
+def ancestors():
+    """This process and its whole parent chain (sudo, login shell, ...)."""
+    chain, pid = set(), os.getpid()
+    for _ in range(64):
+        chain.add(pid)
+        try:
+            if (PROC/str(pid)/'stat').exists():
+                stat_line = (PROC/str(pid)/'stat').read_text()
+                parent = int(stat_line.rsplit(')', 1)[1].split()[1])
+            else:
+                out = subprocess.run(['ps', '-o', 'ppid=', '-p', str(pid)], stdout=subprocess.PIPE, universal_newlines=True).stdout
+                parent = int(out.strip() or 0)
+        except (OSError, ValueError, IndexError):
+            break
+        if parent <= 1 or parent in chain:
+            break
+        pid = parent
+    chain.add(os.getppid())
+    return chain
+
+
+def uses_shard(pid, info, shard, chain):
+    if pid != os.getpid() and any(within(f, shard) for f in info['files']):
+        return True  # mapped or open shard file: always counts
+    if pid in chain or not is_servuo(info):
+        return False  # a shell or sudo whose cwd/argv names the shard is not a running shard
+    cwd = info['cwd']
+    paths = [cwd] + [a if a.startswith('/') else os.path.join(cwd, a) for a in info['argv']]
+    return any(within(p, shard) for p in paths if p)
 
 
 def cmdline(pid):
     try:
         return (PROC/str(pid)/'cmdline').read_bytes().replace(b'\0', b' ').decode(errors='replace').strip()
     except OSError:
-        return '?'
+        try:
+            return subprocess.run(['ps', '-o', 'args=', '-p', str(pid)], stdout=subprocess.PIPE, universal_newlines=True).stdout.strip() or '?'
+        except OSError:
+            return '?'
 
 
 def running_from(shard):
-    """PIDs that execute from, map, or hold files of this shard (not merely sharing a parent directory)."""
+    """PIDs that execute from, map, or hold files of this shard (not merely sharing a parent directory).
+
+    Open/mapped shard files count for every process. A cwd or argv inside the
+    shard counts only for mono/ServUO processes, and never for this tool's own
+    ancestor chain, so an operator shell in the directory or `sudo ... --shard-dir`
+    cannot block an emergency rollback."""
     shard = Path(os.path.realpath(str(shard)))
     hits = set()
+    chain = ancestors()
     linux = PROC.is_dir() and (PROC/'self').exists()
     for pid in pids_matching_servuo():
-        paths = proc_paths(pid, strict=True) if linux else lsof_paths(pid)
-        if any(within(p, shard) for p in paths):
+        info = proc_info(pid, strict=True) if linux else lsof_info(pid)
+        if info and uses_shard(pid, info, shard, chain):
             hits.add(pid)
     if linux:
         for entry in os.listdir(str(PROC)):
-            if not entry.isdigit() or int(entry) in (os.getpid(), os.getppid()):
+            if not entry.isdigit() or int(entry) == os.getpid():
                 continue
             pid = int(entry)
-            paths = proc_paths(pid, strict=False)
-            if not paths:
-                continue
-            cwd, rest = paths[0], paths[1:]
-            command = cmdline(pid)
-            opened = [p for p in rest if within(p, shard)]
-            if opened or (within(cwd, shard) and ('mono' in command or 'ServUO' in command)):
+            info = proc_info(pid, strict=False)
+            if info and uses_shard(pid, info, shard, chain):
                 hits.add(pid)
     return sorted(hits)
 
@@ -319,10 +371,7 @@ def guard(shard, approval):
 
 def load_manifest(path):
     data = json.loads(Path(path).read_text())
-    hashes = data.get('assemblies', data)
-    if set(hashes) != set(SET) or not all(isinstance(v, str) and len(v) == 64 for v in hashes.values()):
-        fail('manifest %s must give 64-hex sha256 for exactly %s' % (path, ', '.join(SET)))
-    return hashes
+    return valid_hashes(data.get('assemblies', data), 'manifest %s' % path)
 
 
 def load_snapshot(backup, shard, expected_assemblies, verify_state=False):
@@ -427,19 +476,39 @@ def restore_state(backup, shard, snapshot):
         for item in items:
             verify_tree(shard, item, manifests[item], 'restored '+item)
     except BaseException as exc:
+        problems, leftovers = [], []
         for item, had, aside in reversed(done):
             final = shard/item
             if os.path.lexists(str(final)):
-                os.replace(str(final), str(shard/('.%s.restore-failed-%s' % (item, token))))
+                failed = shard/('.%s.restore-failed-%s' % (item, token))
+                try:
+                    os.replace(str(final), str(failed))
+                    leftovers.append(failed)
+                except OSError as undo:
+                    problems.append('%s: could not move the staged copy out of the way (%s)' % (item, undo))
+                    continue
             if had:
-                os.replace(str(aside), str(final))
-        for tmp in temps.values():
-            if tmp.is_dir() and not tmp.is_symlink():
-                shutil.rmtree(str(tmp))
-            elif os.path.lexists(str(tmp)):
-                os.unlink(str(tmp))
+                try:
+                    os.replace(str(aside), str(final))
+                except OSError as undo:
+                    problems.append('%s: previous copy is at %s (%s)' % (item, aside, undo))
+        for path in list(temps.values()) + leftovers:
+            # Staged/failed copies are byte-identical to the snapshot; remove them, or name them.
+            try:
+                if path.is_dir() and not path.is_symlink():
+                    shutil.rmtree(str(path))
+                elif os.path.lexists(str(path)):
+                    os.unlink(str(path))
+            except OSError as undo:
+                problems.append('could not remove staged copy %s (%s)' % (path, undo))
         fsync_dir(shard)
-        fail('state restore failed (%s); previous state put back (assemblies are already the snapshot set)' % exc)
+        missing = [i for i, had, _ in done if had and not os.path.lexists(str(shard/i))]
+        if missing or any('previous copy' in p or 'could not move' in p for p in problems):
+            fail('state restore failed (%s) AND undo failed: %s. DO NOT START THE SHARD - %s; move the '
+                 'listed previous copies back into place (or rerun rollback --restore-state) first' % (
+                     exc, '; '.join(problems), ', '.join('%s missing, previous copy at %s' % (i, a) for i, had, a in done if i in missing) or 'live state inconsistent'))
+        fail('state restore failed (%s); previous state put back (assemblies are already the snapshot set)%s' % (
+            exc, ('; leftovers: '+'; '.join(problems)) if problems else ''))
     return [str(aside) for _, had, aside in done if had]
 
 
@@ -472,17 +541,32 @@ def parse_time(text):
         return calendar.timegm(time.strptime(text.rstrip('Z'), '%Y-%m-%dT%H:%M:%S'))
 
 
+def valid_hashes(hashes, source):
+    if not isinstance(hashes, dict) or set(hashes) != set(SET) or not all(
+            isinstance(v, str) and len(v) == 64 and all(c in '0123456789abcdef' for c in v) for v in hashes.values()):
+        fail('%s must give 64-hex sha256 for exactly %s' % (source, ', '.join(SET)))
+    return hashes
+
+
 def cmd_manifest(args):
     if args.from_dir:
         hashes = set_hashes(Path(args.from_dir))
+        source = args.from_dir
     else:
+        if not args.key:
+            fail('--from-receipt requires --key baseline|candidate')
         data = json.loads(Path(args.from_receipt).read_text())
+        if args.key not in data:
+            fail('receipt %s has no %r set' % (args.from_receipt, args.key))
         hashes = data[args.key]
+        source = '%s[%s]' % (args.from_receipt, args.key)
+    valid_hashes(hashes, source)
     out = Path(args.output)
     if os.path.lexists(str(out)):
         fail('manifest output must not exist: %s' % out)
-    out.write_text(json.dumps({'assemblies': hashes}, indent=2)+'\n')
-    load_manifest(out)
+    fd = os.open(str(out), os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_NOFOLLOW', 0), 0o644)
+    with os.fdopen(fd, 'w') as stream:
+        stream.write(json.dumps({'assemblies': hashes}, indent=2)+'\n')
     print(json.dumps({'manifest': str(out), 'assemblies': hashes}, indent=2))
     return 0
 
@@ -541,7 +625,11 @@ def cmd_swap(args):
     require_stopped(shard, args.unit)
     current = load_manifest(args.expect_current)
     candidate = load_manifest(args.expect_candidate)
-    load_snapshot(args.backup_dir, shard, current, verify_state=True)
+    snapshot = load_snapshot(args.backup_dir, shard, current, verify_state=True)
+    for item in STATE:
+        expected = {k: v for k, v in snapshot['state'].items() if k == item or k.startswith(item+'/')}
+        if expected:
+            verify_tree(shard, item, expected, 'live %s changed since the snapshot (was the shard started?); take a new snapshot -' % item)
     if set_hashes(shard) != current:
         fail('shard does not hold the expected current set; refusing to swap an unknown set')
     metas = {n: meta(shard/n) for n in SET}
@@ -574,8 +662,10 @@ def main(argv=None):
     sub.required = True
     p = sub.add_parser('manifest', help='write {"assemblies": ...} from a reviewed receipt key or a directory')
     src = p.add_mutually_exclusive_group(required=True)
-    src.add_argument('--from-receipt')
-    src.add_argument('--from-dir')
+    src.add_argument('--from-receipt', help='reviewed receipt JSON (recommended); requires --key')
+    src.add_argument('--from-dir', help='hash a directory of assemblies (e.g. a staged candidate). WARNING: never point '
+                     'this at the live shard to produce current.json - that accepts whatever is installed and defeats '
+                     'the current-set check')
     p.add_argument('--key', choices=('baseline', 'candidate'))
     p.add_argument('--output', required=True)
     p.set_defaults(func=cmd_manifest)
@@ -606,8 +696,6 @@ def main(argv=None):
             p.add_argument('--restore-state', action='store_true',
                            help='also restore ServUO.exe.config, Config and Saves; previous state is kept aside')
     args = parser.parse_args(argv)
-    if args.command == 'manifest' and args.from_receipt and not args.key:
-        parser.error('--from-receipt requires --key')
     return args.func(args)
 
 

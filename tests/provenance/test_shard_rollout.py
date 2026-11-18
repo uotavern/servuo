@@ -106,6 +106,17 @@ class CycleTests(Base):
         names = {sr.unique() for _ in range(50)}
         self.assertEqual(len(names), 50)
 
+    def test_manifest_validates_before_writing(self):
+        """Review #7."""
+        receipt = self.root/'receipt.json'
+        receipt.write_text(json.dumps({'baseline': dict(self.current, **{'Ultima.dll': 'not-a-hash'})}))
+        for argv in (('--from-receipt', receipt, '--key', 'baseline'), ('--from-receipt', receipt, '--key', 'candidate'),
+                     ('--from-receipt', receipt)):
+            with self.assertRaises(SystemExit) as raised:
+                self.run_tool('manifest', *argv, '--output', self.root/'bad.json')
+            self.assertIsInstance(raised.exception.code, str)  # clean message, not a traceback
+            self.assertFalse((self.root/'bad.json').exists())
+
     def test_manifest_from_receipt(self):
         receipt = self.root/'receipt.json'
         receipt.write_text(json.dumps({'baseline': self.current, 'candidate': self.candidate}))
@@ -169,6 +180,15 @@ class SwapFaultTests(Base):
         self.snapshot()
         with self.assertRaises(SystemExit):
             self.swap(current=self.cand_m)
+        self.assertEqual(sr.set_hashes(self.shard), self.current)
+
+    def test_swap_refuses_when_live_saves_changed_after_snapshot(self):
+        """Review #6."""
+        self.snapshot()
+        (self.shard/'Saves'/'Dueling.bin').write_bytes(b'played-after-snapshot')
+        with self.assertRaises(SystemExit) as raised:
+            self.swap()
+        self.assertIn('changed since the snapshot', str(raised.exception))
         self.assertEqual(sr.set_hashes(self.shard), self.current)
 
     def test_swap_requires_nonempty_snapshot_state(self):
@@ -274,6 +294,42 @@ class RestoreStateFaultTests(Base):
         self.assertEqual(sr.tree_manifest(self.shard, 'Saves'), self.before)
         self.assertEqual((self.shard/'Config'/'Server.cfg').read_bytes(), b'Port=1\n')
         self.assertFalse([n for n in listing(self.shard) if n.startswith('Saves.rollback-aside-')])
+
+    def test_rename_and_undo_failure_says_do_not_start(self):
+        """Review #3: staged->live rename AND the undo rename both fail: no raw traceback, explicit stop message."""
+        self.prepare()
+        real = os.replace
+
+        def flaky(src, dst):
+            if '.Saves.restore-' in str(src) or 'Saves.rollback-aside-' in str(src):
+                raise OSError('injected')
+            return real(src, dst)
+        with mock.patch.object(sr.os, 'replace', flaky), self.assertRaises(SystemExit) as raised:
+            self.rollback('--restore-state')
+        message = str(raised.exception)
+        self.assertIn('DO NOT START THE SHARD', message)
+        aside = [n for n in listing(self.shard) if n.startswith('Saves.rollback-aside-')]
+        self.assertEqual(len(aside), 1)
+        self.assertIn(str(self.shard/aside[0]), message)
+        self.assertFalse((self.shard/'Saves').exists())
+        self.assertEqual(sr.tree_manifest(self.shard, aside[0]), sr.rebase(self.before, 'Saves', aside[0]))
+        self.assertEqual(code_of(raised.exception), 1)
+
+    def test_failed_verification_after_swap_in_cleans_restore_failed_copies(self):
+        """Review #5: no hidden .restore-failed-* copies remain after a failed and undone restore."""
+        self.prepare()
+        real = sr.verify_tree
+
+        def flaky(base, name, expected, what):
+            if what == 'restored Saves':
+                raise RuntimeError('injected verification failure')
+            return real(base, name, expected, what)
+        with mock.patch.object(sr, 'verify_tree', flaky), self.assertRaises(SystemExit) as raised:
+            self.rollback('--restore-state')
+        self.assertIn('previous state put back', str(raised.exception))
+        self.assertEqual(sr.tree_manifest(self.shard, 'Saves'), self.before)
+        self.assert_no_temporaries()
+        self.assertFalse([n for n in listing(self.shard) if 'restore-failed' in n or 'rollback-aside' in n])
 
     def test_insufficient_space_refused(self):
         self.prepare()
@@ -409,9 +465,12 @@ class RunningShardTests(Base):
     def fake_proc(self, processes):
         proc = self.root/'proc'
         (proc/'self').mkdir(parents=True)
-        for pid, (cwd, argv, maps, fds) in processes.items():
+        for pid, spec in processes.items():
+            cwd, argv, maps, fds = spec[:4]
+            ppid = spec[4] if len(spec) > 4 else 1
             base = proc/str(pid)
             (base/'fd').mkdir(parents=True)
+            (base/'stat').write_text('%d (%s) S %d 0 0\n' % (pid, os.path.basename(argv[0]) if argv else '?', ppid))
             os.symlink(cwd, str(base/'cwd'))
             (base/'cmdline').write_bytes(b'\0'.join(a.encode() for a in argv)+b'\0')
             (base/'maps').write_text(''.join('7f00-7f01 r--p 00000000 08:01 1 %s\n' % m for m in maps))
@@ -439,10 +498,51 @@ class RunningShardTests(Base):
         self.assertIn('in use by pids [101, 102, 103]', str(raised.exception))
         self.assertFalse(self.backup.exists())
 
+    def test_operator_shell_and_sudo_ancestors_do_not_block(self):
+        """Review #2: a login shell with cwd in the shard and a sudo grandparent whose argv names
+        shard files are this tool's ancestors, not a running shard."""
+        proc = self.fake_proc({
+            os.getpid(): ('/', ['python3', 'tools/shard_rollout.py', 'rollback', '--shard-dir', str(self.shard)], [], [], 300),
+            300: (str(self.shard), ['-bash'], [], ['/dev/pts/0'], 301),
+            301: ('/root', ['sudo', 'sh', '-c', 'sha256sum %s/ServUO.exe; python3 tools/shard_rollout.py rollback --shard-dir %s' % (self.shard, self.shard)], [], [], 1),
+            302: (str(self.shard), ['/bin/bash', '--login'], [], []),  # unrelated login shell parked in the shard
+        })
+        with mock.patch.object(sr, 'PROC', proc), mock.patch.object(sr, 'pids_matching_servuo', lambda: [301]):
+            self.assertEqual(sr.ancestors() >= {os.getpid(), 300, 301}, True)
+            self.assertEqual(sr.running_from(self.shard), [])
+            self.assertEqual(self.snapshot()[0], 0)
+
+    def test_ancestor_holding_open_shard_file_still_blocks(self):
+        proc = self.fake_proc({
+            os.getpid(): ('/', ['python3', 'tools/shard_rollout.py'], [], [], 300),
+            300: (str(self.shard), ['-bash'], [], [str(self.shard/'Saves'/'Dueling.bin')], 1),
+            101: (str(self.shard), ['/usr/bin/mono', 'ServUO.exe', '-service'], [], []),
+        })
+        with mock.patch.object(sr, 'PROC', proc), mock.patch.object(sr, 'pids_matching_servuo', lambda: [101]):
+            self.assertEqual(sr.running_from(self.shard), [101, 300])
+
+    def test_non_mono_process_with_shard_argument_does_not_block(self):
+        proc = self.fake_proc({
+            400: ('/', ['less', str(self.shard/'Config'/'Server.cfg')], [], []),
+            401: ('/', ['tail', '-f', str(self.shard/'ServUO.exe.config')], [], []),
+        })
+        with mock.patch.object(sr, 'PROC', proc), mock.patch.object(sr, 'pids_matching_servuo', lambda: [401]):
+            self.assertEqual(sr.running_from(self.shard), [])
+
+    def test_mono_identified_by_exe_link(self):
+        proc = self.fake_proc({500: (str(self.shard), ['ServUO-renamed', '-service'], [], [])})
+        os.symlink('/usr/bin/mono-sgen', str(proc/'500'/'exe'))
+        with mock.patch.object(sr, 'PROC', proc), mock.patch.object(sr, 'pids_matching_servuo', lambda: []):
+            self.assertEqual(sr.running_from(self.shard), [500])
+
     def test_lab_shard_alone_does_not_block(self):
         lab = self.root/'lab-shard'
         make_set(lab, 'lab')
-        proc = self.fake_proc({100: (str(lab), ['/usr/bin/mono', str(lab/'ServUO.exe'), '-service'], [str(lab/'ServUO.exe')], [])})
+        data = self.root/'data'  # shared client data (/opt/uoarena/data), outside the public shard
+        data.mkdir()
+        (data/'map0.mul').write_bytes(b'm')
+        proc = self.fake_proc({100: (str(lab), ['/usr/bin/mono', str(lab/'ServUO.exe'), '-service'],
+                                     [str(lab/'ServUO.exe'), str(data/'map0.mul')], [str(data/'map0.mul')])})
         with mock.patch.object(sr, 'PROC', proc), mock.patch.object(sr, 'pids_matching_servuo', lambda: [100]):
             self.assertEqual(self.snapshot()[0], 0)
 
@@ -472,6 +572,10 @@ class RunningShardTests(Base):
 
 
 ORIGINAL_PIDS = sr.pids_matching_servuo
+
+
+def code_of(exc):
+    return 1 if isinstance(exc.code, str) else exc.code
 
 
 if __name__ == '__main__':

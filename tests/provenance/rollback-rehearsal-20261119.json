@@ -3,7 +3,7 @@
   "passed": true,
   "scope": "one disposable loopback shard; no remote host contacted",
   "harness_sha256": "2d26980aa9286ba7daebddf433913adbbd9862d0cad52ecd61cf01683103eb7c",
-  "tool_sha256": "e7894cb85bd6c1ed9e5b5f00bd9e7009d2c401162c72eca6171b08de9eaf3e55",
+  "tool_sha256": "8e6ea2c128d35ff3e7faf97a461e9146d4c9e5a3f100c18c1368e4a88dfdcedd",
   "bridge_sha256": "f8e3eca981caf2d6b6f6fa60b564027612c6552278dba5775ba41a361241c96f",
   "baseline": {
     "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
@@ -32,7 +32,7 @@
         "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
         "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
       },
-      "startup_seconds": 1.1,
+      "startup_seconds": 1.3,
       "serials": [
         2,
         3
@@ -359,16 +359,17 @@
       "round_reset_strength": 100,
       "phases": [
         "countdown",
-        "fighting"
+        "fighting",
+        "roundover"
       ],
-      "match_id": "2a40a6560cc744fca15ef959daaa9a79",
-      "replay_rows": 152,
-      "raw_sha256": "c0b945e0c25d18f3151fd6d4c6cd9e6fcbd305686092d35fd169c9af2dd4c81a",
+      "match_id": "806318b5db974fd4a6db68d0604ee2ec",
+      "replay_rows": 151,
+      "raw_sha256": "cd3cebd46e82b0ba60fe8bcc97bad69c62472117c98e3c4a7fe909ad74fe4ecd",
       "replay_end": {
-        "seq": 151,
-        "t": 26519,
+        "seq": 150,
+        "t": 26424,
         "type": "end",
-        "id": "2a40a6560cc744fca15ef959daaa9a79",
+        "id": "806318b5db974fd4a6db68d0604ee2ec",
         "ranked": false,
         "training": true,
         "winner": null,
@@ -897,14 +898,14 @@
           ]
         ]
       ],
-      "save_started": 1795020521,
+      "save_started": 1795021490,
       "server_exit": -9,
       "saves": {
         "files": 44,
-        "sha256": "66900464022bade432fa45bc782726de6ea21be8be9d7e38e4e17eaad566c192"
+        "sha256": "634c7286cd6c58899b90e92b0d432ed0c60b37bb27d5d6b7fa096af1e32ae34f"
       },
       "processes_stopped": true,
-      "duration_seconds": 43.4
+      "duration_seconds": 43.7
     },
     {
       "step": "verify-baseline",
@@ -962,8 +963,8 @@
         },
         "state_entries": 99,
         "save_check": {
-          "oldest_core_save_mtime": 1795020521.4228697,
-          "threshold": 1795020521.0
+          "oldest_core_save_mtime": 1795021490.4583151,
+          "threshold": 1795021490.0
         }
       },
       "stderr": ""
@@ -1031,7 +1032,7 @@
         "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
         "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
       },
-      "startup_seconds": 1.0,
+      "startup_seconds": 1.1,
       "serials": [
         2,
         3
@@ -1788,16 +1789,17 @@
       "round_reset_strength": 100,
       "phases": [
         "countdown",
-        "fighting"
+        "fighting",
+        "roundover"
       ],
-      "match_id": "ff2a517a043a45e0a554df4965646228",
-      "replay_rows": 153,
-      "raw_sha256": "c02cdf336b42f5b5972575ddb05142dc0629758027096b8aa9ad0f0d6d696e1f",
+      "match_id": "9eae1a8180e944b78468a4801e0e8986",
+      "replay_rows": 151,
+      "raw_sha256": "04f52acab8b216374749f91c88bd30f61750ce8228a7c6efcb234e79f3dc597d",
       "replay_end": {
-        "seq": 152,
-        "t": 26644,
+        "seq": 150,
+        "t": 26221,
         "type": "end",
-        "id": "ff2a517a043a45e0a554df4965646228",
+        "id": "9eae1a8180e944b78468a4801e0e8986",
         "ranked": false,
         "training": true,
         "winner": null,
@@ -2326,14 +2328,14 @@
           ]
         ]
       ],
-      "save_started": 1795020564,
+      "save_started": 1795021534,
       "server_exit": -9,
       "saves": {
         "files": 44,
-        "sha256": "10450192185316cf80a2fc07d384539a8fb6df14adfed8577670955bee29180d"
+        "sha256": "3b788176eb493afc6490966e634522bb6e96361b0a0fe6e26fd93e74c775c519"
       },
       "processes_stopped": true,
-      "duration_seconds": 43.1
+      "duration_seconds": 43.4
     },
     {
       "step": "rollback-assemblies",
@@ -2367,7 +2369,7 @@
         "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
         "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
       },
-      "startup_seconds": 1.0,
+      "startup_seconds": 1.1,
       "serials": [
         2,
         3
@@ -3124,16 +3126,17 @@
       "round_reset_strength": 100,
       "phases": [
         "countdown",
-        "fighting"
+        "fighting",
+        "roundover"
       ],
-      "match_id": "764318c2721a46f09e2bc748f2f2d329",
+      "match_id": "2da508c473e647d2a8f5683c80c934f8",
       "replay_rows": 152,
-      "raw_sha256": "499b4bc2d01469bce7917219bbdfdb763bba0974fc7df456d6ed27e489f1da0f",
+      "raw_sha256": "2ad4f6b07e973b4b407fff3183af513409f06ad89ed1b9af8752284bdae28cdf",
       "replay_end": {
         "seq": 151,
-        "t": 26633,
+        "t": 26370,
         "type": "end",
-        "id": "764318c2721a46f09e2bc748f2f2d329",
+        "id": "2da508c473e647d2a8f5683c80c934f8",
         "ranked": false,
         "training": true,
         "winner": null,
@@ -3662,14 +3665,14 @@
           ]
         ]
       ],
-      "save_started": 1795020608,
+      "save_started": 1795021577,
       "server_exit": -9,
       "saves": {
         "files": 44,
-        "sha256": "379915801a0c467b3f5031053efda3eeb27d87514d7708b9935854b1687d304a"
+        "sha256": "a7d64d453cc0138c672ae944c52f188bd8475ff6e5bb6511f9d525078690d8fb"
       },
       "processes_stopped": true,
-      "duration_seconds": 43.3
+      "duration_seconds": 43.6
     },
     {
       "step": "rollback-full-state",
@@ -3687,9 +3690,9 @@
         },
         "state_restored": true,
         "kept_aside": [
-          "<rehearsal>/shard/ServUO.exe.config.rollback-aside-20261118T165008Z-1795020608308070000-49679-6bc473",
-          "<rehearsal>/shard/Config.rollback-aside-20261118T165008Z-1795020608308070000-49679-6bc473",
-          "<rehearsal>/shard/Saves.rollback-aside-20261118T165008Z-1795020608308070000-49679-6bc473"
+          "<rehearsal>/shard/ServUO.exe.config.rollback-aside-20261118T170618Z-1795021578071648000-60822-135b16",
+          "<rehearsal>/shard/Config.rollback-aside-20261118T170618Z-1795021578071648000-60822-135b16",
+          "<rehearsal>/shard/Saves.rollback-aside-20261118T170618Z-1795021578071648000-60822-135b16"
         ]
       },
       "stderr": ""
@@ -3698,11 +3701,11 @@
       "step": "restored-saves-identical-to-snapshot",
       "snapshot": {
         "files": 44,
-        "sha256": "66900464022bade432fa45bc782726de6ea21be8be9d7e38e4e17eaad566c192"
+        "sha256": "634c7286cd6c58899b90e92b0d432ed0c60b37bb27d5d6b7fa096af1e32ae34f"
       },
       "restored": {
         "files": 44,
-        "sha256": "66900464022bade432fa45bc782726de6ea21be8be9d7e38e4e17eaad566c192"
+        "sha256": "634c7286cd6c58899b90e92b0d432ed0c60b37bb27d5d6b7fa096af1e32ae34f"
       },
       "match": true
     },
@@ -3720,7 +3723,7 @@
         "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
         "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
       },
-      "startup_seconds": 1.0,
+      "startup_seconds": 1.1,
       "serials": [
         2,
         3
@@ -4299,7 +4302,7 @@
           "seat": 0,
           "action": {
             "type": "Use",
-            "serial": 1073745834
+            "serial": 1073745833
           }
         },
         {
@@ -4477,16 +4480,17 @@
       "round_reset_strength": 100,
       "phases": [
         "countdown",
-        "fighting"
+        "fighting",
+        "roundover"
       ],
-      "match_id": "7e47a9ac09e7406da0f5cbcc04ab6a38",
-      "replay_rows": 153,
-      "raw_sha256": "ddf39da6c15c8539123896ab003107d0052e872b064f81f70ef83cccb9aa6f32",
+      "match_id": "a595b83a43044abe9540ec3098de9683",
+      "replay_rows": 151,
+      "raw_sha256": "9a7a7204df9955b172e6b8faedf7d4a1f5dc1181e1f6de77888f7f50c2172e41",
       "replay_end": {
-        "seq": 152,
-        "t": 26630,
+        "seq": 150,
+        "t": 26350,
         "type": "end",
-        "id": "7e47a9ac09e7406da0f5cbcc04ab6a38",
+        "id": "a595b83a43044abe9540ec3098de9683",
         "ranked": false,
         "training": true,
         "winner": null,
@@ -4697,7 +4701,7 @@
             1
           ],
           [
-            1073745833,
+            1073745834,
             3849,
             1
           ],
@@ -5015,14 +5019,14 @@
           ]
         ]
       ],
-      "save_started": 1795020651,
+      "save_started": 1795021621,
       "server_exit": -9,
       "saves": {
         "files": 44,
-        "sha256": "4255ac7c4591b7725c62026074cae528556a90e7f9330b4bb0d1ee87ddf3c20d"
+        "sha256": "e7dfc871acf4b70849e16561168f03f0cd04840d5de257d394c5a6fae4661d70"
       },
       "processes_stopped": true,
-      "duration_seconds": 43.1
+      "duration_seconds": 43.5
     },
     {
       "step": "final-verify",
@@ -5103,9 +5107,9 @@
   },
   "provisioned_owner": "501:0",
   "kept_aside": [
-    "<rehearsal>/shard/ServUO.exe.config.rollback-aside-20261118T165008Z-1795020608308070000-49679-6bc473",
-    "<rehearsal>/shard/Config.rollback-aside-20261118T165008Z-1795020608308070000-49679-6bc473",
-    "<rehearsal>/shard/Saves.rollback-aside-20261118T165008Z-1795020608308070000-49679-6bc473"
+    "<rehearsal>/shard/ServUO.exe.config.rollback-aside-20261118T170618Z-1795021578071648000-60822-135b16",
+    "<rehearsal>/shard/Config.rollback-aside-20261118T170618Z-1795021578071648000-60822-135b16",
+    "<rehearsal>/shard/Saves.rollback-aside-20261118T170618Z-1795021578071648000-60822-135b16"
   ],
   "leftover_processes": [],
   "command": "python3.14 tests/provenance/rollback_rehearsal.py --baseline <historical_lineage output>/deployed-equivalent --candidate <build_provenance build1> --source <historical_lineage output>/export1 --bridge <anima-bridge f8e3eca9, anima-client ae89608 release> --data <licensed-client-data> --output <rehearsal>",
@@ -5114,6 +5118,7 @@
     "swap-refused-on-wrong-current: refused at snapshot validation (snapshot assemblies != supplied current manifest); installed set unchanged.",
     "Training matches are not recorded in Dueling.bin history, so persistence is proven by identical character serials and backpack item [serial, graphic, amount] sets between the previous shutdown and the next login.",
     "tool_sha256 and harness_sha256 equal the committed tools/shard_rollout.py and tests/provenance/rollback_rehearsal.py.",
-    "Runs as an unprivileged user on macOS (no /proc): running-shard detection used pgrep + lsof; the /proc scan and chown paths are covered by tests/provenance/test_shard_rollout.py fault-injection tests."
+    "Runs as an unprivileged user on macOS (no /proc): running-shard detection used pgrep + lsof; the /proc scan and chown paths are covered by tests/provenance/test_shard_rollout.py fault-injection tests.",
+    "Rerun after the second review round: swap now also verified that live ServUO.exe.config/Config/Saves still equal the snapshot manifest."
   ]
 }

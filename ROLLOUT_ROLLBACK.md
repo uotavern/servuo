@@ -61,9 +61,17 @@ choose A (more evidence) or require B to pass `local_lifecycle.py` first.
 - `arena-shard.service` (public) runs `/usr/bin/mono /opt/uoarena/shard/ServUO.exe -service`
   as `User=uoarena`. `anima3-lab-shard.service` runs a *different* shard from
   `/opt/uoarena/lab-shard`; never stop, snapshot or swap it as part of this
-  procedure. The tool's running-shard check resolves paths, so the lab shard
-  does not block it and the public shard cannot hide behind a relative or
-  symlinked path.
+  procedure. The lab shard's cwd is `/opt/uoarena/lab-shard`, and both shards
+  read client data from `DataPath.cfg` `CustomPath=/opt/uoarena/data`, which is
+  outside `/opt/uoarena/shard`. The tool's running-shard check resolves paths
+  and only counts files inside the target shard, so the lab shard (and its
+  mapped client data) does not block it, and the public shard cannot hide
+  behind a relative or symlinked path. A cwd or argument inside the shard
+  counts only for mono/ServUO processes and never for the tool's own ancestor
+  chain, so an operator shell parked in the directory or `sudo … --shard-dir`
+  cannot block an emergency rollback; any process with a shard file open or
+  mapped still does.
+- The operator connects as `ssh root@host` (no sudo).
 - `/opt/uoarena/shard/Saves` is a real directory, `uoarena:uoarena` 700 with
   600/700 entries; `Config` and `Export` are owned by `uoarena`; the
   assemblies are `uoarena` 644. The operator runs the tool as root, so it
@@ -106,9 +114,24 @@ choose A (more evidence) or require B to pass `local_lifecycle.py` first.
    `Config`, `Saves`, `Export`, not the assemblies) and a provider-level disk
    snapshot taken.
 8. `Config/AutoRestart.cfg` has `Enabled=False` (if not, note the next restart
-   time and stay clear of it). `AutoSave` may stay enabled: logins are locked
-   down below, so a timed save in the window only rewrites the same world.
-9. `/usr/bin/python3` ≥ 3.8, `pgrep`, `systemctl` present.
+   time and stay clear of it). The public `Config/AutoSave.cfg` is
+   `Enabled=True`, `Frequency=00:00:05:00`, `WarningTime=00:00:00:10`: a timed
+   save starts every 5 minutes, 10 s after a broadcast warning. §4 b turns
+   timed saves off in the running process (`[SetSaves false`) before the
+   operator save so none can start between `[Save` and the stop.
+   `SetSaves` is not persisted; the next start runs timed saves again.
+9. `/usr/bin/python3` ≥ 3.8, `pgrep`, `systemctl` present. Run as root
+   (`ssh root@host`); under `sudo` the tool ignores its own ancestor chain
+   (sudo, the login shell) when checking that the shard is stopped.
+10. Two operator test accounts exist, e.g. `ops-health-a` and `ops-health-b`
+    (names are a review decision; never player accounts). Each holds a
+    **key character** with character AccessLevel Counselor (lets the account
+    log in under a Counselor Lockdown: `Account.HasAccess` admits an account if
+    any of its characters is at or above the lockdown level) and a **fighter
+    character** at AccessLevel Player in the slot the health client selects
+    (Arena preparation, supplies and challenges require a Player-level
+    character). Plus the Administrator account `<ADMIN>` that applies Lockdown
+    and runs `[Save`/`[SetSaves`.
 
 ## 4. Rollout
 
@@ -117,15 +140,20 @@ kills itself, which systemd may treat as a failure and restart. So the save is
 done in game, verified on disk, and only then is the unit stopped:
 
 ```sh
-# a. Quiesce. As an Administrator in game: [Admin -> Administer -> Access ->
-#    Lockdown -> Counselor (players can no longer log in); confirm the client
-#    list shows no players and GET /duel/ shows "live": [].
-# b. Save. In game: [Save. Wait for the journal to show "World: Saving..." and
-#    "Save finished"; record the UTC time T_SAVE just *before* issuing [Save.
-journalctl -u arena-shard.service --since "-5 min" | grep -E "World: Saving|Save finished"
+# a. Quiesce. As <ADMIN> in game: [Admin -> Administer -> Access -> Lockdown ->
+#    Counselor (player accounts can no longer log in); kick or wait out any
+#    connected player; confirm the client list shows only staff and
+#    GET /duel/ shows "live": [].
+# b. Save. In game: [SetSaves false   (no timed save can start from now on; if the
+#    10 s "The world will save in" warning was just broadcast, wait for that
+#    save to finish first). Record T_SAVE (UTC) just *before* issuing [Save, then
+#    [Save. Require both journal lines and fresh core save files:
+journalctl -u arena-shard.service --since "<T_SAVE>" | grep -E "World: Saving|Save finished"
 find /opt/uoarena/shard/Saves/Mobiles /opt/uoarena/shard/Saves/Items -type f -printf '%TY-%Tm-%TdT%TH:%TM:%TS %p\n'
-# c. Stop immediately after (nobody can log in, so no state changes in between).
+# c. Stop immediately after. Then prove no save ran after the recorded one: the
+#    last "World: Saving" in the journal must be the one belonging to T_SAVE.
 systemctl stop arena-shard.service
+journalctl -u arena-shard.service --since "<T_SAVE>" | grep -E "World: Saving|Save finished"   # exactly one pair
 # d. Snapshot: refuses unless the unit is inactive/failed, no process uses the
 #    shard, every Saves/Mobiles and Saves/Items file is newer than T_SAVE,
 #    nothing is symlinked and there is space.
@@ -141,7 +169,13 @@ python3 $T/tools/shard_rollout.py verify --shard-dir /opt/uoarena/shard --manife
   --owner $(id -u uoarena):$(id -g uoarena)
 stat -c '%U:%G %a %n' /opt/uoarena/shard/{ServUO.exe,Scripts.dll,Ultima.dll} /opt/uoarena/shard/Saves
 systemctl start arena-shard.service
-# g. Run §5 (still in Lockdown, with staff/test accounts), then lift Lockdown to Player.
+# g. Lockdown is a static field (AccountHandler.LockdownLevel), not saved: every
+#    start comes up open to players. As soon as the journal shows the listener,
+#    log in as <ADMIN> and re-apply Lockdown -> Counselor BEFORE §5. Players
+#    can connect during those seconds; if that is unacceptable, gate the game
+#    port at the host firewall for the window instead (review decision).
+# h. Run §5 with ops-health-a/b (key character admits the account, fighter
+#    character does the checks), then lift Lockdown to Player.
 ```
 
 ## 5. Health checks (after rollout and after any rollback)
@@ -160,9 +194,13 @@ systemctl start arena-shard.service
 5. Replay: that match's `Export/DuelReplays/<id>.meta.json` exists, its
    `sha256` equals the decompressed archive and `complete` is true.
 
-Steps 3–5 create accounts/characters/replays only on the disposable fixture.
-On the public shard, which accounts are used and whether the training replay
-may appear publicly is a **review decision** (see §8).
+On the disposable fixture, steps 3–5 are run by `rollback_rehearsal.py` with
+freshly created player accounts and no Lockdown. On the public shard they are
+run under Counselor Lockdown with the §3.10 operator accounts, logging in to
+their Player-level fighter characters (anima-bridge from the reviewed
+anima-client build, or the desktop client by hand if the bridge cannot select
+that character slot). They create one training replay that is visible on the
+public feed unless reviewers decide otherwise (§8).
 
 ## 6. Rollback triggers
 
@@ -178,8 +216,10 @@ Roll back immediately when any of these occurs within the observation window
 
 ```sh
 # 1. Quiesce and save, as its own step (skip only if the shard cannot run):
-#    Lockdown -> Counselor, [Save, confirm "Save finished" in the journal and
-#    fresh Saves/Mobiles + Saves/Items mtimes (same commands as §4 b).
+#    Lockdown -> Counselor, [SetSaves false, record T_SAVE, [Save, confirm
+#    "Save finished" and fresh Saves/Mobiles + Saves/Items mtimes (§4 a-b).
+#    After the stop, check no later "World: Saving" (§4 c).
+#    After each start below: re-apply Lockdown before §5 (§4 g-h).
 # 2. Stop.
 systemctl stop arena-shard.service
 # 3. Default: restore the assemblies only, keep candidate-era Config/Saves.
@@ -218,8 +258,12 @@ daily backup, and a rollback must not delete replays recorded meanwhile.
 - That §1's "current public" hashes are still what is on disk (§3.4) and that
   the running process was started from those files after their mtime.
 - Candidate A vs B choice; if B, run `local_lifecycle.py --combat` against it first.
-- The quiesce/save step: who holds the Administrator account, and that the
-  Lockdown gump and `[Save` behave as described on the live build.
+- The quiesce/save step: who holds `<ADMIN>`, and that the Lockdown gump,
+  `[SetSaves false` and `[Save` behave as described on the live build.
+- The ops-health accounts (§3.10): names, their key/fighter characters, and
+  that the health client logs in to the fighter character.
+- Whether the seconds between `systemctl start` and re-applied Lockdown are
+  acceptable or the game port is firewall-gated for the window.
 - Test accounts/characters for §5 on the public shard and whether their
   training replay may be visible on the public feed.
 - Observation window length and who decides a player-visible regression.
@@ -234,9 +278,11 @@ was left running. Each phase: startup ≈1 s to feed, login of both fixture
 accounts, quick preparation, Strength potion 100→120, bottle refill removed
 the empty bottle from the backpack, training round `countdown → fighting`
 (a ~1 s `roundover` may also be sampled) with STR back to 100 at fighting,
-152–153-row complete replay with matching metadata checksum, then console
-`shutdown` (save + self-kill, exit −9). Rerun 2026-11-19 with the final tool:
-`tool_sha256` `e7894cb8…` and harness `2d26980a…` equal the committed files.
+151–152-row complete replay with matching metadata checksum, then console
+`shutdown` (save + self-kill, exit −9). Rerun 2026-11-19 after the second
+review round with the final tool: `tool_sha256` `8e6ea2c1…` and harness
+`2d26980a…` equal the committed files; the swap also verified that live
+`ServUO.exe.config`/`Config`/`Saves` still matched the snapshot.
 The snapshot used `--saved-after` the h0 save time, rollbacks used
 `--expect-restore`, and the final verify checked owner as well as hashes.
 
