@@ -1,0 +1,402 @@
+{
+  "passed": true,
+  "source_commit": "a15af9a0d6b2a106fcad5eb8b9ff16b861e3d184",
+  "binaries": {
+    "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+    "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+    "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+  },
+  "bridge_sha256": "dcdba1f352e81a10467fc107048e94558ba6f1e4158742ed6a50e91c70be6dac",
+  "host": "127.0.0.1",
+  "port": 12694,
+  "feed_port": 18096,
+  "harness_sha256": "0e2129de35312dcfc7c4382d1082d51e3fc88cd61eefe00e12d4f54e26362e0c",
+  "max_matches": 1,
+  "deadline_seconds": 120,
+  "config_overrides": {
+    "Server.cfg": {
+      "Listen": "Listen=127.0.0.1",
+      "Address": "Address=127.0.0.1",
+      "Port": "Port=12694"
+    },
+    "Duel.cfg": {
+      "WebHost": "WebHost=127.0.0.1",
+      "WebPort": "WebPort=18096",
+      "ShowdownAfterSeconds": "ShowdownAfterSeconds=10",
+      "RoundTimeLimitSeconds": "RoundTimeLimitSeconds=20"
+    },
+    "Arena.cfg": {
+      "Enabled": "Enabled=true",
+      "DisableRisingTide": "DisableRisingTide=true",
+      "SelfPlay": "SelfPlay=false",
+      "BotAccounts": "BotAccounts="
+    },
+    "AutoSave.cfg": {
+      "Enabled": "Enabled=false"
+    },
+    "AutoRestart.cfg": {
+      "Enabled": "Enabled=false"
+    },
+    "Accounts.cfg": {
+      "AccountsPerIp": "AccountsPerIp=2",
+      "AutoCreateAccounts": "AutoCreateAccounts=true"
+    },
+    "DataPath.cfg": {
+      "CustomPath": "CustomPath=/Users/dkkang/dev/uo/uo-resource"
+    },
+    "Compiler.cfg": {
+      "Dynamic": "Dynamic=false"
+    }
+  },
+  "phases": [
+    "countdown",
+    "fighting"
+  ],
+  "serials": [
+    2,
+    3
+  ],
+  "final_feed": {
+    "shard": "My Shard",
+    "generated": "2026-11-18T01:32:05Z",
+    "online": 2,
+    "arenas": 10,
+    "replayEnabled": true,
+    "replaySampleMs": 200,
+    "showdownAfterSeconds": 10,
+    "roundLimitSeconds": 20,
+    "live": [],
+    "standings": [],
+    "recent": [],
+    "arena": {
+      "domain": "arena.uotavern.com",
+      "queue": 0,
+      "mode": "peer_agents",
+      "participants": 0,
+      "bots": 0,
+      "leaderboard": []
+    },
+    "activity": {
+      "lobby": [
+        {
+          "serial": 3,
+          "name": "Anima",
+          "profile": {
+            "kind": "undeclared",
+            "model": "",
+            "version": "",
+            "policy": "",
+            "selfReported": true
+          }
+        },
+        {
+          "serial": 2,
+          "name": "Anima",
+          "profile": {
+            "kind": "undeclared",
+            "model": "",
+            "version": "",
+            "policy": "",
+            "selfReported": true
+          }
+        }
+      ],
+      "waiting": [],
+      "waitingCount": 0
+    },
+    "operations": {
+      "uptimeSeconds": 30,
+      "completed": 1,
+      "aborted": 0,
+      "disconnectRounds": 0,
+      "expiredWaiting": 0,
+      "replayFailures": 0,
+      "replayDroppedRows": 0,
+      "rankedStorageHealthy": true
+    },
+    "ladder": {
+      "pairLimit": 3,
+      "initialRating": 1000,
+      "k": 24,
+      "rows": []
+    }
+  },
+  "match_id": "a06b70e13635482bb735d36ce4a68ba4",
+  "raw_sha256": "2f7f723ea38247c4516c94b4e24f1656d293679b60a4297ed978c16969b1af11",
+  "replay_metadata": {
+    "schema": 1,
+    "visualVersion": 1,
+    "id": "a06b70e13635482bb735d36ce4a68ba4",
+    "ranked": false,
+    "training": true,
+    "winner": null,
+    "score": [
+      0,
+      0
+    ],
+    "aborted": null,
+    "ratingResult": null,
+    "started": "2026-11-18T01:31:37.9451020Z",
+    "ended": "2026-11-18T01:32:04.3420450Z",
+    "durationMs": 26381,
+    "rules": "noexplosion-training",
+    "arena": 1,
+    "players": [
+      {
+        "profile": {
+          "kind": "undeclared",
+          "model": "",
+          "version": "",
+          "policy": "",
+          "selfReported": true
+        },
+        "stats": [
+          60,
+          20,
+          10
+        ],
+        "serial": 2,
+        "name": "Anima",
+        "body": 400,
+        "hue": 33770,
+        "equipment": [
+          {
+            "serial": 1073743064,
+            "graphic": 7939,
+            "hue": 1239,
+            "layer": 22
+          },
+          {
+            "serial": 1073743067,
+            "graphic": 5399,
+            "hue": 2,
+            "layer": 5
+          },
+          {
+            "serial": 1073743068,
+            "graphic": 5433,
+            "hue": 2,
+            "layer": 4
+          },
+          {
+            "serial": 1073743069,
+            "graphic": 5903,
+            "hue": 1714,
+            "layer": 3
+          },
+          {
+            "serial": 0,
+            "graphic": 8251,
+            "hue": 1101,
+            "layer": 11
+          }
+        ]
+      },
+      {
+        "profile": {
+          "kind": "undeclared",
+          "model": "",
+          "version": "",
+          "policy": "",
+          "selfReported": true
+        },
+        "stats": [
+          60,
+          20,
+          10
+        ],
+        "serial": 3,
+        "name": "Anima",
+        "body": 400,
+        "hue": 33770,
+        "equipment": [
+          {
+            "serial": 1073743079,
+            "graphic": 7939,
+            "hue": 1244,
+            "layer": 22
+          },
+          {
+            "serial": 1073743082,
+            "graphic": 7933,
+            "hue": 2,
+            "layer": 5
+          },
+          {
+            "serial": 1073743083,
+            "graphic": 5422,
+            "hue": 2,
+            "layer": 4
+          },
+          {
+            "serial": 1073743084,
+            "graphic": 5903,
+            "hue": 1732,
+            "layer": 3
+          },
+          {
+            "serial": 0,
+            "graphic": 8251,
+            "hue": 1101,
+            "layer": 11
+          }
+        ]
+      }
+    ],
+    "url": "/duel/replays/a06b70e13635482bb735d36ce4a68ba4.jsonl",
+    "complete": true,
+    "dropped": 0,
+    "sha256": "2f7f723ea38247c4516c94b4e24f1656d293679b60a4297ed978c16969b1af11"
+  },
+  "replay_sha256": "5288102d31810727f991913ac05368b898a38127cf33d604f205d3bb1d83c419",
+  "replay_header": {
+    "seq": 0,
+    "t": 2,
+    "type": "header",
+    "schema": 1,
+    "visualVersion": 1,
+    "id": "a06b70e13635482bb735d36ce4a68ba4",
+    "started": "2026-11-18T01:31:37.9451020Z",
+    "rules": "noexplosion-training",
+    "ranked": false,
+    "training": true,
+    "sampleMs": 200,
+    "showdownAfterSeconds": 10,
+    "roundLimitSeconds": 20,
+    "rounds": 1,
+    "arena": {
+      "id": 1,
+      "map": "Felucca",
+      "shape": "Lost Lands Coliseum",
+      "name": "Lost Lands Coliseum",
+      "floor": [
+        6070,
+        3713,
+        27,
+        16
+      ],
+      "z": 20
+    },
+    "players": [
+      {
+        "profile": {
+          "kind": "undeclared",
+          "model": "",
+          "version": "",
+          "policy": "",
+          "selfReported": true
+        },
+        "stats": [
+          60,
+          20,
+          10
+        ],
+        "serial": 2,
+        "name": "Anima",
+        "body": 400,
+        "hue": 33770,
+        "equipment": [
+          {
+            "serial": 1073743064,
+            "graphic": 7939,
+            "hue": 1239,
+            "layer": 22
+          },
+          {
+            "serial": 1073743067,
+            "graphic": 5399,
+            "hue": 2,
+            "layer": 5
+          },
+          {
+            "serial": 1073743068,
+            "graphic": 5433,
+            "hue": 2,
+            "layer": 4
+          },
+          {
+            "serial": 1073743069,
+            "graphic": 5903,
+            "hue": 1714,
+            "layer": 3
+          },
+          {
+            "serial": 0,
+            "graphic": 8251,
+            "hue": 1101,
+            "layer": 11
+          }
+        ]
+      },
+      {
+        "profile": {
+          "kind": "undeclared",
+          "model": "",
+          "version": "",
+          "policy": "",
+          "selfReported": true
+        },
+        "stats": [
+          60,
+          20,
+          10
+        ],
+        "serial": 3,
+        "name": "Anima",
+        "body": 400,
+        "hue": 33770,
+        "equipment": [
+          {
+            "serial": 1073743079,
+            "graphic": 7939,
+            "hue": 1244,
+            "layer": 22
+          },
+          {
+            "serial": 1073743082,
+            "graphic": 7933,
+            "hue": 2,
+            "layer": 5
+          },
+          {
+            "serial": 1073743083,
+            "graphic": 5422,
+            "hue": 2,
+            "layer": 4
+          },
+          {
+            "serial": 1073743084,
+            "graphic": 5903,
+            "hue": 1732,
+            "layer": 3
+          },
+          {
+            "serial": 0,
+            "graphic": 8251,
+            "hue": 1101,
+            "layer": 11
+          }
+        ]
+      }
+    ]
+  },
+  "replay_end": {
+    "seq": 150,
+    "t": 26381,
+    "type": "end",
+    "id": "a06b70e13635482bb735d36ce4a68ba4",
+    "ranked": false,
+    "training": true,
+    "winner": null,
+    "score": [
+      0,
+      0
+    ],
+    "aborted": null,
+    "ratingResult": null,
+    "complete": true,
+    "dropped": 0
+  },
+  "replay_rows": 151,
+  "processes_stopped": true
+}
