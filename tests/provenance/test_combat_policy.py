@@ -163,4 +163,22 @@ class CombatTests(unittest.TestCase):
             failed = json.loads((evidence/name).read_text())
             self.assertFalse(failed['passed']); self.assertTrue(failed['processes_stopped'])
 
+    def test_run4_wrapper_passed_with_pinned_release_bridge(self):
+        evidence = ROOT/'combat-evidence'/'rerun-20261118'
+        executed = json.loads((evidence/'run4-wrapper-passed.json').read_text())
+        self.assertTrue(executed['passed']); self.assertTrue(executed['processes_stopped'])
+        self.assertEqual(executed['bridge_sha256'], 'f8e3eca981caf2d6b6f6fa60b564027612c6552278dba5775ba41a361241c96f')
+        archive = (evidence/'run4-combat.jsonl.gz').read_bytes()
+        raw = gzip.decompress(archive)
+        meta = json.loads((evidence/'run4-combat.meta.json').read_text())
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), meta['sha256'])
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), executed['raw_sha256'])
+        self.assertEqual(hashlib.sha256(archive).hexdigest(), executed['replay_sha256'])
+        rows = [json.loads(line) for line in raw.splitlines()]
+        header, end = lifecycle.receipt(rows, executed['serials'], combat=True)
+        self.assertEqual(end, executed['replay_end'])
+        self.assertEqual(sum(r['amount'] for r in rows if r['type']=='damage'), 184)
+        self.assertEqual(sum(r['amount'] for r in rows if r['type']=='heal'), 67)
+        self.assertNotIn('WalkTo', [a['action']['type'] for a in executed['combat_actions']])
+
 if __name__ == '__main__': unittest.main()
