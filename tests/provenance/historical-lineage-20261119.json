@@ -272,7 +272,14 @@
       "Scripts.dll": "b03a253bb85b1ead9eff732dab7e8749e9e3a38476351ccfaa149dfa678225b0",
       "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
     },
-    "conclusion": "the 2026-11-18 recipe difference (Ultima 8282a2a2 vs 2adeee94 from identical Ultima/ source) is caused by compiling against Mono 4.8-api reference assemblies instead of the NuGet reference package; PathMap has no effect. Deterministic, explained; not nondeterminism."
+    "conclusion": "the 2026-11-18 recipe difference (Ultima 8282a2a2 vs 2adeee94 from identical Ultima/ source) is caused by compiling against Mono 4.8-api reference assemblies instead of the NuGet reference package; PathMap has no effect. Deterministic, explained; not nondeterminism.",
+    "baf481b_makefile_literal": {
+      "command": "dotnet build -c release (repository root, as in the baf481b makefile build target; MSBUILDDISABLENODEREUSE=1 only to leave no build server running)",
+      "ServUO.exe": "49fd952b952e11939c194c3cc8fdec03309f14a19e0d7a8a0eece750dbc10898",
+      "Scripts.dll": "b03a253bb85b1ead9eff732dab7e8749e9e3a38476351ccfaa149dfa678225b0",
+      "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17",
+      "equals_receipt_recipe": true
+    }
   },
   "limits": [
     "Deployed identity relies on the read-only 2026-11-17 deployment map; disk hashes were not re-read for this work and do not attest loaded process bytes.",

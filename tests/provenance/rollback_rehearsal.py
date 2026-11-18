@@ -210,6 +210,7 @@ def health(shard, label, bridge, data, port, feed_port, expect_set, expect_seria
         for p in clients:
             p.stdin.close()
         # Operator-equivalent saving stop: console `shutdown` saves then exits.
+        report['save_started'] = int(time.time())
         server.stdin.write(b'shutdown\n')
         server.wait(timeout=remaining(60))
         report['server_exit'] = server.returncode
@@ -274,10 +275,12 @@ def main():
         return entry
     try:
         report['config_overrides'] = provision(shard, baseline, args.source.resolve(), data, args.port, args.feed_port)
+        st = os.stat(str(shard/'ServUO.exe'))  # BSD /tmp gives files the directory's group, not the user's
+        report['provisioned_owner'] = '%d:%d' % (st.st_uid, st.st_gid)
         h0 = step('health', health(shard, 'h0-baseline', *common, BASELINE, None, None))
         serials = h0['serials']
         step('verify-baseline', must(tool('verify', '--shard-dir', shard, '--manifest', out/'baseline.json')))
-        step('snapshot', must(tool('snapshot', '--shard-dir', shard, '--backup-dir', backup)))
+        step('snapshot', must(tool('snapshot', '--shard-dir', shard, '--backup-dir', backup, '--saved-after', h0['save_started'])))
         snapshot_saves = saves_digest(backup)
         # Negative gate: the tool must refuse a swap whose "current" manifest is wrong.
         refused = tool('swap', '--shard-dir', shard, '--backup-dir', backup, '--candidate-dir', candidate,
@@ -289,16 +292,16 @@ def main():
                                '--expect-current', out/'baseline.json', '--expect-candidate', out/'candidate.json')))
         h1 = step('health', health(shard, 'h1-candidate', *common, CANDIDATE, serials, h0['backpack_at_shutdown']))
         # Rehearsed trigger: the operator decides to roll back. Keep candidate-era saves first.
-        step('rollback-assemblies', must(tool('rollback', '--shard-dir', shard, '--backup-dir', backup)))
+        step('rollback-assemblies', must(tool('rollback', '--shard-dir', shard, '--backup-dir', backup, '--expect-restore', out/'baseline.json')))
         h2 = step('health', health(shard, 'h2-rolled-back-candidate-saves', *common, BASELINE, serials, h1['backpack_at_shutdown']))
         # Full fallback: restore pre-rollout Config/Saves too; the world returns to h0's save.
-        restore = step('rollback-full-state', must(tool('rollback', '--shard-dir', shard, '--backup-dir', backup, '--restore-state')))
+        restore = step('rollback-full-state', must(tool('rollback', '--shard-dir', shard, '--backup-dir', backup, '--expect-restore', out/'baseline.json', '--restore-state')))
         restored = saves_digest(shard)
         step('restored-saves-identical-to-snapshot', {'snapshot': snapshot_saves, 'restored': restored, 'match': restored == snapshot_saves})
         if restored != snapshot_saves:
             raise RuntimeError('restored saves differ from snapshot')
         h3 = step('health', health(shard, 'h3-rolled-back-snapshot-state', *common, BASELINE, serials, h0['backpack_at_shutdown']))
-        step('final-verify', must(tool('verify', '--shard-dir', shard, '--manifest', out/'baseline.json')))
+        step('final-verify', must(tool('verify', '--shard-dir', shard, '--manifest', out/'baseline.json', '--owner', report['provisioned_owner'])))
         report['kept_aside'] = restore['stdout'].get('kept_aside')
         report['passed'] = all(s.get('passed', True) for s in steps if s['step'] == 'health') and h3['passed']
     except Exception as exc:
