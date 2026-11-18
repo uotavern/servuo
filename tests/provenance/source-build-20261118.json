@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "source_commit": "a15af9a0d6b2a106fcad5eb8b9ff16b861e3d184",
+  "source_tree": "bc3fb4e6441f0642d130fd49aa820b51e791ae85",
+  "export": "git archive: committed files only; no working-tree edits, ignored binaries, saves, or .git",
+  "recipe_sha256": "77a369eed48be04a7faf791e3b465c86c649dea4582e4954d2efd3dbb728be86",
+  "dotnet_info": ".NET SDK:\n Version:           11.0.100\n Commit:            297acf930f\n Workload version:  11.0.100-manifests.08e30c08\n MSBuild version:   18.12.2-1.26529.118+297acf930\n\nRuntime Environment:\n OS Name:     Mac OS X\n OS Version:  27.2\n OS Platform: Darwin\n RID:         osx-arm64\n Base Path:   /usr/local/share/dotnet/sdk/11.0.100\n\n.NET workloads installed:\nThere are no installed workloads to display.\nConfigured to use workload sets when installing new manifests.\nNo workload sets are installed. Run \"dotnet workload restore\" to install a workload set.\n\nHost:\n  Version:      11.0.0\n  Architecture: arm64\n  Commit:       297acf930f\n\n.NET SDKs installed:\n  11.0.100 [/usr/local/share/dotnet/sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 11.0.0 [/usr/local/share/dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 11.0.0 [/usr/local/share/dotnet/shared/Microsoft.NETCore.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  DOTNET_ROOT                              [/Users/dkkang/.dotnet]\n  DOTNET_ROOT_ARM64                        [/Users/dkkang/.dotnet]\n\nglobal.json file:\n  Not found\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download\n",
+  "mono_version": "Mono JIT compiler version 6.14.1 (tarball Tue Apr 29 17:43:02 UTC 2025)\nCopyright (C) Novell, Inc, Xamarin Inc and Contributors. www.mono-project.com\n\tTLS:           \n\tSIGSEGV:       normal\n\tNotification:  kqueue\n\tArchitecture:  arm64\n\tDisabled:      none\n\tMisc:          softdebug \n\tInterpreter:   yes\n\tLLVM:          supported, not enabled.\n\tSuspend:       preemptive\n\tGC:            sgen\n",
+  "builds": [
+    {
+      "command": [
+        "dotnet",
+        "build",
+        "ServUO.sln",
+        "-c",
+        "Release",
+        "-p:Platform=x64",
+        "-p:TargetFrameworkRootPath=/opt/homebrew/Cellar/mono/6.14.1/lib/mono/xbuild-frameworks",
+        "-p:FrameworkPathOverride=/opt/homebrew/Cellar/mono/6.14.1/lib/mono/4.8-api",
+        "-p:Deterministic=true",
+        "-p:PathMap=/private/tmp/uo-servuo-provenance-20261118-b/build1=/_/servuo",
+        "-p:NuGetAudit=false",
+        "--ignore-failed-sources"
+      ],
+      "artifacts": {
+        "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+        "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+        "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+      },
+      "resolved_packages": {
+        "Server/obj/project.assets.json": {
+          "Ultima/1.0.0": {
+            "type": "project",
+            "path": "../Ultima/Ultima.csproj",
+            "msbuildProject": "../Ultima/Ultima.csproj"
+          }
+        },
+        "Scripts/obj/project.assets.json": {
+          "System.Data.DataSetExtensions/4.5.0": {
+            "sha512": "221clPs1445HkTBZPL+K9sDBdJRB8UN8rgjO3ztB0CQ26z//fmJXtlsr6whGatscsKGBrhJl5bwJuKSA8mwFOw==",
+            "type": "package",
+            "path": "system.data.datasetextensions/4.5.0",
+            "files": [
+              ".nupkg.metadata",
+              ".signature.p7s",
+              "LICENSE.TXT",
+              "THIRD-PARTY-NOTICES.TXT",
+              "lib/net45/_._",
+              "lib/netstandard2.0/System.Data.DataSetExtensions.dll",
+              "ref/net45/_._",
+              "ref/netstandard2.0/System.Data.DataSetExtensions.dll",
+              "system.data.datasetextensions.4.5.0.nupkg.sha512",
+              "system.data.datasetextensions.nuspec",
+              "useSharedDesignerContext.txt",
+              "version.txt"
+            ]
+          },
+          "ServUO/1.0.0": {
+            "type": "project",
+            "path": "../Server/Server.csproj",
+            "msbuildProject": "../Server/Server.csproj"
+          },
+          "Ultima/1.0.0": {
+            "type": "project",
+            "path": "../Ultima/Ultima.csproj",
+            "msbuildProject": "../Ultima/Ultima.csproj"
+          }
+        },
+        "Ultima/obj/project.assets.json": {}
+      }
+    },
+    {
+      "command": [
+        "dotnet",
+        "build",
+        "ServUO.sln",
+        "-c",
+        "Release",
+        "-p:Platform=x64",
+        "-p:TargetFrameworkRootPath=/opt/homebrew/Cellar/mono/6.14.1/lib/mono/xbuild-frameworks",
+        "-p:FrameworkPathOverride=/opt/homebrew/Cellar/mono/6.14.1/lib/mono/4.8-api",
+        "-p:Deterministic=true",
+        "-p:PathMap=/private/tmp/uo-servuo-provenance-20261118-b/build2=/_/servuo",
+        "-p:NuGetAudit=false",
+        "--ignore-failed-sources"
+      ],
+      "artifacts": {
+        "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+        "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+        "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+      },
+      "resolved_packages": {
+        "Server/obj/project.assets.json": {
+          "Ultima/1.0.0": {
+            "type": "project",
+            "path": "../Ultima/Ultima.csproj",
+            "msbuildProject": "../Ultima/Ultima.csproj"
+          }
+        },
+        "Scripts/obj/project.assets.json": {
+          "System.Data.DataSetExtensions/4.5.0": {
+            "sha512": "221clPs1445HkTBZPL+K9sDBdJRB8UN8rgjO3ztB0CQ26z//fmJXtlsr6whGatscsKGBrhJl5bwJuKSA8mwFOw==",
+            "type": "package",
+            "path": "system.data.datasetextensions/4.5.0",
+            "files": [
+              ".nupkg.metadata",
+              ".signature.p7s",
+              "LICENSE.TXT",
+              "THIRD-PARTY-NOTICES.TXT",
+              "lib/net45/_._",
+              "lib/netstandard2.0/System.Data.DataSetExtensions.dll",
+              "ref/net45/_._",
+              "ref/netstandard2.0/System.Data.DataSetExtensions.dll",
+              "system.data.datasetextensions.4.5.0.nupkg.sha512",
+              "system.data.datasetextensions.nuspec",
+              "useSharedDesignerContext.txt",
+              "version.txt"
+            ]
+          },
+          "ServUO/1.0.0": {
+            "type": "project",
+            "path": "../Server/Server.csproj",
+            "msbuildProject": "../Server/Server.csproj"
+          },
+          "Ultima/1.0.0": {
+            "type": "project",
+            "path": "../Ultima/Ultima.csproj",
+            "msbuildProject": "../Ultima/Ultima.csproj"
+          }
+        },
+        "Ultima/obj/project.assets.json": {}
+      }
+    }
+  ],
+  "scope": "source artifact reproducibility only; not deployed binary identity or full shard acceptance",
+  "byte_identical": true
+}
