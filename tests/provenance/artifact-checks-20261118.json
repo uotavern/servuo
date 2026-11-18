@@ -1,0 +1,38 @@
+{
+  "scope": "in-memory training fixture and loopback send interleaving; no full shard login",
+  "checks": {
+    "reset": "Config: Loading...\nstr=100 mods=0 stun=False disarm=False hp=100/100\n",
+    "send": "Tested assembly callback delivered queued 512 bytes after contended handoff\nabort_threads: Failed aborting id: 0x16ba8f000, mono_thread_manage will ignore it\n\n"
+  },
+  "artifact_sha256": {
+    "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+    "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+    "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+  },
+  "harness_sha256": {
+    "tests/provenance/CheckRoundReset.cs": "c99620b081642cfad59498870117e069694241b4693c72ad30b24af9b11a5b7b",
+    "tests/network/CheckPatchedSend.cs": "1b3335150a9dc4966acae19c279d9b381e2dcd6a1d91954579b35241c209ddc8",
+    "tests/provenance/check_artifacts.py": "970d43c8603dd8f99a48592849f2e36637a29b541af26bee5eaeb3a3d306614e"
+  },
+  "cecil_sha256": "3c56956dc4f7ea96430ccb5911628a88d2f3a95b40646bcda6e97a106abdfe67",
+  "patches": [
+    {
+      "source": "tools/PatchTrainingReset.cs",
+      "source_sha256": "ab19404b91c8aeaa3cc8a091378ffcfcd745e1b84edaf0d88647460035a8c527",
+      "output_sha256": "e05037e49859138f14fae1b091dbb7f1b753501278ef0385d087fc6b3c6cfb02",
+      "log": "Compared 103614 method bodies; exactly one changed\nPatched only DuelMatch.PrepareFighter: IsServiceMatch(this) | Rules.Training\ne05037e49859138f14fae1b091dbb7f1b753501278ef0385d087fc6b3c6cfb02\n"
+    },
+    {
+      "source": "tools/PatchSupplyBottles.cs",
+      "source_sha256": "acaa4aa99e7ff70eff569bad43fd0c4f8d02bb9d644ee0172513f0a0668449b0",
+      "output_sha256": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+      "log": "Verified 103614 existing methods: only Refill changed; only StoreEmptyBottles added.\nb30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9\n"
+    },
+    {
+      "source": "tests/network/PatchSendHandoff.cs",
+      "source_sha256": "0977228713076c2f2a62a73c19dab4c8cc77bc7b133f65f062e86daec27eaa85",
+      "output_sha256": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+      "log": "Verified 7282 existing methods; only OnSend wrapper changed, original body preserved in helper. SHA256 3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165\n"
+    }
+  ]
+}
