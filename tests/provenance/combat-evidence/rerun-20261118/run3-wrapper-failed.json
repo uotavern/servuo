@@ -1,0 +1,55 @@
+{
+  "passed": false,
+  "source_commit": "a15af9a0d6b2a106fcad5eb8b9ff16b861e3d184",
+  "binaries": {
+    "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+    "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+    "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+  },
+  "bridge_sha256": "34cb820fc34fdf83184fa07dff642dba619fdcd02c8653bc6b25d4fe23ed91ab",
+  "host": "127.0.0.1",
+  "port": 12697,
+  "feed_port": 18099,
+  "harness_sha256": "ead839f20ce470c99cae8c9dca9f6815561917c8f970bdd1360efd6ce511603a",
+  "max_matches": 1,
+  "deadline_seconds": 180,
+  "combat": true,
+  "config_overrides": {
+    "Server.cfg": {
+      "Listen": "Listen=127.0.0.1",
+      "Address": "Address=127.0.0.1",
+      "Port": "Port=12697"
+    },
+    "Duel.cfg": {
+      "WebHost": "WebHost=127.0.0.1",
+      "WebPort": "WebPort=18099",
+      "ShowdownAfterSeconds": "ShowdownAfterSeconds=100",
+      "RoundTimeLimitSeconds": "RoundTimeLimitSeconds=120"
+    },
+    "Arena.cfg": {
+      "Enabled": "Enabled=true",
+      "DisableRisingTide": "DisableRisingTide=true",
+      "SelfPlay": "SelfPlay=false",
+      "BotAccounts": "BotAccounts="
+    },
+    "AutoSave.cfg": {
+      "Enabled": "Enabled=false"
+    },
+    "AutoRestart.cfg": {
+      "Enabled": "Enabled=false"
+    },
+    "Accounts.cfg": {
+      "AccountsPerIp": "AccountsPerIp=2",
+      "AutoCreateAccounts": "AutoCreateAccounts=true"
+    },
+    "DataPath.cfg": {
+      "CustomPath": "CustomPath=/Users/dkkang/dev/uo/uo-resource"
+    },
+    "Compiler.cfg": {
+      "Dynamic": "Dynamic=false"
+    }
+  },
+  "phases": [],
+  "error": "RuntimeError: bridge closed before response",
+  "processes_stopped": true
+}

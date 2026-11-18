@@ -37,6 +37,23 @@ def ensure_free(port):
         sock.bind(('127.0.0.1', port))
 
 
+def wait_listening(port, remaining, alive=lambda: True):
+    """Block until the loopback game listener accepts TCP connections.
+
+    The Duel web feed starts about one second before the game listener, so a
+    responsive feed alone does not mean bridges can log in (live rerun 3:
+    'Connection refused')."""
+    while True:
+        seconds = remaining(1)
+        if not alive():
+            raise RuntimeError('shard exited during startup')
+        try:
+            with socket.create_connection(('127.0.0.1', port), timeout=seconds):
+                return
+        except OSError:
+            time.sleep(.2)
+
+
 def receipt(rows, serials, combat=False):
     if not rows or rows[0].get('type') != 'header':
         raise ValueError('missing replay header')
@@ -115,7 +132,7 @@ def main():
         settings['Duel.cfg'].update(ShowdownAfterSeconds='ShowdownAfterSeconds=100', RoundTimeLimitSeconds='RoundTimeLimitSeconds=120')
     for name, values in settings.items():
         configure(config/name, values)
-    processes, handles = [], []
+    processes, handles, names = [], [], {}
     duration = 180 if args.combat else 120
     deadline = time.monotonic()+duration
     report = {'passed': False, 'source_commit':'a15af9a0d6b2a106fcad5eb8b9ff16b861e3d184', 'binaries': PINNED,
@@ -130,14 +147,14 @@ def main():
         log = (out/(name+'.log')).open('w');handles.append(log)
         p = subprocess.Popen([str(x) for x in command], cwd=out, stdin=subprocess.PIPE if pipes else subprocess.DEVNULL,
                              stdout=subprocess.PIPE if pipes else log, stderr=log, bufsize=0)
-        processes.append(p)
+        processes.append(p);names[p.pid] = name
         return p
     buffers = {}
     def receive(p):
         buf = buffers.get(p.pid, b'')
         while b'\n' not in buf:
             if not select.select([p.stdout], [], [], remaining())[0]:
-                raise TimeoutError('bridge response')
+                raise TimeoutError('bridge response: '+names.get(p.pid, str(p.pid)))
             part = os.read(p.stdout.fileno(), 65536)
             if not part:
                 raise RuntimeError('bridge closed before response')
@@ -168,6 +185,7 @@ def main():
                 break
             except (OSError, urllib.error.URLError):
                 time.sleep(.2)
+        wait_listening(args.port, remaining, lambda: server.poll() is None)
         clients, serials = [], []
         for username in ('fixture_alpha', 'fixture_beta'):
             p = start([bridge, '127.0.0.1', str(args.port), username, 'local-fixture-only', data], username, True)

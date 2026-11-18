@@ -100,14 +100,41 @@ class Combat:
         self.report.setdefault('casts',[]).append(entry)
         return entry
 
+    # UO direction codes by (sign dx, sign dy); north is -y.
+    DIRECTIONS = {(0,-1):0, (1,-1):1, (1,0):2, (1,1):3, (0,1):4, (-1,1):5, (-1,0):6, (-1,-1):7}
+
+    def approach(self, target, distance=4, spell_range=10, seconds=10, max_steps=30):
+        """Close distance with single manual steps; never use bridge WalkTo.
+
+        WalkTo queues a bridge route that every later pump re-paths. Live
+        reruns showed that re-pathing made pumps take seconds (one tile per
+        2-5 s), stalled a pump past the 10 s response deadline mid-fight, and,
+        if still active when the shard released the fighter outside the arena,
+        stalled the post-match pump. A manual Walk sends one step and cancels
+        any route. Fails closed if the attacker never reaches spell range."""
+        until = time.monotonic()+seconds
+        steps = 0
+        while True:
+            pos = self.observe(0)['player']['pos']
+            dx, dy = target['x']-pos['x'], target['y']-pos['y']
+            gap = max(abs(dx), abs(dy))
+            if gap <= distance or steps >= max_steps or time.monotonic() >= until:
+                break
+            sign = lambda v: (v > 0) - (v < 0)
+            self.act(0, {'type':'Walk', 'dir':self.DIRECTIONS[(sign(dx), sign(dy))], 'run':True})
+            steps += 1
+            self.wait(.25)
+        self.report['approach'] = {'target':[target['x'],target['y']], 'final':[pos['x'],pos['y']], 'gap':gap, 'steps':steps}
+        if gap > spell_range:
+            raise ValueError('attacker did not reach spell range')
+
     def fight(self):
         player = self.observe(0)['player']
         if player['strength'] != 100:
             raise ValueError('round start did not clear strength modifier')
         self.report['round_reset_strength'] = player['strength']
         # Bring attacker into normal spell range; defender remains stationary.
-        target = self.observe(1)['player']['pos']
-        self.act(0, {'type':'WalkTo','x':target['x']-3,'y':target['y']});self.wait(2)
+        self.approach(self.observe(1)['player']['pos'])
         self.cast(0, 42, self.serials[1])
         self.cast(0, 42, self.serials[1])
         heal = self.potion(1, 0xF0C)

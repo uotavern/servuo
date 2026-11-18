@@ -78,4 +78,44 @@ class ReceiptTests(unittest.TestCase):
             with self.assertRaises(ValueError): lifecycle.ensure_free(port)
 
 
+class ListenerReadinessTests(unittest.TestCase):
+    def free_port(self):
+        import socket
+        with socket.socket() as sock:
+            sock.bind(('127.0.0.1', 0))
+            return sock.getsockname()[1]
+
+    def test_waits_for_game_listener_started_after_feed(self):
+        import socket, threading, time
+        port = self.free_port()
+        listener = socket.socket()
+        def late():
+            time.sleep(.6)
+            listener.bind(('127.0.0.1', port)); listener.listen(1)
+        thread = threading.Thread(target=late); thread.start()
+        deadline = time.monotonic()+5
+        def remaining(limit=10):
+            left = min(limit, deadline-time.monotonic())
+            if left <= 0: raise TimeoutError('fixture deadline')
+            return left
+        try:
+            lifecycle.wait_listening(port, remaining)
+            self.assertGreater(time.monotonic(), deadline-5+.5)
+        finally:
+            thread.join(); listener.close()
+
+    def test_listener_wait_is_bounded_and_detects_exit(self):
+        import time
+        port = self.free_port()
+        deadline = time.monotonic()+.5
+        def remaining(limit=10):
+            left = min(limit, deadline-time.monotonic())
+            if left <= 0: raise TimeoutError('fixture deadline')
+            return left
+        with self.assertRaises(TimeoutError):
+            lifecycle.wait_listening(port, remaining)
+        with self.assertRaises(RuntimeError):
+            lifecycle.wait_listening(port, lambda limit=10: 1, alive=lambda: False)
+
+
 if __name__ == '__main__': unittest.main()
