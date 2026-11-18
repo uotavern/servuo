@@ -1,0 +1,290 @@
+{
+  "schema": 1,
+  "date": "2026-11-19",
+  "issue": "https://github.com/uotavern/uo/issues/10",
+  "result": "deployed public ServUO.exe/Scripts.dll/Ultima.dll reproduced byte-for-byte from committed source + committed patch programs",
+  "lineage": {
+    "schema": 1,
+    "scope": "offline rebuild and patch replay; no shard started, no deployment",
+    "revision": "baf481bfbb0c98fc95d82395a895ce194e03498f",
+    "tree": "5390e277d78e17c6bb22049904a500010cd8f8c8",
+    "recipe_sha256": "8f75752483699e7e91ebd7d236e3f7c52b1152901d31c08432fda6c1efa5ac53",
+    "build_command": [
+      "dotnet",
+      "build",
+      "ServUO.sln",
+      "-c",
+      "Release",
+      "-p:Platform=x64",
+      "-p:NuGetAudit=false"
+    ],
+    "host": {
+      "platform": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+      "machine": "arm64"
+    },
+    "dotnet_sdk": "11.0.100",
+    "dotnet_sdks": [
+      "11.0.100 [/usr/local/share/dotnet/sdk]"
+    ],
+    "mono": "Mono JIT compiler version 6.14.1 (tarball Tue Apr 29 17:43:02 UTC 2025)",
+    "mcs": "Mono C# compiler version 6.14.1.0",
+    "reference_assemblies": {
+      "package": "Microsoft.NETFramework.ReferenceAssemblies.net48/1.0.3",
+      "nupkg_sha512": "XWKgyeNadNcTQaIVvQB8BrdCNrEar6fo/de1OdQRZ9HFy0jcBSaM8IV5q64ZampsSnC8AlTsACaGZUuoFw41RA==",
+      "sample_sha256": {
+        "build/.NETFramework/v4.8/System.Core.dll": "94a1fc97eb0d36f13acd209bb7207da504c8be10caf7e5096b2c46e671dc6fe2",
+        "build/.NETFramework/v4.8/System.Drawing.dll": "65a42d3e5bd4508e3c75133cd1967301a84b5dae6698f300cd831ff79c54b611",
+        "build/.NETFramework/v4.8/System.dll": "2fe343569f794f2ca92ee14a41875571a9f21bf92637b8f8ee86306534209cca",
+        "build/.NETFramework/v4.8/mscorlib.dll": "6b35530467b914b0b195146ca1d1485ddd219afaad6461103f16f54e952f75a9"
+      }
+    },
+    "cecil_sha256": "3c56956dc4f7ea96430ccb5911628a88d2f3a95b40646bcda6e97a106abdfe67",
+    "builds": {
+      "export1": {
+        "ServUO.exe": "49fd952b952e11939c194c3cc8fdec03309f14a19e0d7a8a0eece750dbc10898",
+        "Scripts.dll": "b03a253bb85b1ead9eff732dab7e8749e9e3a38476351ccfaa149dfa678225b0",
+        "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+      },
+      "export2": {
+        "ServUO.exe": "49fd952b952e11939c194c3cc8fdec03309f14a19e0d7a8a0eece750dbc10898",
+        "Scripts.dll": "b03a253bb85b1ead9eff732dab7e8749e9e3a38476351ccfaa149dfa678225b0",
+        "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+      }
+    },
+    "exports_identical": true,
+    "matches_legacy_inputs": {
+      "ServUO.exe": true,
+      "Scripts.dll": true,
+      "Ultima.dll": true
+    },
+    "patches": [
+      {
+        "source": "tools/PatchTrainingReset.cs",
+        "source_sha256": "ab19404b91c8aeaa3cc8a091378ffcfcd745e1b84edaf0d88647460035a8c527",
+        "input_sha256": "b03a253bb85b1ead9eff732dab7e8749e9e3a38476351ccfaa149dfa678225b0",
+        "output_sha256": "e05037e49859138f14fae1b091dbb7f1b753501278ef0385d087fc6b3c6cfb02",
+        "expected_sha256": "e05037e49859138f14fae1b091dbb7f1b753501278ef0385d087fc6b3c6cfb02",
+        "match": true,
+        "log": "Compared 103614 method bodies; exactly one changed\nPatched only DuelMatch.PrepareFighter: IsServiceMatch(this) | Rules.Training\ne05037e49859138f14fae1b091dbb7f1b753501278ef0385d087fc6b3c6cfb02\n"
+      },
+      {
+        "source": "tools/PatchSupplyBottles.cs",
+        "source_sha256": "acaa4aa99e7ff70eff569bad43fd0c4f8d02bb9d644ee0172513f0a0668449b0",
+        "input_sha256": "e05037e49859138f14fae1b091dbb7f1b753501278ef0385d087fc6b3c6cfb02",
+        "output_sha256": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+        "expected_sha256": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+        "match": true,
+        "log": "Verified 103614 existing methods: only Refill changed; only StoreEmptyBottles added.\nb30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9\n"
+      },
+      {
+        "source": "tests/network/PatchSendHandoff.cs",
+        "source_sha256": "0977228713076c2f2a62a73c19dab4c8cc77bc7b133f65f062e86daec27eaa85",
+        "input_sha256": "49fd952b952e11939c194c3cc8fdec03309f14a19e0d7a8a0eece750dbc10898",
+        "output_sha256": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+        "expected_sha256": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+        "match": true,
+        "log": "Verified 7282 existing methods; only OnSend wrapper changed, original body preserved in helper. SHA256 3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165\n"
+      }
+    ],
+    "deployed_equivalent": {
+      "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+      "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+      "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+    },
+    "matches_deployed": {
+      "ServUO.exe": true,
+      "Scripts.dll": true,
+      "Ultima.dll": true
+    },
+    "passed": true
+  },
+  "archive_ref": "archive/public-shard-source-20261119 -> baf481bfbb0c98fc95d82395a895ce194e03498f",
+  "original_toolchain_evidence": {
+    "source": "untracked build intermediates of the worktree that produced the preserved inputs (arena-worktrees/servuo-cosmetics, build mtime 2026-09-29 07:39:50-57 +0900, six minutes before commit baf481b was created at 07:45:49 +0900)",
+    "Scripts/obj/project.assets.json runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.401/RuntimeIdentifierGraph.json",
+    "Server/obj/Server.csproj.nuget.g.props NuGetToolVersion": "7.0.0",
+    "reference_package": "Microsoft.NETFramework.ReferenceAssemblies.net48 1.0.3 (auto-referenced), System.Data.DataSetExtensions 4.5.0",
+    "same ServUO.exe 49fd952b in three worktrees built 2026-09-28 16:52, 09-29 06:39 and 07:39": true,
+    "interpretation": "original SDK 10.0.401; reproduction with SDK 11.0.100 is byte-identical, so the compiler change does not affect this source"
+  },
+  "pe_metadata": [
+    {
+      "path": "run-baf/export1/ServUO.exe",
+      "sha256": "49fd952b952e11939c194c3cc8fdec03309f14a19e0d7a8a0eece750dbc10898",
+      "bytes": 848384,
+      "machine": "0x8664",
+      "coff_timestamp": 4131446397,
+      "coff_timestamp_hex": "0xf640de7d",
+      "linker_version": "48.0",
+      "os_version": "4.0",
+      "subsystem_version": "6.0",
+      "sections": [
+        ".text",
+        ".rsrc"
+      ],
+      "debug_directory": [
+        {
+          "type": 16,
+          "timestamp": 0,
+          "major": 0,
+          "minor": 0,
+          "size": 0
+        }
+      ]
+    },
+    {
+      "path": "run-baf/export1/Scripts.dll",
+      "sha256": "b03a253bb85b1ead9eff732dab7e8749e9e3a38476351ccfaa149dfa678225b0",
+      "bytes": 12256768,
+      "machine": "0x8664",
+      "coff_timestamp": 2546234546,
+      "coff_timestamp_hex": "0x97c474b2",
+      "linker_version": "48.0",
+      "os_version": "4.0",
+      "subsystem_version": "6.0",
+      "sections": [
+        ".text",
+        ".rsrc"
+      ],
+      "debug_directory": [
+        {
+          "type": 16,
+          "timestamp": 0,
+          "major": 0,
+          "minor": 0,
+          "size": 0
+        }
+      ]
+    },
+    {
+      "path": "run-baf/export1/Ultima.dll",
+      "sha256": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17",
+      "bytes": 145920,
+      "machine": "0x8664",
+      "coff_timestamp": 2277519196,
+      "coff_timestamp_hex": "0x87c02f5c",
+      "linker_version": "48.0",
+      "os_version": "4.0",
+      "subsystem_version": "6.0",
+      "sections": [
+        ".text",
+        ".rsrc"
+      ],
+      "debug_directory": [
+        {
+          "type": 16,
+          "timestamp": 0,
+          "major": 0,
+          "minor": 0,
+          "size": 0
+        }
+      ]
+    },
+    {
+      "path": "run-baf/deployed-equivalent/ServUO.exe",
+      "sha256": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+      "bytes": 844288,
+      "machine": "0x8664",
+      "coff_timestamp": 4131446397,
+      "coff_timestamp_hex": "0xf640de7d",
+      "linker_version": "48.0",
+      "os_version": "4.0",
+      "subsystem_version": "6.0",
+      "sections": [
+        ".text",
+        ".rsrc"
+      ],
+      "debug_directory": [
+        {
+          "type": 16,
+          "timestamp": 0,
+          "major": 0,
+          "minor": 0,
+          "size": 0
+        }
+      ]
+    },
+    {
+      "path": "run-baf/deployed-equivalent/Scripts.dll",
+      "sha256": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+      "bytes": 11855872,
+      "machine": "0x8664",
+      "coff_timestamp": 2546234546,
+      "coff_timestamp_hex": "0x97c474b2",
+      "linker_version": "48.0",
+      "os_version": "4.0",
+      "subsystem_version": "6.0",
+      "sections": [
+        ".text",
+        ".rsrc"
+      ],
+      "debug_directory": [
+        {
+          "type": 16,
+          "timestamp": 0,
+          "major": 0,
+          "minor": 0,
+          "size": 0
+        }
+      ]
+    }
+  ],
+  "pe_interpretation": "linker 48.0 = Roslyn; debug directory holds only a Reproducible (type 16) entry, no CodeView/PDB path; COFF timestamp is content-derived (deterministic). x64 PE32+, IL-only, assembly ServUO 57.4.0.0, TargetFramework .NETFramework,Version=v4.8, MVID e85cf8e2-8f60-4cdb-a958-916a57d145cd (ServUO.exe input).",
+  "controls": {
+    "e9dae69ca_legacy_recipe": {
+      "builds": {
+        "export1": {
+          "ServUO.exe": "49fd952b952e11939c194c3cc8fdec03309f14a19e0d7a8a0eece750dbc10898",
+          "Scripts.dll": "aa160edf3bce51ca8f75bb5b2ed45b5d6106df88de593d6749640c0684769aab",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "export2": {
+          "ServUO.exe": "49fd952b952e11939c194c3cc8fdec03309f14a19e0d7a8a0eece750dbc10898",
+          "Scripts.dll": "aa160edf3bce51ca8f75bb5b2ed45b5d6106df88de593d6749640c0684769aab",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        }
+      },
+      "matches_preserved_improvements_worktree_Scripts.dll_aa160edf": true
+    },
+    "a15af9a_legacy_recipe_candidate_B": {
+      "builds": {
+        "export1": {
+          "ServUO.exe": "13c0a1884498b72f495277092431a0f8e7fa5228d8acb0fe1f46b4756900b5db",
+          "Scripts.dll": "18107578345235bacf46dea053cd134a046b44f6583fa5f06db8c148682ca0c1",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "export2": {
+          "ServUO.exe": "13c0a1884498b72f495277092431a0f8e7fa5228d8acb0fe1f46b4756900b5db",
+          "Scripts.dll": "18107578345235bacf46dea053cd134a046b44f6583fa5f06db8c148682ca0c1",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        }
+      },
+      "exports_identical": true
+    },
+    "baf481b_with_build_provenance_flags": {
+      "flags": "-p:TargetFrameworkRootPath=<mono xbuild-frameworks> -p:FrameworkPathOverride=<mono 4.8-api> -p:Deterministic=true -p:PathMap=<dir>=/_/servuo",
+      "ServUO.exe": "79cce8eaabe20b9abd9c01750d358731bd8f2559beaeb88f0703bff64f88138f",
+      "Scripts.dll": "431ddce886b1ba20893c787a0e479192883c12e7aeab688f190689e0488ab640",
+      "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+    },
+    "baf481b_pathmap_only": {
+      "ServUO.exe": "49fd952b952e11939c194c3cc8fdec03309f14a19e0d7a8a0eece750dbc10898",
+      "Scripts.dll": "b03a253bb85b1ead9eff732dab7e8749e9e3a38476351ccfaa149dfa678225b0",
+      "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+    },
+    "conclusion": "the 2026-11-18 recipe difference (Ultima 8282a2a2 vs 2adeee94 from identical Ultima/ source) is caused by compiling against Mono 4.8-api reference assemblies instead of the NuGet reference package; PathMap has no effect. Deterministic, explained; not nondeterminism.",
+    "baf481b_makefile_literal": {
+      "command": "dotnet build -c release (repository root, as in the baf481b makefile build target; MSBUILDDISABLENODEREUSE=1 only to leave no build server running)",
+      "ServUO.exe": "49fd952b952e11939c194c3cc8fdec03309f14a19e0d7a8a0eece750dbc10898",
+      "Scripts.dll": "b03a253bb85b1ead9eff732dab7e8749e9e3a38476351ccfaa149dfa678225b0",
+      "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17",
+      "equals_receipt_recipe": true
+    }
+  },
+  "limits": [
+    "Deployed identity relies on the read-only 2026-11-17 deployment map; disk hashes were not re-read for this work and do not attest loaded process bytes.",
+    "Which host/user ran the original build and copied it to /opt/uoarena is inferred from worktree intermediates, not from a deployment log.",
+    "Reproduction covers macOS arm64 SDK 11.0.100; the original SDK 10.0.401 was not reinstalled."
+  ],
+  "production_changes": false
+}
