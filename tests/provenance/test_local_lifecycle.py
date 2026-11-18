@@ -118,4 +118,55 @@ class ListenerReadinessTests(unittest.TestCase):
             lifecycle.wait_listening(port, lambda limit=10: 1, alive=lambda: False)
 
 
+class FinalizationTests(unittest.TestCase):
+    def test_archive_without_metadata_is_not_finished(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            archive, meta = lifecycle.replay_paths(out, 'm1')
+            archive.parent.mkdir(parents=True)
+            self.assertFalse(lifecycle.finalized(out, None))
+            archive.write_bytes(b'x')
+            self.assertFalse(lifecycle.finalized(out, 'm1'))
+            meta.write_text('{}')
+            self.assertTrue(lifecycle.finalized(out, 'm1'))
+
+    def test_wait_finalized_polls_for_late_metadata_within_deadline(self):
+        import tempfile, threading, time
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            archive, meta = lifecycle.replay_paths(out, 'm1')
+            archive.parent.mkdir(parents=True); archive.write_bytes(b'x')
+            t = threading.Timer(.4, lambda: meta.write_text('{}')); t.start()
+            self.assertEqual(lifecycle.wait_finalized(out, 'm1', lambda limit=10: 1), (archive, meta))
+            t.join()
+            meta.unlink()
+            def expired(limit=10): raise TimeoutError('fixture deadline')
+            with self.assertRaises(TimeoutError):
+                lifecycle.wait_finalized(out, 'm1', expired)
+
+    def test_no_bridge_pump_after_finalization(self):
+        from unittest.mock import Mock
+        rpc = Mock()
+        self.assertFalse(lifecycle.match_tick(['a','b'], rpc, lambda: True))
+        rpc.assert_not_called()
+        self.assertTrue(lifecycle.match_tick(['a','b'], rpc, lambda: False))
+        self.assertEqual(rpc.call_count, 2)
+
+
+class SigtermTests(unittest.TestCase):
+    def test_sigterm_runs_finally_cleanup(self):
+        import subprocess, sys, tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            marker = Path(tmp)/'cleanup'
+            code = ("import importlib.util,os,signal,sys,time\n"
+                    "spec=importlib.util.spec_from_file_location('l',sys.argv[1]);l=importlib.util.module_from_spec(spec);spec.loader.exec_module(l)\n"
+                    "l.install_sigterm()\n"
+                    "try:\n    os.kill(os.getpid(), signal.SIGTERM); time.sleep(5)\n"
+                    "finally:\n    open(sys.argv[2],'w').write('done')\n")
+            proc = subprocess.run([sys.executable, '-c', code, str(Path(__file__).with_name('local_lifecycle.py')), str(marker)], timeout=10)
+            self.assertEqual(proc.returncode, 143)
+            self.assertEqual(marker.read_text(), 'done')
+
+
 if __name__ == '__main__': unittest.main()

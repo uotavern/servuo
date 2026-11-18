@@ -81,6 +81,49 @@ class CombatTests(unittest.TestCase):
             p.approach({'x':6090,'y':3720}, seconds=0.5)
         self.assertEqual(p.report['approach']['gap'], 13)
 
+    def test_approach_requires_four_tiles_not_spell_range(self):
+        # Review: ending at 10 tiles (old spell_range) must now fail closed.
+        calls, rpc = self._walker([{'x':6080,'y':3720}]*1000)
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        with self.assertRaises(ValueError):
+            p.approach({'x':6090,'y':3720}, seconds=0.5)
+        self.assertEqual(p.report['approach']['gap'], 10)
+
+    def test_approach_sidesteps_a_blocked_tile(self):
+        # East of 6079 is blocked; stepping east leaves the position unchanged.
+        target = {'x':6090,'y':3720}
+        pos = {'x':6077,'y':3720}
+        calls = []
+        moves = {0:(0,-1),1:(1,-1),2:(1,0),3:(1,1),4:(0,1),5:(-1,1),6:(-1,0),7:(-1,-1)}
+        def rpc(client, cmd):
+            calls.append(cmd)
+            if cmd['cmd'] == 'observe':
+                return {'obs':{'player':{'pos':dict(pos)}}}
+            if cmd['cmd'] == 'act' and cmd['action']['type'] == 'Walk':
+                mx, my = moves[cmd['action']['dir']]
+                nx, ny = pos['x']+mx, pos['y']+my
+                if not (nx == 6080 and 3719 <= ny <= 3721):
+                    pos.update(x=nx, y=ny)
+            return {'ok':True}
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        p.wait = lambda seconds: None
+        p.approach(target)
+        self.assertLessEqual(p.report['approach']['gap'], 4)
+        self.assertTrue(p.report['approach']['sidesteps'])
+        acts = [c['action'] for c in calls if c['cmd']=='act']
+        self.assertNotIn('WalkTo', [a['type'] for a in acts])
+        self.assertLessEqual(len(acts), 30)
+
+    def test_approach_sidestep_is_bounded(self):
+        calls, rpc = self._walker([{'x':6077,'y':3720}]*1000)
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        p.wait = lambda seconds: None
+        with self.assertRaises(ValueError):
+            p.approach({'x':6090,'y':3720})
+        self.assertLessEqual(p.report['approach']['steps'], 30)  # boxed in: gives up early
+        self.assertTrue(p.report['approach']['sidesteps'])
+        self.assertTrue(p.report['approach']['blocked'])
+
     def test_approach_in_range_needs_no_step(self):
         calls, rpc = self._walker([{'x':6087,'y':3721}])
         p = combat.Combat([None,None], [2,3], rpc, Mock(), {})

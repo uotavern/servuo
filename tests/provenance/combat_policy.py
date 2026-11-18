@@ -103,7 +103,11 @@ class Combat:
     # UO direction codes by (sign dx, sign dy); north is -y.
     DIRECTIONS = {(0,-1):0, (1,-1):1, (1,0):2, (1,1):3, (0,1):4, (-1,1):5, (-1,0):6, (-1,-1):7}
 
-    def approach(self, target, distance=4, spell_range=10, seconds=10, max_steps=30):
+    # Preference order around the straight-line direction.
+    OFFSETS = (0, 1, -1, 2, -2, 3, -3)
+    MOVES = {d:v for v, d in DIRECTIONS.items()}
+
+    def approach(self, target, distance=4, seconds=10, max_steps=30):
         """Close distance with single manual steps; never use bridge WalkTo.
 
         WalkTo queues a bridge route that every later pump re-paths. Live
@@ -111,22 +115,54 @@ class Combat:
         2-5 s), stalled a pump past the 10 s response deadline mid-fight, and,
         if still active when the shard released the fighter outside the arena,
         stalled the post-match pump. A manual Walk sends one step and cancels
-        any route. Fails closed if the attacker never reaches spell range."""
+        any route. A direction gets two tries (the first may only turn the
+        character); if the position is still unchanged, its destination tile
+        is remembered as blocked and the adjacent, then perpendicular, then
+        backward-diagonal directions are tried, preferring unvisited tiles.
+        Bounded by `max_steps` and `seconds`; fails closed unless the attacker
+        ends within `distance` tiles."""
         until = time.monotonic()+seconds
-        steps = 0
+        steps = tries = 0
+        last = None  # (from tile, direction, destination tile)
+        blocked, visited, sidesteps = set(), set(), []
+        sign = lambda v: (v > 0) - (v < 0)
         while True:
             pos = self.observe(0)['player']['pos']
-            dx, dy = target['x']-pos['x'], target['y']-pos['y']
+            here = (pos['x'], pos['y'])
+            dx, dy = target['x']-here[0], target['y']-here[1]
             gap = max(abs(dx), abs(dy))
             if gap <= distance or steps >= max_steps or time.monotonic() >= until:
                 break
-            sign = lambda v: (v > 0) - (v < 0)
-            self.act(0, {'type':'Walk', 'dir':self.DIRECTIONS[(sign(dx), sign(dy))], 'run':True})
+            direction = None
+            if last and last[0] == here:
+                tries += 1
+                if tries < 2:
+                    direction = last[1]
+                else:
+                    blocked.add(last[2]);tries = 0
+            else:
+                tries = 0
+            visited.add(here)
+            if direction is None:
+                primary = self.DIRECTIONS[(sign(dx), sign(dy))]
+                options = [(primary+o) % 8 for o in self.OFFSETS]
+                dest = lambda d: (here[0]+self.MOVES[d][0], here[1]+self.MOVES[d][1])
+                fresh = [d for d in options if dest(d) not in blocked and dest(d) not in visited]
+                known = [d for d in options if dest(d) not in blocked]
+                if not (fresh or known):
+                    break
+                direction = (fresh or known)[0]
+                if direction != primary:
+                    sidesteps.append({'at':list(here), 'dir':direction})
+            move = self.MOVES[direction]
+            last = (here, direction, (here[0]+move[0], here[1]+move[1]))
+            self.act(0, {'type':'Walk', 'dir':direction, 'run':True})
             steps += 1
             self.wait(.25)
-        self.report['approach'] = {'target':[target['x'],target['y']], 'final':[pos['x'],pos['y']], 'gap':gap, 'steps':steps}
-        if gap > spell_range:
-            raise ValueError('attacker did not reach spell range')
+        self.report['approach'] = {'target':[target['x'],target['y']], 'final':list(here), 'gap':gap,
+                                   'steps':steps, 'sidesteps':sidesteps, 'blocked':sorted(map(list, blocked))}
+        if gap > distance:
+            raise ValueError('attacker did not get within %d tiles' % distance)
 
     def fight(self):
         player = self.observe(0)['player']

@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import select
+import signal
 import shutil
 import socket
 import subprocess
@@ -52,6 +53,43 @@ def wait_listening(port, remaining, alive=lambda: True):
                 return
         except OSError:
             time.sleep(.2)
+
+
+def replay_paths(out, match_id):
+    folder = out/'Export'/'DuelReplays'
+    return folder/(match_id+'.jsonl.gz'), folder/(match_id+'.meta.json')
+
+
+def finalized(out, match_id):
+    """The shard moves the archive into place before writing its metadata, so
+    the metadata file (not the archive) is the finished signal."""
+    return match_id is not None and all(p.exists() for p in replay_paths(out, match_id))
+
+
+def wait_finalized(out, match_id, remaining):
+    while not finalized(out, match_id):
+        remaining();time.sleep(.2)
+    return replay_paths(out, match_id)
+
+
+def match_tick(clients, rpc, done):
+    """Pump the bridges only while the match is not finalized. After the
+    archive is complete the receipt comes from feed/files alone, so a bridge
+    that stalls after release cannot fail an already finished fixture."""
+    if done():
+        return False
+    for p in clients:
+        rpc(p, {'cmd':'pump', 'ms':100})
+    return True
+
+
+def _sigterm(signum, frame):
+    raise SystemExit(128+signum)
+
+
+def install_sigterm():
+    """Make an outer `timeout` (SIGTERM) unwind through `finally` cleanup."""
+    signal.signal(signal.SIGTERM, _sigterm)
 
 
 def receipt(rows, serials, combat=False):
@@ -103,6 +141,7 @@ def main():
     parser.add_argument('--port', type=int, default=12694)
     parser.add_argument('--feed-port', type=int, default=18096)
     args = parser.parse_args()
+    install_sigterm()
     build, bridge, data = args.build.resolve(), args.bridge.resolve(), args.data.resolve()
     for name, expected in PINNED.items():
         if sha(build/name) != expected:
@@ -201,7 +240,7 @@ def main():
         if args.combat:
             from combat_policy import Combat, MatchFinished
             combat = Combat(clients, serials, rpc, remaining, report,
-                lambda: match_id is not None and (out/'Export'/'DuelReplays'/(match_id+'.jsonl.gz')).exists())
+                lambda: finalized(out, match_id))
             report['combat_policy_sha256'] = sha(Path(__file__).with_name('combat_policy.py'))
             combat.prepare()
         say(clients[0], ('[Challenge 0x%X 1 training magic any arena:1' if args.combat else '[Challenge 0x%X 1 training any arena:1') % serials[1])
@@ -214,8 +253,7 @@ def main():
             remaining()
             if server.poll() is not None:
                 raise RuntimeError('shard exited during match')
-            for p in clients:
-                rpc(p, {'cmd':'pump', 'ms':100})
+            match_tick(clients, rpc, lambda: finalized(out, match_id))
             snapshot = feed()
             for match in snapshot.get('live', []):
                 if match_id and match['id'] != match_id:
@@ -229,22 +267,20 @@ def main():
                     combat.fight()
                 except MatchFinished:
                     pass  # The common path below still validates the entire receipt.
-            if match_id and (out/'Export'/'DuelReplays'/(match_id+'.jsonl.gz')).exists() and not snapshot.get('live'):
+            if finalized(out, match_id) and not snapshot.get('live'):
                 report['final_feed'] = snapshot
                 break
             time.sleep(.5)
         if report['phases'] != ['countdown', 'fighting']:
             raise ValueError('did not observe complete round phases')
         report['match_id'] = match_id
-        archive = out/'Export'/'DuelReplays'/(match_id+'.jsonl.gz')
-        while not archive.exists():
-            remaining();time.sleep(.2)
+        archive, manifest = wait_finalized(out, match_id, remaining)
         with gzip.open(archive, 'rt') as stream:
             rows = [json.loads(line) for line in stream if line.strip()]
         header, end = receipt(rows, serials, args.combat)
         if header['id'] != match_id:
             raise ValueError('replay does not belong to observed match')
-        metadata = json.loads(archive.with_name(match_id+'.meta.json').read_text())
+        metadata = json.loads(manifest.read_text())
         raw_sha = hashlib.sha256(gzip.decompress(archive.read_bytes())).hexdigest()
         if metadata.get('id') != match_id or metadata.get('sha256') != raw_sha or metadata.get('complete') is not True:
             raise ValueError('metadata identity/checksum/completion mismatch')
@@ -253,6 +289,9 @@ def main():
         report.update(replay_sha256=sha(archive), replay_header=header, replay_end=end, replay_rows=len(rows), passed=True)
     except Exception as exc:
         report['error'] = type(exc).__name__+': '+str(exc)
+        raise
+    except SystemExit as exc:
+        report['error'] = 'SystemExit: terminated by signal (code %s)' % exc.code
         raise
     finally:
         for p in reversed(processes):
