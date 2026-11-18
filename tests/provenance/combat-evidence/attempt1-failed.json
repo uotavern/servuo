@@ -1,0 +1,298 @@
+{
+  "passed": false,
+  "source_commit": "a15af9a0d6b2a106fcad5eb8b9ff16b861e3d184",
+  "binaries": {
+    "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+    "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+    "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+  },
+  "bridge_sha256": "dcdba1f352e81a10467fc107048e94558ba6f1e4158742ed6a50e91c70be6dac",
+  "host": "127.0.0.1",
+  "port": 12694,
+  "feed_port": 18096,
+  "harness_sha256": "0a8e985eab190a514f244636b8bc1ae695cf8e81723fb9880d10ef6d6dabe629",
+  "max_matches": 1,
+  "deadline_seconds": 180,
+  "combat": true,
+  "config_overrides": {
+    "Server.cfg": {
+      "Listen": "Listen=127.0.0.1",
+      "Address": "Address=127.0.0.1",
+      "Port": "Port=12694"
+    },
+    "Duel.cfg": {
+      "WebHost": "WebHost=127.0.0.1",
+      "WebPort": "WebPort=18096",
+      "ShowdownAfterSeconds": "ShowdownAfterSeconds=100",
+      "RoundTimeLimitSeconds": "RoundTimeLimitSeconds=120"
+    },
+    "Arena.cfg": {
+      "Enabled": "Enabled=true",
+      "DisableRisingTide": "DisableRisingTide=true",
+      "SelfPlay": "SelfPlay=false",
+      "BotAccounts": "BotAccounts="
+    },
+    "AutoSave.cfg": {
+      "Enabled": "Enabled=false"
+    },
+    "AutoRestart.cfg": {
+      "Enabled": "Enabled=false"
+    },
+    "Accounts.cfg": {
+      "AccountsPerIp": "AccountsPerIp=2",
+      "AutoCreateAccounts": "AutoCreateAccounts=true"
+    },
+    "DataPath.cfg": {
+      "CustomPath": "CustomPath=/Users/dkkang/dev/uo/uo-resource"
+    },
+    "Compiler.cfg": {
+      "Dynamic": "Dynamic=false"
+    }
+  },
+  "phases": [
+    "countdown",
+    "fighting"
+  ],
+  "serials": [
+    2,
+    3
+  ],
+  "combat_actions": [
+    {
+      "seat": 0,
+      "action": {
+        "type": "Say",
+        "text": "[Arena enter"
+      }
+    },
+    {
+      "seat": 0,
+      "action": {
+        "type": "Say",
+        "text": "[Arena quick 7"
+      }
+    },
+    {
+      "seat": 0,
+      "action": {
+        "type": "GumpResponse",
+        "serial": 2,
+        "gump_id": 3122600591,
+        "button": 1
+      }
+    },
+    {
+      "seat": 1,
+      "action": {
+        "type": "Say",
+        "text": "[Arena enter"
+      }
+    },
+    {
+      "seat": 1,
+      "action": {
+        "type": "Say",
+        "text": "[Arena quick 7"
+      }
+    },
+    {
+      "seat": 1,
+      "action": {
+        "type": "GumpResponse",
+        "serial": 5,
+        "gump_id": 3122600591,
+        "button": 1
+      }
+    },
+    {
+      "seat": 0,
+      "action": {
+        "type": "Use",
+        "serial": 1073743057
+      }
+    },
+    {
+      "seat": 0,
+      "action": {
+        "type": "Use",
+        "serial": 1073745820
+      }
+    },
+    {
+      "seat": 0,
+      "action": {
+        "type": "Use",
+        "serial": 1073743057
+      }
+    },
+    {
+      "seat": 0,
+      "action": {
+        "type": "Say",
+        "text": "[Arena supplies"
+      }
+    },
+    {
+      "seat": 0,
+      "action": {
+        "type": "Use",
+        "serial": 1073743057
+      }
+    },
+    {
+      "seat": 0,
+      "action": {
+        "type": "WalkTo",
+        "x": 6087,
+        "y": 3721
+      }
+    },
+    {
+      "seat": 0,
+      "action": {
+        "type": "CastSpell",
+        "spell": 42
+      }
+    }
+  ],
+  "combat_policy_sha256": "8cb5b137315a85ccf4c642c798bf824481e5167bbd20e9837e0dad4a8cb0357f",
+  "strength_potion": {
+    "before": {
+      "armor": 0,
+      "body": 400,
+      "cold_resistance": 0,
+      "damageChance": 0,
+      "damage_max": 0,
+      "damage_min": 0,
+      "dead": false,
+      "defenseChance": 0,
+      "defenseChanceMax": 0,
+      "dex_lock": 2,
+      "dexterity": 25,
+      "direction": 0,
+      "energy_resistance": 0,
+      "fasterCastRecovery": 0,
+      "fasterCasting": 0,
+      "fire_resistance": 0,
+      "followers": 0,
+      "followers_max": 5,
+      "gold": 1000,
+      "hidden": false,
+      "hitChance": 0,
+      "hits": 100,
+      "hits_max": 100,
+      "hue": 33770,
+      "int_lock": 2,
+      "intelligence": 100,
+      "lowerManaCost": 0,
+      "lowerRegCost": 0,
+      "luck": 0,
+      "mana": 100,
+      "mana_max": 100,
+      "maxResistCold": 0,
+      "maxResistEnergy": 0,
+      "maxResistFire": 0,
+      "maxResistPhysical": 0,
+      "maxResistPoison": 0,
+      "mounted": false,
+      "name": "Anima",
+      "notoriety": 1,
+      "paralyzed": false,
+      "poison_level": -1,
+      "poison_resistance": 0,
+      "poisoned": false,
+      "pos": {
+        "x": 5223,
+        "y": 334,
+        "z": 15
+      },
+      "race": 0,
+      "serial": 2,
+      "speed_mode": 0,
+      "spellDamage": 0,
+      "stam": 25,
+      "stam_max": 25,
+      "stats_cap": 225,
+      "str_lock": 2,
+      "strength": 100,
+      "swingSpeed": 0,
+      "tithing_points": 0,
+      "weight": 202,
+      "weight_max": 390
+    },
+    "after": {
+      "armor": 0,
+      "body": 400,
+      "cold_resistance": 0,
+      "damageChance": 0,
+      "damage_max": 0,
+      "damage_min": 0,
+      "dead": false,
+      "defenseChance": 0,
+      "defenseChanceMax": 0,
+      "dex_lock": 2,
+      "dexterity": 25,
+      "direction": 0,
+      "energy_resistance": 0,
+      "fasterCastRecovery": 0,
+      "fasterCasting": 0,
+      "fire_resistance": 0,
+      "followers": 0,
+      "followers_max": 5,
+      "gold": 1000,
+      "hidden": false,
+      "hitChance": 0,
+      "hits": 100,
+      "hits_max": 120,
+      "hue": 33770,
+      "int_lock": 2,
+      "intelligence": 100,
+      "lowerManaCost": 0,
+      "lowerRegCost": 0,
+      "luck": 0,
+      "mana": 100,
+      "mana_max": 100,
+      "maxResistCold": 0,
+      "maxResistEnergy": 0,
+      "maxResistFire": 0,
+      "maxResistPhysical": 0,
+      "maxResistPoison": 0,
+      "mounted": false,
+      "name": "Anima",
+      "notoriety": 1,
+      "paralyzed": false,
+      "poison_level": -1,
+      "poison_resistance": 0,
+      "poisoned": false,
+      "pos": {
+        "x": 5223,
+        "y": 334,
+        "z": 15
+      },
+      "race": 0,
+      "serial": 2,
+      "speed_mode": 0,
+      "spellDamage": 0,
+      "stam": 25,
+      "stam_max": 25,
+      "stats_cap": 225,
+      "str_lock": 2,
+      "strength": 120,
+      "swingSpeed": 0,
+      "tithing_points": 0,
+      "weight": 202,
+      "weight_max": 460
+    }
+  },
+  "bottle_refill": {
+    "empty_bottle_serials": [
+      1073745890
+    ],
+    "removed_from_backpack": true,
+    "strength_potions_after": 5,
+    "bank_destination": "not directly observed over client protocol"
+  },
+  "round_reset_strength": 100,
+  "error": "ValueError: spell produced no target cursor: 42",
+  "processes_stopped": true
+}

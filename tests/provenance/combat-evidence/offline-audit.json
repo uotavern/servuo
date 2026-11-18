@@ -1,0 +1,155 @@
+{
+  "actual_combat_receipt_passed": true,
+  "executed_wrapper_passed": false,
+  "corrected_wrapper_live_rerun": false,
+  "match_id": "f7340263d0a7441eacd3e142d13ccf43",
+  "ordered_serials": [
+    2,
+    3
+  ],
+  "end": {
+    "seq": 443,
+    "t": 67025,
+    "type": "end",
+    "id": "f7340263d0a7441eacd3e142d13ccf43",
+    "ranked": false,
+    "training": true,
+    "winner": 2,
+    "score": [
+      1,
+      0
+    ],
+    "aborted": null,
+    "ratingResult": null,
+    "complete": true,
+    "dropped": 0
+  },
+  "row_count": 444,
+  "event_counts": {
+    "header": 1,
+    "world": 2,
+    "loadout": 2,
+    "frame": 335,
+    "announcement": 10,
+    "position": 19,
+    "cast": 8,
+    "speech": 8,
+    "visual": 37,
+    "spell_target": 8,
+    "damage": 7,
+    "heal": 2,
+    "skill_attempt": 3,
+    "round_end": 1,
+    "end": 1
+  },
+  "damage_events": [
+    {
+      "seq": 78,
+      "t": 11491,
+      "type": "damage",
+      "actor": 2,
+      "target": 3,
+      "name": null,
+      "amount": 37
+    },
+    {
+      "seq": 104,
+      "t": 15043,
+      "type": "damage",
+      "actor": 2,
+      "target": 3,
+      "name": null,
+      "amount": 29
+    },
+    {
+      "seq": 142,
+      "t": 20124,
+      "type": "damage",
+      "actor": 2,
+      "target": 3,
+      "name": null,
+      "amount": 27
+    },
+    {
+      "seq": 189,
+      "t": 26080,
+      "type": "damage",
+      "actor": 2,
+      "target": 3,
+      "name": null,
+      "amount": 24
+    },
+    {
+      "seq": 216,
+      "t": 29850,
+      "type": "damage",
+      "actor": 2,
+      "target": 3,
+      "name": null,
+      "amount": 35
+    },
+    {
+      "seq": 317,
+      "t": 45741,
+      "type": "damage",
+      "actor": 2,
+      "target": 3,
+      "name": null,
+      "amount": 24
+    },
+    {
+      "seq": 426,
+      "t": 65993,
+      "type": "damage",
+      "actor": 2,
+      "target": 3,
+      "name": "lethal",
+      "amount": 26
+    }
+  ],
+  "heal_events": [
+    {
+      "seq": 110,
+      "t": 16044,
+      "type": "heal",
+      "actor": 3,
+      "target": 3,
+      "name": null,
+      "amount": 28
+    },
+    {
+      "seq": 157,
+      "t": 21779,
+      "type": "heal",
+      "actor": 3,
+      "target": 3,
+      "name": null,
+      "amount": 50
+    }
+  ],
+  "raw_sha256": "7232ebd58555233bb9652d5a4a505f77cec310de48f3342d8e944383d746e69b",
+  "archive_sha256": "11a7eb53bc11d5ca39107e653b589a0b629486f27a2dd9592c9930b745e4e058",
+  "strength_potion": {
+    "before": 100,
+    "after": 120
+  },
+  "heal_potion": {
+    "before": 34,
+    "after": 62
+  },
+  "round_reset_strength": 100,
+  "bottle_refill": {
+    "empty_bottle_serials": [
+      1073745890
+    ],
+    "removed_from_backpack": true,
+    "strength_potions_after": 5,
+    "bank_destination": "not directly observed over client protocol"
+  },
+  "processes_stopped": true,
+  "actual_fixture_count": 2,
+  "damage_total": 202,
+  "heal_total": 78,
+  "wrapper_failure_reason": "After decisive win, loser was resurrected/released; dead flag was false, causing an extra forbidden cast and cursor timeout.",
+  "attempt1_failure_reason": "Rules omitted magic; server correctly rejected casting."
+}

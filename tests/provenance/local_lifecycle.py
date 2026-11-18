@@ -37,7 +37,7 @@ def ensure_free(port):
         sock.bind(('127.0.0.1', port))
 
 
-def receipt(rows, serials):
+def receipt(rows, serials, combat=False):
     if not rows or rows[0].get('type') != 'header':
         raise ValueError('missing replay header')
     header = rows[0]
@@ -53,18 +53,32 @@ def receipt(rows, serials):
         raise ValueError('incomplete/aborted/dropped replay')
     if header.get('rounds') != 1 or header.get('training') is not True or header.get('ranked') is not False:
         raise ValueError('unexpected match mode')
-    if end.get('winner') is not None or end.get('score') != [0, 0]:
+    if not combat and (end.get('winner') is not None or end.get('score') != [0, 0]):
         raise ValueError('expected bounded timeout draw')
     if [r.get('seq') for r in rows] != list(range(len(rows))):
         raise ValueError('replay sequence gap')
     rounds = [r for r in rows if r.get('type') == 'round_end']
-    if len(rounds) != 1 or rounds[0].get('reason') != 'time_limit' or rounds[0].get('round') != 1 or rounds[0].get('winner') is not None:
+    if not combat and (len(rounds) != 1 or rounds[0].get('reason') != 'time_limit' or rounds[0].get('round') != 1 or rounds[0].get('winner') is not None):
         raise ValueError('expected exactly one time-limit round')
+    if combat and (end.get('winner') != serials[0] or end.get('score') != [1,0]):
+        raise ValueError('expected decisive attacker win')
+    if combat:
+        if len(rounds) != 1 or rounds[0].get('round') != 1 or rounds[0].get('winner') != serials[0] or rounds[0].get('reason') != 'defeat':
+            raise ValueError('expected one decisive defeat round, not forfeit or timeout')
+        checks = [
+            any(r.get('type')=='damage' and r.get('actor')==serials[0] and r.get('target')==serials[1] and r.get('amount',0)>0 for r in rows),
+            any(r.get('type')=='heal' and r.get('target')==serials[1] and r.get('amount',0)>0 for r in rows),
+            any(r.get('type')=='cast' and r.get('actor')==serials[0] and r.get('name')=='EnergyBoltSpell' for r in rows),
+            any(r.get('type')=='spell_target' and r.get('actor')==serials[1] and r.get('target')==serials[1] and r.get('name')=='GreaterHealSpell' for r in rows),
+        ]
+        if not all(checks):
+            raise ValueError('combat replay lacks damage/heal/cast/target evidence')
     return header, end
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--combat', action='store_true', help='exercise one bounded real combat fixture')
     parser.add_argument('--build', required=True, type=Path)
     parser.add_argument('--bridge', required=True, type=Path)
     parser.add_argument('--data', required=True, type=Path)
@@ -97,13 +111,16 @@ def main():
         'Accounts.cfg': {'AccountsPerIp':'AccountsPerIp=2', 'AutoCreateAccounts':'AutoCreateAccounts=true'},
         'DataPath.cfg': {'CustomPath':'CustomPath='+str(data)}, 'Compiler.cfg': {'Dynamic':'Dynamic=false'},
     }
+    if args.combat:
+        settings['Duel.cfg'].update(ShowdownAfterSeconds='ShowdownAfterSeconds=100', RoundTimeLimitSeconds='RoundTimeLimitSeconds=120')
     for name, values in settings.items():
         configure(config/name, values)
     processes, handles = [], []
-    deadline = time.monotonic()+120
+    duration = 180 if args.combat else 120
+    deadline = time.monotonic()+duration
     report = {'passed': False, 'source_commit':'a15af9a0d6b2a106fcad5eb8b9ff16b861e3d184', 'binaries': PINNED,
               'bridge_sha256':sha(bridge), 'host':'127.0.0.1', 'port':args.port, 'feed_port':args.feed_port,
-              'harness_sha256':sha(Path(__file__)), 'max_matches':1, 'deadline_seconds':120, 'config_overrides':settings, 'phases':[]}
+              'harness_sha256':sha(Path(__file__)), 'max_matches':1, 'deadline_seconds':duration, 'combat':args.combat, 'config_overrides':settings, 'phases':[]}
     def remaining(limit=10):
         seconds = min(limit, deadline-time.monotonic())
         if seconds <= 0:
@@ -161,11 +178,20 @@ def main():
         if len(set(serials)) != 2:
             raise ValueError('distinct character serials required')
         report['serials'] = serials
-        say(clients[0], '[Challenge 0x%X 1 training any arena:1' % serials[1])
+        combat = None
+        match_id = None
+        if args.combat:
+            from combat_policy import Combat, MatchFinished
+            combat = Combat(clients, serials, rpc, remaining, report,
+                lambda: match_id is not None and (out/'Export'/'DuelReplays'/(match_id+'.jsonl.gz')).exists())
+            report['combat_policy_sha256'] = sha(Path(__file__).with_name('combat_policy.py'))
+            combat.prepare()
+        say(clients[0], ('[Challenge 0x%X 1 training magic any arena:1' if args.combat else '[Challenge 0x%X 1 training any arena:1') % serials[1])
         for p in clients:
             rpc(p, {'cmd':'pump', 'ms':500})
         say(clients[1], '[Accept')
         match_id = None
+        fought = False
         while True:
             remaining()
             if server.poll() is not None:
@@ -179,6 +205,12 @@ def main():
                 match_id = match['id']
                 if match['phase'] not in report['phases']:
                     report['phases'].append(match['phase'])
+            if combat and not fought and 'fighting' in report['phases']:
+                fought = True
+                try:
+                    combat.fight()
+                except MatchFinished:
+                    pass  # The common path below still validates the entire receipt.
             if match_id and (out/'Export'/'DuelReplays'/(match_id+'.jsonl.gz')).exists() and not snapshot.get('live'):
                 report['final_feed'] = snapshot
                 break
@@ -191,7 +223,7 @@ def main():
             remaining();time.sleep(.2)
         with gzip.open(archive, 'rt') as stream:
             rows = [json.loads(line) for line in stream if line.strip()]
-        header, end = receipt(rows, serials)
+        header, end = receipt(rows, serials, args.combat)
         if header['id'] != match_id:
             raise ValueError('replay does not belong to observed match')
         metadata = json.loads(archive.with_name(match_id+'.meta.json').read_text())

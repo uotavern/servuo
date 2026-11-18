@@ -55,6 +55,24 @@ class ReceiptTests(unittest.TestCase):
         with self.assertRaises(ValueError): lifecycle.receipt(rows, [2,3])
         with self.assertRaises(ValueError): lifecycle.receipt(self.rows(), [3,2])
 
+    def test_combat_requires_events_and_decisive_round(self):
+        rows = self.rows()
+        rows[1].update(winner=2, reason='defeat')
+        rows[-1].update(winner=2, score=[1,0])
+        with self.assertRaises(ValueError): lifecycle.receipt(rows, [2,3], combat=True)
+        events = [dict(type='damage', actor=2, target=3, amount=20),
+                  dict(type='heal', actor=3, target=3, amount=10),
+                  dict(type='cast', actor=2, name='EnergyBoltSpell'),
+                  dict(type='spell_target', actor=3, target=3, name='GreaterHealSpell')]
+        rows = rows[:1]+events+rows[1:]
+        for n, row in enumerate(rows): row['seq'] = n
+        lifecycle.receipt(rows, [2,3], combat=True)
+        for index in range(1, 5):
+            damaged = copy.deepcopy(rows);damaged[index]['type'] = 'irrelevant'
+            with self.assertRaises(ValueError): lifecycle.receipt(damaged, [2,3], combat=True)
+        rows[-2]['reason'] = 'forfeit: offline'
+        with self.assertRaises(ValueError): lifecycle.receipt(rows, [2,3], combat=True)
+
     def test_privileged_ports_rejected(self):
         for port in (80, -1, 65536):
             with self.assertRaises(ValueError): lifecycle.ensure_free(port)
