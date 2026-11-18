@@ -50,5 +50,135 @@ class CombatTests(unittest.TestCase):
         self.assertEqual(executed['round_reset_strength'],100)
         self.assertEqual(executed['heal_potion']['after']['hits']-executed['heal_potion']['before']['hits'],28)
 
+    def _walker(self, positions):
+        calls = []
+        seq = iter(positions)
+        def rpc(client, cmd):
+            calls.append(cmd)
+            if cmd['cmd'] == 'observe':
+                return {'obs':{'player':{'pos':next(seq)}}}
+            return {'ok':True}
+        return calls, rpc
+
+    def test_approach_uses_single_steps_never_walkto_route(self):
+        # Live reruns 1-2: a lingering WalkTo route stalled bridge pumps past
+        # the response deadline, during the fight and after release.
+        calls, rpc = self._walker([{'x':x,'y':3720} for x in range(6077, 6087)])
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        p.approach({'x':6090,'y':3721})
+        acts = [c['action'] for c in calls if c['cmd']=='act']
+        self.assertTrue(acts)
+        self.assertTrue(all(a == {'type':'Walk','dir':3,'run':True} for a in acts[:1]))
+        self.assertNotIn('WalkTo', [a['type'] for a in acts])
+        self.assertTrue(all(a['dir'] in (2,3) for a in acts))
+        self.assertLessEqual(p.report['approach']['gap'], 4)
+
+    def test_approach_fails_closed_out_of_spell_range(self):
+        stuck = {'x':6077,'y':3720}
+        calls, rpc = self._walker([stuck]*1000)
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        with self.assertRaises(ValueError):
+            p.approach({'x':6090,'y':3720}, seconds=0.5)
+        self.assertEqual(p.report['approach']['gap'], 13)
+
+    def test_approach_requires_four_tiles_not_spell_range(self):
+        # Review: ending at 10 tiles (old spell_range) must now fail closed.
+        calls, rpc = self._walker([{'x':6080,'y':3720}]*1000)
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        with self.assertRaises(ValueError):
+            p.approach({'x':6090,'y':3720}, seconds=0.5)
+        self.assertEqual(p.report['approach']['gap'], 10)
+
+    def test_approach_sidesteps_a_blocked_tile(self):
+        # East of 6079 is blocked; stepping east leaves the position unchanged.
+        target = {'x':6090,'y':3720}
+        pos = {'x':6077,'y':3720}
+        calls = []
+        moves = {0:(0,-1),1:(1,-1),2:(1,0),3:(1,1),4:(0,1),5:(-1,1),6:(-1,0),7:(-1,-1)}
+        def rpc(client, cmd):
+            calls.append(cmd)
+            if cmd['cmd'] == 'observe':
+                return {'obs':{'player':{'pos':dict(pos)}}}
+            if cmd['cmd'] == 'act' and cmd['action']['type'] == 'Walk':
+                mx, my = moves[cmd['action']['dir']]
+                nx, ny = pos['x']+mx, pos['y']+my
+                if not (nx == 6080 and 3719 <= ny <= 3721):
+                    pos.update(x=nx, y=ny)
+            return {'ok':True}
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        p.wait = lambda seconds: None
+        p.approach(target)
+        self.assertLessEqual(p.report['approach']['gap'], 4)
+        self.assertTrue(p.report['approach']['sidesteps'])
+        acts = [c['action'] for c in calls if c['cmd']=='act']
+        self.assertNotIn('WalkTo', [a['type'] for a in acts])
+        self.assertLessEqual(len(acts), 30)
+
+    def test_approach_sidestep_is_bounded(self):
+        calls, rpc = self._walker([{'x':6077,'y':3720}]*1000)
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        p.wait = lambda seconds: None
+        with self.assertRaises(ValueError):
+            p.approach({'x':6090,'y':3720})
+        self.assertLessEqual(p.report['approach']['steps'], 30)  # boxed in: gives up early
+        self.assertTrue(p.report['approach']['sidesteps'])
+        self.assertTrue(p.report['approach']['blocked'])
+
+    def test_approach_in_range_needs_no_step(self):
+        calls, rpc = self._walker([{'x':6087,'y':3721}])
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        p.approach({'x':6090,'y':3721})
+        self.assertEqual([c for c in calls if c['cmd']=='act'], [])
+
+    def test_fight_approaches_before_first_cast_without_walkto(self):
+        rpc = Mock()
+        p = combat.Combat([None,None], [2,3], rpc, Mock(), {})
+        order = []
+        p.observe = lambda seat: {'player':{'strength':100,'pos':{'x':6090,'y':3721}}}
+        p.approach = lambda target: order.append(('approach', target['x'], target['y']))
+        def cast(*a):
+            order.append(('cast',)+a); raise combat.MatchFinished()
+        p.cast = cast
+        with self.assertRaises(combat.MatchFinished):
+            p.fight()
+        self.assertEqual(order, [('approach', 6090, 3721), ('cast', 0, 42, 3)])
+        self.assertNotIn('WalkTo', [c.args[1].get('action',{}).get('type') for c in rpc.call_args_list])
+
+    def test_rerun1_actual_combat_receipt_but_wrapper_failed(self):
+        evidence = ROOT/'combat-evidence'/'rerun-20261118'
+        raw = gzip.decompress((evidence/'run1-combat.jsonl.gz').read_bytes())
+        meta = json.loads((evidence/'run1-combat.meta.json').read_text())
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), meta['sha256'])
+        rows = [json.loads(line) for line in raw.splitlines()]
+        header, end = lifecycle.receipt(rows, [2,3], combat=True)
+        self.assertEqual(header['id'], 'ab4d18bcd24947e8bd472ad00a3cfea5')
+        self.assertEqual((end['winner'], end['score']), (2, [1,0]))
+        self.assertEqual(sum(r['amount'] for r in rows if r['type']=='damage'), 170)
+        self.assertEqual(sum(r['amount'] for r in rows if r['type']=='heal'), 52)
+        executed = json.loads((evidence/'run1-wrapper-failed.json').read_text())
+        self.assertFalse(executed['passed'])
+        self.assertTrue(executed['processes_stopped'])
+        self.assertIn('WalkTo', [a['action']['type'] for a in executed['combat_actions']])
+        for name in ('run2-wrapper-failed.json', 'run3-wrapper-failed.json'):
+            failed = json.loads((evidence/name).read_text())
+            self.assertFalse(failed['passed']); self.assertTrue(failed['processes_stopped'])
+
+    def test_run4_wrapper_passed_with_pinned_release_bridge(self):
+        evidence = ROOT/'combat-evidence'/'rerun-20261118'
+        executed = json.loads((evidence/'run4-wrapper-passed.json').read_text())
+        self.assertTrue(executed['passed']); self.assertTrue(executed['processes_stopped'])
+        self.assertEqual(executed['bridge_sha256'], 'f8e3eca981caf2d6b6f6fa60b564027612c6552278dba5775ba41a361241c96f')
+        archive = (evidence/'run4-combat.jsonl.gz').read_bytes()
+        raw = gzip.decompress(archive)
+        meta = json.loads((evidence/'run4-combat.meta.json').read_text())
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), meta['sha256'])
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), executed['raw_sha256'])
+        self.assertEqual(hashlib.sha256(archive).hexdigest(), executed['replay_sha256'])
+        rows = [json.loads(line) for line in raw.splitlines()]
+        header, end = lifecycle.receipt(rows, executed['serials'], combat=True)
+        self.assertEqual(end, executed['replay_end'])
+        self.assertEqual(sum(r['amount'] for r in rows if r['type']=='damage'), 184)
+        self.assertEqual(sum(r['amount'] for r in rows if r['type']=='heal'), 67)
+        self.assertNotIn('WalkTo', [a['action']['type'] for a in executed['combat_actions']])
 
 if __name__ == '__main__': unittest.main()
