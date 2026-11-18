@@ -47,3 +47,17 @@ These checks do not cover a complete client login, every protocol packet, a full
 ## Rollback and review boundary
 
 No live files/processes changed, so no operational rollback is needed. Remove only explicitly chosen disposable output directories if desired. A future reviewed deployment must preserve the current ServUO.exe/Scripts.dll pair, their hashes and configuration; stop the candidate, restore that pair together, and revalidate login/round/replay behavior before restoring traffic. Do not replace only one assembly based on these tests. Historical deployed identity is documented in the workspace deployment map, not inferred from repository names.
+
+## Historical lineage and rollout procedure (2026-11-19)
+
+The deployed public set is now reproduced from source: `tools/historical_lineage.py`
+rebuilds `baf481bfbb0c98fc95d82395a895ce194e03498f` (archived as
+`archive/public-shard-source-20261119`) with the legacy makefile recipe and the
+NuGet net48 reference package, matches the preserved unpatched inputs in two
+exports, and replays the committed patch programs to the deployed
+`3a44e60b…`/`b30c8937…`/`2adeee94…`. The recipe above differs only because it
+compiles against Mono 4.8-api reference assemblies. Receipt:
+`tests/provenance/historical-lineage-20261119.json`. Rollout/rollback procedure
+(ready for review, not executed live) and its disposable rehearsal:
+`ROLLOUT_ROLLBACK.md`, `tools/shard_rollout.py`,
+`tests/provenance/rollback-rehearsal-20261119.json`.

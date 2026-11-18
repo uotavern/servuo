@@ -1,0 +1,5062 @@
+{
+  "schema": 1,
+  "passed": true,
+  "scope": "one disposable loopback shard; no remote host contacted",
+  "harness_sha256": "3f317269454d92a5ffaf997d6b01a98d242bf60e3b77133be9a412ee1eb57709",
+  "tool_sha256": "5df18dc4bc76f693f12342d62fa6880c68c21ccf850d6093264e14e8306da593",
+  "bridge_sha256": "f8e3eca981caf2d6b6f6fa60b564027612c6552278dba5775ba41a361241c96f",
+  "baseline": {
+    "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+    "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+    "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+  },
+  "candidate": {
+    "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+    "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+    "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+  },
+  "port": 12698,
+  "feed_port": 18100,
+  "steps": [
+    {
+      "step": "health",
+      "phase": "h0-baseline",
+      "passed": true,
+      "installed": {
+        "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+        "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+        "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+      },
+      "expected_set": {
+        "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+        "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+        "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+      },
+      "startup_seconds": 1.2,
+      "serials": [
+        2,
+        3
+      ],
+      "backpack_at_login": [
+        [
+          [
+            1073743058,
+            4081,
+            1
+          ],
+          [
+            1073743059,
+            3821,
+            1000
+          ],
+          [
+            1073743060,
+            2600,
+            1
+          ],
+          [
+            1073743061,
+            3922,
+            1
+          ],
+          [
+            1073743062,
+            3854,
+            4
+          ],
+          [
+            1073743063,
+            3739,
+            1
+          ],
+          [
+            1073743065,
+            3617,
+            3
+          ],
+          [
+            1073743066,
+            7939,
+            1
+          ]
+        ],
+        [
+          [
+            1073743073,
+            4081,
+            1
+          ],
+          [
+            1073743074,
+            3821,
+            1000
+          ],
+          [
+            1073743075,
+            2600,
+            1
+          ],
+          [
+            1073743076,
+            3922,
+            1
+          ],
+          [
+            1073743077,
+            3854,
+            4
+          ],
+          [
+            1073743078,
+            3739,
+            1
+          ],
+          [
+            1073743080,
+            3617,
+            3
+          ],
+          [
+            1073743081,
+            7939,
+            1
+          ]
+        ]
+      ],
+      "combat_actions": [
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena enter"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena quick 7"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "GumpResponse",
+            "serial": 2,
+            "gump_id": 3122600591,
+            "button": 1
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Arena enter"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Arena quick 7"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "GumpResponse",
+            "serial": 5,
+            "gump_id": 3122600591,
+            "button": 1
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073745834
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena supplies"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Challenge 0x3 1 training any arena:1"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Accept"
+          }
+        }
+      ],
+      "strength_potion": {
+        "before": {
+          "armor": 0,
+          "body": 400,
+          "cold_resistance": 0,
+          "damageChance": 0,
+          "damage_max": 0,
+          "damage_min": 0,
+          "dead": false,
+          "defenseChance": 0,
+          "defenseChanceMax": 0,
+          "dex_lock": 2,
+          "dexterity": 25,
+          "direction": 0,
+          "energy_resistance": 0,
+          "fasterCastRecovery": 0,
+          "fasterCasting": 0,
+          "fire_resistance": 0,
+          "followers": 0,
+          "followers_max": 5,
+          "gold": 1000,
+          "hidden": false,
+          "hitChance": 0,
+          "hits": 100,
+          "hits_max": 100,
+          "hue": 33770,
+          "int_lock": 2,
+          "intelligence": 100,
+          "lowerManaCost": 0,
+          "lowerRegCost": 0,
+          "luck": 0,
+          "mana": 100,
+          "mana_max": 100,
+          "maxResistCold": 0,
+          "maxResistEnergy": 0,
+          "maxResistFire": 0,
+          "maxResistPhysical": 0,
+          "maxResistPoison": 0,
+          "mounted": false,
+          "name": "Anima",
+          "notoriety": 1,
+          "paralyzed": false,
+          "poison_level": -1,
+          "poison_resistance": 0,
+          "poisoned": false,
+          "pos": {
+            "x": 5223,
+            "y": 334,
+            "z": 15
+          },
+          "race": 0,
+          "serial": 2,
+          "speed_mode": 0,
+          "spellDamage": 0,
+          "stam": 25,
+          "stam_max": 25,
+          "stats_cap": 225,
+          "str_lock": 2,
+          "strength": 100,
+          "swingSpeed": 0,
+          "tithing_points": 0,
+          "weight": 201,
+          "weight_max": 390
+        },
+        "after": {
+          "armor": 0,
+          "body": 400,
+          "cold_resistance": 0,
+          "damageChance": 0,
+          "damage_max": 0,
+          "damage_min": 0,
+          "dead": false,
+          "defenseChance": 0,
+          "defenseChanceMax": 0,
+          "dex_lock": 2,
+          "dexterity": 25,
+          "direction": 0,
+          "energy_resistance": 0,
+          "fasterCastRecovery": 0,
+          "fasterCasting": 0,
+          "fire_resistance": 0,
+          "followers": 0,
+          "followers_max": 5,
+          "gold": 1000,
+          "hidden": false,
+          "hitChance": 0,
+          "hits": 100,
+          "hits_max": 120,
+          "hue": 33770,
+          "int_lock": 2,
+          "intelligence": 100,
+          "lowerManaCost": 0,
+          "lowerRegCost": 0,
+          "luck": 0,
+          "mana": 100,
+          "mana_max": 100,
+          "maxResistCold": 0,
+          "maxResistEnergy": 0,
+          "maxResistFire": 0,
+          "maxResistPhysical": 0,
+          "maxResistPoison": 0,
+          "mounted": false,
+          "name": "Anima",
+          "notoriety": 1,
+          "paralyzed": false,
+          "poison_level": -1,
+          "poison_resistance": 0,
+          "poisoned": false,
+          "pos": {
+            "x": 5223,
+            "y": 334,
+            "z": 15
+          },
+          "race": 0,
+          "serial": 2,
+          "speed_mode": 0,
+          "spellDamage": 0,
+          "stam": 25,
+          "stam_max": 25,
+          "stats_cap": 225,
+          "str_lock": 2,
+          "strength": 120,
+          "swingSpeed": 0,
+          "tithing_points": 0,
+          "weight": 201,
+          "weight_max": 460
+        }
+      },
+      "bottle_refill": {
+        "empty_bottle_serials": [
+          1073745890
+        ],
+        "removed_from_backpack": true,
+        "strength_potions_after": 5,
+        "bank_destination": "not directly observed over client protocol"
+      },
+      "round_reset_strength": 100,
+      "phases": [
+        "countdown",
+        "fighting",
+        "roundover"
+      ],
+      "match_id": "93d6618b38754c1084ce7666dc0cbe10",
+      "replay_rows": 151,
+      "raw_sha256": "39bce4960bd15a7057523de0239e0ca0ec987c21c0604baeeb22a78a626f1379",
+      "replay_end": {
+        "seq": 150,
+        "t": 26210,
+        "type": "end",
+        "id": "93d6618b38754c1084ce7666dc0cbe10",
+        "ranked": false,
+        "training": true,
+        "winner": null,
+        "score": [
+          0,
+          0
+        ],
+        "aborted": null,
+        "ratingResult": null,
+        "complete": true,
+        "dropped": 0
+      },
+      "backpack_at_shutdown": [
+        [
+          [
+            1073743058,
+            4081,
+            1
+          ],
+          [
+            1073743059,
+            3821,
+            1000
+          ],
+          [
+            1073743060,
+            2600,
+            1
+          ],
+          [
+            1073743061,
+            3922,
+            1
+          ],
+          [
+            1073743063,
+            3739,
+            1
+          ],
+          [
+            1073743065,
+            3617,
+            100
+          ],
+          [
+            1073743066,
+            7939,
+            1
+          ],
+          [
+            1073745800,
+            3962,
+            100
+          ],
+          [
+            1073745801,
+            3963,
+            100
+          ],
+          [
+            1073745802,
+            3972,
+            100
+          ],
+          [
+            1073745803,
+            3973,
+            100
+          ],
+          [
+            1073745804,
+            3974,
+            100
+          ],
+          [
+            1073745805,
+            3976,
+            100
+          ],
+          [
+            1073745806,
+            3980,
+            100
+          ],
+          [
+            1073745807,
+            3981,
+            100
+          ],
+          [
+            1073745809,
+            3834,
+            1
+          ],
+          [
+            1073745810,
+            3852,
+            1
+          ],
+          [
+            1073745811,
+            3852,
+            1
+          ],
+          [
+            1073745812,
+            3852,
+            1
+          ],
+          [
+            1073745813,
+            3852,
+            1
+          ],
+          [
+            1073745814,
+            3852,
+            1
+          ],
+          [
+            1073745815,
+            3847,
+            1
+          ],
+          [
+            1073745816,
+            3847,
+            1
+          ],
+          [
+            1073745817,
+            3847,
+            1
+          ],
+          [
+            1073745818,
+            3847,
+            1
+          ],
+          [
+            1073745819,
+            3847,
+            1
+          ],
+          [
+            1073745820,
+            3851,
+            1
+          ],
+          [
+            1073745821,
+            3851,
+            1
+          ],
+          [
+            1073745822,
+            3851,
+            1
+          ],
+          [
+            1073745823,
+            3851,
+            1
+          ],
+          [
+            1073745824,
+            3851,
+            1
+          ],
+          [
+            1073745825,
+            3853,
+            1
+          ],
+          [
+            1073745826,
+            3853,
+            1
+          ],
+          [
+            1073745827,
+            3853,
+            1
+          ],
+          [
+            1073745828,
+            3853,
+            1
+          ],
+          [
+            1073745829,
+            3853,
+            1
+          ],
+          [
+            1073745830,
+            3849,
+            1
+          ],
+          [
+            1073745831,
+            3849,
+            1
+          ],
+          [
+            1073745832,
+            3849,
+            1
+          ],
+          [
+            1073745833,
+            3849,
+            1
+          ],
+          [
+            1073745835,
+            3848,
+            1
+          ],
+          [
+            1073745836,
+            3848,
+            1
+          ],
+          [
+            1073745837,
+            3848,
+            1
+          ],
+          [
+            1073745838,
+            3848,
+            1
+          ],
+          [
+            1073745839,
+            3848,
+            1
+          ],
+          [
+            1073745840,
+            5360,
+            1
+          ],
+          [
+            1073745841,
+            3839,
+            1
+          ],
+          [
+            1073745842,
+            4009,
+            1
+          ],
+          [
+            1073745843,
+            4011,
+            1
+          ],
+          [
+            1073745844,
+            4011,
+            1
+          ],
+          [
+            1073745891,
+            3849,
+            1
+          ]
+        ],
+        [
+          [
+            1073743073,
+            4081,
+            1
+          ],
+          [
+            1073743074,
+            3821,
+            1000
+          ],
+          [
+            1073743075,
+            2600,
+            1
+          ],
+          [
+            1073743076,
+            3922,
+            1
+          ],
+          [
+            1073743078,
+            3739,
+            1
+          ],
+          [
+            1073743080,
+            3617,
+            100
+          ],
+          [
+            1073743081,
+            7939,
+            1
+          ],
+          [
+            1073745845,
+            3962,
+            100
+          ],
+          [
+            1073745846,
+            3963,
+            100
+          ],
+          [
+            1073745847,
+            3972,
+            100
+          ],
+          [
+            1073745848,
+            3973,
+            100
+          ],
+          [
+            1073745849,
+            3974,
+            100
+          ],
+          [
+            1073745850,
+            3976,
+            100
+          ],
+          [
+            1073745851,
+            3980,
+            100
+          ],
+          [
+            1073745852,
+            3981,
+            100
+          ],
+          [
+            1073745854,
+            3834,
+            1
+          ],
+          [
+            1073745855,
+            3852,
+            1
+          ],
+          [
+            1073745856,
+            3852,
+            1
+          ],
+          [
+            1073745857,
+            3852,
+            1
+          ],
+          [
+            1073745858,
+            3852,
+            1
+          ],
+          [
+            1073745859,
+            3852,
+            1
+          ],
+          [
+            1073745860,
+            3847,
+            1
+          ],
+          [
+            1073745861,
+            3847,
+            1
+          ],
+          [
+            1073745862,
+            3847,
+            1
+          ],
+          [
+            1073745863,
+            3847,
+            1
+          ],
+          [
+            1073745864,
+            3847,
+            1
+          ],
+          [
+            1073745865,
+            3851,
+            1
+          ],
+          [
+            1073745866,
+            3851,
+            1
+          ],
+          [
+            1073745867,
+            3851,
+            1
+          ],
+          [
+            1073745868,
+            3851,
+            1
+          ],
+          [
+            1073745869,
+            3851,
+            1
+          ],
+          [
+            1073745870,
+            3853,
+            1
+          ],
+          [
+            1073745871,
+            3853,
+            1
+          ],
+          [
+            1073745872,
+            3853,
+            1
+          ],
+          [
+            1073745873,
+            3853,
+            1
+          ],
+          [
+            1073745874,
+            3853,
+            1
+          ],
+          [
+            1073745875,
+            3849,
+            1
+          ],
+          [
+            1073745876,
+            3849,
+            1
+          ],
+          [
+            1073745877,
+            3849,
+            1
+          ],
+          [
+            1073745878,
+            3849,
+            1
+          ],
+          [
+            1073745879,
+            3849,
+            1
+          ],
+          [
+            1073745880,
+            3848,
+            1
+          ],
+          [
+            1073745881,
+            3848,
+            1
+          ],
+          [
+            1073745882,
+            3848,
+            1
+          ],
+          [
+            1073745883,
+            3848,
+            1
+          ],
+          [
+            1073745884,
+            3848,
+            1
+          ],
+          [
+            1073745885,
+            5360,
+            1
+          ],
+          [
+            1073745886,
+            3839,
+            1
+          ],
+          [
+            1073745887,
+            4009,
+            1
+          ],
+          [
+            1073745888,
+            4011,
+            1
+          ],
+          [
+            1073745889,
+            4011,
+            1
+          ]
+        ]
+      ],
+      "server_exit": -9,
+      "saves": {
+        "files": 44,
+        "sha256": "c29ab6b723f5240c00898ef10d15261216f9f1318d23246c6eeb8742f030f963"
+      },
+      "processes_stopped": true,
+      "duration_seconds": 43.6
+    },
+    {
+      "step": "verify-baseline",
+      "argv": [
+        "shard_rollout.py",
+        "verify"
+      ],
+      "exit": 0,
+      "stdout": {
+        "shard": "<rehearsal>/shard",
+        "actual": {
+          "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+          "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "expected": {
+          "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+          "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "match": true
+      },
+      "stderr": ""
+    },
+    {
+      "step": "snapshot",
+      "argv": [
+        "shard_rollout.py",
+        "snapshot"
+      ],
+      "exit": 0,
+      "stdout": {
+        "backup": "<rehearsal>/rollout-backup",
+        "assemblies": {
+          "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+          "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "state_files": 81
+      },
+      "stderr": ""
+    },
+    {
+      "step": "swap-refused-on-wrong-current",
+      "argv": [
+        "shard_rollout.py",
+        "swap"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "snapshot does not hold the expected current set; take a fresh snapshot"
+    },
+    {
+      "step": "swap",
+      "argv": [
+        "shard_rollout.py",
+        "swap"
+      ],
+      "exit": 0,
+      "stdout": {
+        "swapped": "<rehearsal>/shard",
+        "from": {
+          "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+          "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "to": {
+          "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+          "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+          "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "step": "health",
+      "phase": "h1-candidate",
+      "passed": true,
+      "installed": {
+        "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+        "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+        "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+      },
+      "expected_set": {
+        "ServUO.exe": "cce39e129079ab0edc0adb6b527ed97f9c9b5e908d47bd5a4d212bf4852941df",
+        "Scripts.dll": "4257bf06bbf5dc04272b6009746b034eabc62f76cca0e0f1c2a0e9f1fcfa3a0a",
+        "Ultima.dll": "8282a2a2c2777649daf86d3628331cb065b1736fbff088eb6fc5e89544714e87"
+      },
+      "startup_seconds": 1.0,
+      "serials": [
+        2,
+        3
+      ],
+      "backpack_at_login": [
+        [
+          [
+            1073743058,
+            4081,
+            1
+          ],
+          [
+            1073743059,
+            3821,
+            1000
+          ],
+          [
+            1073743060,
+            2600,
+            1
+          ],
+          [
+            1073743061,
+            3922,
+            1
+          ],
+          [
+            1073743063,
+            3739,
+            1
+          ],
+          [
+            1073743065,
+            3617,
+            100
+          ],
+          [
+            1073743066,
+            7939,
+            1
+          ],
+          [
+            1073745800,
+            3962,
+            100
+          ],
+          [
+            1073745801,
+            3963,
+            100
+          ],
+          [
+            1073745802,
+            3972,
+            100
+          ],
+          [
+            1073745803,
+            3973,
+            100
+          ],
+          [
+            1073745804,
+            3974,
+            100
+          ],
+          [
+            1073745805,
+            3976,
+            100
+          ],
+          [
+            1073745806,
+            3980,
+            100
+          ],
+          [
+            1073745807,
+            3981,
+            100
+          ],
+          [
+            1073745809,
+            3834,
+            1
+          ],
+          [
+            1073745810,
+            3852,
+            1
+          ],
+          [
+            1073745811,
+            3852,
+            1
+          ],
+          [
+            1073745812,
+            3852,
+            1
+          ],
+          [
+            1073745813,
+            3852,
+            1
+          ],
+          [
+            1073745814,
+            3852,
+            1
+          ],
+          [
+            1073745815,
+            3847,
+            1
+          ],
+          [
+            1073745816,
+            3847,
+            1
+          ],
+          [
+            1073745817,
+            3847,
+            1
+          ],
+          [
+            1073745818,
+            3847,
+            1
+          ],
+          [
+            1073745819,
+            3847,
+            1
+          ],
+          [
+            1073745820,
+            3851,
+            1
+          ],
+          [
+            1073745821,
+            3851,
+            1
+          ],
+          [
+            1073745822,
+            3851,
+            1
+          ],
+          [
+            1073745823,
+            3851,
+            1
+          ],
+          [
+            1073745824,
+            3851,
+            1
+          ],
+          [
+            1073745825,
+            3853,
+            1
+          ],
+          [
+            1073745826,
+            3853,
+            1
+          ],
+          [
+            1073745827,
+            3853,
+            1
+          ],
+          [
+            1073745828,
+            3853,
+            1
+          ],
+          [
+            1073745829,
+            3853,
+            1
+          ],
+          [
+            1073745830,
+            3849,
+            1
+          ],
+          [
+            1073745831,
+            3849,
+            1
+          ],
+          [
+            1073745832,
+            3849,
+            1
+          ],
+          [
+            1073745833,
+            3849,
+            1
+          ],
+          [
+            1073745835,
+            3848,
+            1
+          ],
+          [
+            1073745836,
+            3848,
+            1
+          ],
+          [
+            1073745837,
+            3848,
+            1
+          ],
+          [
+            1073745838,
+            3848,
+            1
+          ],
+          [
+            1073745839,
+            3848,
+            1
+          ],
+          [
+            1073745840,
+            5360,
+            1
+          ],
+          [
+            1073745841,
+            3839,
+            1
+          ],
+          [
+            1073745842,
+            4009,
+            1
+          ],
+          [
+            1073745843,
+            4011,
+            1
+          ],
+          [
+            1073745844,
+            4011,
+            1
+          ],
+          [
+            1073745891,
+            3849,
+            1
+          ]
+        ],
+        [
+          [
+            1073743073,
+            4081,
+            1
+          ],
+          [
+            1073743074,
+            3821,
+            1000
+          ],
+          [
+            1073743075,
+            2600,
+            1
+          ],
+          [
+            1073743076,
+            3922,
+            1
+          ],
+          [
+            1073743078,
+            3739,
+            1
+          ],
+          [
+            1073743080,
+            3617,
+            100
+          ],
+          [
+            1073743081,
+            7939,
+            1
+          ],
+          [
+            1073745845,
+            3962,
+            100
+          ],
+          [
+            1073745846,
+            3963,
+            100
+          ],
+          [
+            1073745847,
+            3972,
+            100
+          ],
+          [
+            1073745848,
+            3973,
+            100
+          ],
+          [
+            1073745849,
+            3974,
+            100
+          ],
+          [
+            1073745850,
+            3976,
+            100
+          ],
+          [
+            1073745851,
+            3980,
+            100
+          ],
+          [
+            1073745852,
+            3981,
+            100
+          ],
+          [
+            1073745854,
+            3834,
+            1
+          ],
+          [
+            1073745855,
+            3852,
+            1
+          ],
+          [
+            1073745856,
+            3852,
+            1
+          ],
+          [
+            1073745857,
+            3852,
+            1
+          ],
+          [
+            1073745858,
+            3852,
+            1
+          ],
+          [
+            1073745859,
+            3852,
+            1
+          ],
+          [
+            1073745860,
+            3847,
+            1
+          ],
+          [
+            1073745861,
+            3847,
+            1
+          ],
+          [
+            1073745862,
+            3847,
+            1
+          ],
+          [
+            1073745863,
+            3847,
+            1
+          ],
+          [
+            1073745864,
+            3847,
+            1
+          ],
+          [
+            1073745865,
+            3851,
+            1
+          ],
+          [
+            1073745866,
+            3851,
+            1
+          ],
+          [
+            1073745867,
+            3851,
+            1
+          ],
+          [
+            1073745868,
+            3851,
+            1
+          ],
+          [
+            1073745869,
+            3851,
+            1
+          ],
+          [
+            1073745870,
+            3853,
+            1
+          ],
+          [
+            1073745871,
+            3853,
+            1
+          ],
+          [
+            1073745872,
+            3853,
+            1
+          ],
+          [
+            1073745873,
+            3853,
+            1
+          ],
+          [
+            1073745874,
+            3853,
+            1
+          ],
+          [
+            1073745875,
+            3849,
+            1
+          ],
+          [
+            1073745876,
+            3849,
+            1
+          ],
+          [
+            1073745877,
+            3849,
+            1
+          ],
+          [
+            1073745878,
+            3849,
+            1
+          ],
+          [
+            1073745879,
+            3849,
+            1
+          ],
+          [
+            1073745880,
+            3848,
+            1
+          ],
+          [
+            1073745881,
+            3848,
+            1
+          ],
+          [
+            1073745882,
+            3848,
+            1
+          ],
+          [
+            1073745883,
+            3848,
+            1
+          ],
+          [
+            1073745884,
+            3848,
+            1
+          ],
+          [
+            1073745885,
+            5360,
+            1
+          ],
+          [
+            1073745886,
+            3839,
+            1
+          ],
+          [
+            1073745887,
+            4009,
+            1
+          ],
+          [
+            1073745888,
+            4011,
+            1
+          ],
+          [
+            1073745889,
+            4011,
+            1
+          ]
+        ]
+      ],
+      "combat_actions": [
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena enter"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena quick 7"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "GumpResponse",
+            "serial": 2,
+            "gump_id": 3122600591,
+            "button": 1
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Arena enter"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Arena quick 7"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "GumpResponse",
+            "serial": 5,
+            "gump_id": 3122600591,
+            "button": 1
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073745891
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena supplies"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Challenge 0x3 1 training any arena:1"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Accept"
+          }
+        }
+      ],
+      "strength_potion": {
+        "before": {
+          "armor": 0,
+          "body": 400,
+          "cold_resistance": 0,
+          "damageChance": 0,
+          "damage_max": 0,
+          "damage_min": 0,
+          "dead": false,
+          "defenseChance": 0,
+          "defenseChanceMax": 0,
+          "dex_lock": 2,
+          "dexterity": 25,
+          "direction": 2,
+          "energy_resistance": 0,
+          "fasterCastRecovery": 0,
+          "fasterCasting": 0,
+          "fire_resistance": 0,
+          "followers": 0,
+          "followers_max": 5,
+          "gold": 1000,
+          "hidden": false,
+          "hitChance": 0,
+          "hits": 100,
+          "hits_max": 100,
+          "hue": 33770,
+          "int_lock": 2,
+          "intelligence": 100,
+          "lowerManaCost": 0,
+          "lowerRegCost": 0,
+          "luck": 0,
+          "mana": 100,
+          "mana_max": 100,
+          "maxResistCold": 0,
+          "maxResistEnergy": 0,
+          "maxResistFire": 0,
+          "maxResistPhysical": 0,
+          "maxResistPoison": 0,
+          "mounted": false,
+          "name": "Anima",
+          "notoriety": 1,
+          "paralyzed": false,
+          "poison_level": -1,
+          "poison_resistance": 0,
+          "poisoned": false,
+          "pos": {
+            "x": 5223,
+            "y": 334,
+            "z": 15
+          },
+          "race": 0,
+          "serial": 2,
+          "speed_mode": 0,
+          "spellDamage": 0,
+          "stam": 25,
+          "stam_max": 25,
+          "stats_cap": 225,
+          "str_lock": 2,
+          "strength": 100,
+          "swingSpeed": 0,
+          "tithing_points": 0,
+          "weight": 201,
+          "weight_max": 390
+        },
+        "after": {
+          "armor": 0,
+          "body": 400,
+          "cold_resistance": 0,
+          "damageChance": 0,
+          "damage_max": 0,
+          "damage_min": 0,
+          "dead": false,
+          "defenseChance": 0,
+          "defenseChanceMax": 0,
+          "dex_lock": 2,
+          "dexterity": 25,
+          "direction": 2,
+          "energy_resistance": 0,
+          "fasterCastRecovery": 0,
+          "fasterCasting": 0,
+          "fire_resistance": 0,
+          "followers": 0,
+          "followers_max": 5,
+          "gold": 1000,
+          "hidden": false,
+          "hitChance": 0,
+          "hits": 100,
+          "hits_max": 120,
+          "hue": 33770,
+          "int_lock": 2,
+          "intelligence": 100,
+          "lowerManaCost": 0,
+          "lowerRegCost": 0,
+          "luck": 0,
+          "mana": 100,
+          "mana_max": 100,
+          "maxResistCold": 0,
+          "maxResistEnergy": 0,
+          "maxResistFire": 0,
+          "maxResistPhysical": 0,
+          "maxResistPoison": 0,
+          "mounted": false,
+          "name": "Anima",
+          "notoriety": 1,
+          "paralyzed": false,
+          "poison_level": -1,
+          "poison_resistance": 0,
+          "poisoned": false,
+          "pos": {
+            "x": 5223,
+            "y": 334,
+            "z": 15
+          },
+          "race": 0,
+          "serial": 2,
+          "speed_mode": 0,
+          "spellDamage": 0,
+          "stam": 25,
+          "stam_max": 25,
+          "stats_cap": 225,
+          "str_lock": 2,
+          "strength": 120,
+          "swingSpeed": 0,
+          "tithing_points": 0,
+          "weight": 201,
+          "weight_max": 460
+        }
+      },
+      "bottle_refill": {
+        "empty_bottle_serials": [
+          1073743056
+        ],
+        "removed_from_backpack": true,
+        "strength_potions_after": 5,
+        "bank_destination": "not directly observed over client protocol"
+      },
+      "round_reset_strength": 100,
+      "phases": [
+        "countdown",
+        "fighting",
+        "roundover"
+      ],
+      "match_id": "a79c1f45bd72465dad8f5ca6dfc13f8f",
+      "replay_rows": 151,
+      "raw_sha256": "9ab2060dc23e7d4519740d7a355c9183601453bf6c52592f13d6e74495faaf37",
+      "replay_end": {
+        "seq": 150,
+        "t": 26229,
+        "type": "end",
+        "id": "a79c1f45bd72465dad8f5ca6dfc13f8f",
+        "ranked": false,
+        "training": true,
+        "winner": null,
+        "score": [
+          0,
+          0
+        ],
+        "aborted": null,
+        "ratingResult": null,
+        "complete": true,
+        "dropped": 0
+      },
+      "backpack_at_shutdown": [
+        [
+          [
+            1073743058,
+            4081,
+            1
+          ],
+          [
+            1073743059,
+            3821,
+            1000
+          ],
+          [
+            1073743060,
+            2600,
+            1
+          ],
+          [
+            1073743061,
+            3922,
+            1
+          ],
+          [
+            1073743063,
+            3739,
+            1
+          ],
+          [
+            1073743065,
+            3617,
+            100
+          ],
+          [
+            1073743066,
+            7939,
+            1
+          ],
+          [
+            1073745800,
+            3962,
+            100
+          ],
+          [
+            1073745801,
+            3963,
+            100
+          ],
+          [
+            1073745802,
+            3972,
+            100
+          ],
+          [
+            1073745803,
+            3973,
+            100
+          ],
+          [
+            1073745804,
+            3974,
+            100
+          ],
+          [
+            1073745805,
+            3976,
+            100
+          ],
+          [
+            1073745806,
+            3980,
+            100
+          ],
+          [
+            1073745807,
+            3981,
+            100
+          ],
+          [
+            1073745808,
+            3849,
+            1
+          ],
+          [
+            1073745809,
+            3834,
+            1
+          ],
+          [
+            1073745810,
+            3852,
+            1
+          ],
+          [
+            1073745811,
+            3852,
+            1
+          ],
+          [
+            1073745812,
+            3852,
+            1
+          ],
+          [
+            1073745813,
+            3852,
+            1
+          ],
+          [
+            1073745814,
+            3852,
+            1
+          ],
+          [
+            1073745815,
+            3847,
+            1
+          ],
+          [
+            1073745816,
+            3847,
+            1
+          ],
+          [
+            1073745817,
+            3847,
+            1
+          ],
+          [
+            1073745818,
+            3847,
+            1
+          ],
+          [
+            1073745819,
+            3847,
+            1
+          ],
+          [
+            1073745820,
+            3851,
+            1
+          ],
+          [
+            1073745821,
+            3851,
+            1
+          ],
+          [
+            1073745822,
+            3851,
+            1
+          ],
+          [
+            1073745823,
+            3851,
+            1
+          ],
+          [
+            1073745824,
+            3851,
+            1
+          ],
+          [
+            1073745825,
+            3853,
+            1
+          ],
+          [
+            1073745826,
+            3853,
+            1
+          ],
+          [
+            1073745827,
+            3853,
+            1
+          ],
+          [
+            1073745828,
+            3853,
+            1
+          ],
+          [
+            1073745829,
+            3853,
+            1
+          ],
+          [
+            1073745830,
+            3849,
+            1
+          ],
+          [
+            1073745831,
+            3849,
+            1
+          ],
+          [
+            1073745832,
+            3849,
+            1
+          ],
+          [
+            1073745833,
+            3849,
+            1
+          ],
+          [
+            1073745835,
+            3848,
+            1
+          ],
+          [
+            1073745836,
+            3848,
+            1
+          ],
+          [
+            1073745837,
+            3848,
+            1
+          ],
+          [
+            1073745838,
+            3848,
+            1
+          ],
+          [
+            1073745839,
+            3848,
+            1
+          ],
+          [
+            1073745840,
+            5360,
+            1
+          ],
+          [
+            1073745841,
+            3839,
+            1
+          ],
+          [
+            1073745842,
+            4009,
+            1
+          ],
+          [
+            1073745843,
+            4011,
+            1
+          ],
+          [
+            1073745844,
+            4011,
+            1
+          ]
+        ],
+        [
+          [
+            1073743073,
+            4081,
+            1
+          ],
+          [
+            1073743074,
+            3821,
+            1000
+          ],
+          [
+            1073743075,
+            2600,
+            1
+          ],
+          [
+            1073743076,
+            3922,
+            1
+          ],
+          [
+            1073743078,
+            3739,
+            1
+          ],
+          [
+            1073743080,
+            3617,
+            100
+          ],
+          [
+            1073743081,
+            7939,
+            1
+          ],
+          [
+            1073745845,
+            3962,
+            100
+          ],
+          [
+            1073745846,
+            3963,
+            100
+          ],
+          [
+            1073745847,
+            3972,
+            100
+          ],
+          [
+            1073745848,
+            3973,
+            100
+          ],
+          [
+            1073745849,
+            3974,
+            100
+          ],
+          [
+            1073745850,
+            3976,
+            100
+          ],
+          [
+            1073745851,
+            3980,
+            100
+          ],
+          [
+            1073745852,
+            3981,
+            100
+          ],
+          [
+            1073745854,
+            3834,
+            1
+          ],
+          [
+            1073745855,
+            3852,
+            1
+          ],
+          [
+            1073745856,
+            3852,
+            1
+          ],
+          [
+            1073745857,
+            3852,
+            1
+          ],
+          [
+            1073745858,
+            3852,
+            1
+          ],
+          [
+            1073745859,
+            3852,
+            1
+          ],
+          [
+            1073745860,
+            3847,
+            1
+          ],
+          [
+            1073745861,
+            3847,
+            1
+          ],
+          [
+            1073745862,
+            3847,
+            1
+          ],
+          [
+            1073745863,
+            3847,
+            1
+          ],
+          [
+            1073745864,
+            3847,
+            1
+          ],
+          [
+            1073745865,
+            3851,
+            1
+          ],
+          [
+            1073745866,
+            3851,
+            1
+          ],
+          [
+            1073745867,
+            3851,
+            1
+          ],
+          [
+            1073745868,
+            3851,
+            1
+          ],
+          [
+            1073745869,
+            3851,
+            1
+          ],
+          [
+            1073745870,
+            3853,
+            1
+          ],
+          [
+            1073745871,
+            3853,
+            1
+          ],
+          [
+            1073745872,
+            3853,
+            1
+          ],
+          [
+            1073745873,
+            3853,
+            1
+          ],
+          [
+            1073745874,
+            3853,
+            1
+          ],
+          [
+            1073745875,
+            3849,
+            1
+          ],
+          [
+            1073745876,
+            3849,
+            1
+          ],
+          [
+            1073745877,
+            3849,
+            1
+          ],
+          [
+            1073745878,
+            3849,
+            1
+          ],
+          [
+            1073745879,
+            3849,
+            1
+          ],
+          [
+            1073745880,
+            3848,
+            1
+          ],
+          [
+            1073745881,
+            3848,
+            1
+          ],
+          [
+            1073745882,
+            3848,
+            1
+          ],
+          [
+            1073745883,
+            3848,
+            1
+          ],
+          [
+            1073745884,
+            3848,
+            1
+          ],
+          [
+            1073745885,
+            5360,
+            1
+          ],
+          [
+            1073745886,
+            3839,
+            1
+          ],
+          [
+            1073745887,
+            4009,
+            1
+          ],
+          [
+            1073745888,
+            4011,
+            1
+          ],
+          [
+            1073745889,
+            4011,
+            1
+          ]
+        ]
+      ],
+      "server_exit": -9,
+      "saves": {
+        "files": 44,
+        "sha256": "cbefa8f27aa0ad399e9a0bc9b97ad13c7099a5c11840adb4cef24f3880614d2a"
+      },
+      "processes_stopped": true,
+      "duration_seconds": 43.6
+    },
+    {
+      "step": "rollback-assemblies",
+      "argv": [
+        "shard_rollout.py",
+        "rollback"
+      ],
+      "exit": 0,
+      "stdout": {
+        "rolled_back": "<rehearsal>/shard",
+        "assemblies": {
+          "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+          "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "saves_restored": false
+      },
+      "stderr": ""
+    },
+    {
+      "step": "health",
+      "phase": "h2-rolled-back-candidate-saves",
+      "passed": true,
+      "installed": {
+        "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+        "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+        "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+      },
+      "expected_set": {
+        "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+        "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+        "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+      },
+      "startup_seconds": 1.0,
+      "serials": [
+        2,
+        3
+      ],
+      "backpack_at_login": [
+        [
+          [
+            1073743058,
+            4081,
+            1
+          ],
+          [
+            1073743059,
+            3821,
+            1000
+          ],
+          [
+            1073743060,
+            2600,
+            1
+          ],
+          [
+            1073743061,
+            3922,
+            1
+          ],
+          [
+            1073743063,
+            3739,
+            1
+          ],
+          [
+            1073743065,
+            3617,
+            100
+          ],
+          [
+            1073743066,
+            7939,
+            1
+          ],
+          [
+            1073745800,
+            3962,
+            100
+          ],
+          [
+            1073745801,
+            3963,
+            100
+          ],
+          [
+            1073745802,
+            3972,
+            100
+          ],
+          [
+            1073745803,
+            3973,
+            100
+          ],
+          [
+            1073745804,
+            3974,
+            100
+          ],
+          [
+            1073745805,
+            3976,
+            100
+          ],
+          [
+            1073745806,
+            3980,
+            100
+          ],
+          [
+            1073745807,
+            3981,
+            100
+          ],
+          [
+            1073745808,
+            3849,
+            1
+          ],
+          [
+            1073745809,
+            3834,
+            1
+          ],
+          [
+            1073745810,
+            3852,
+            1
+          ],
+          [
+            1073745811,
+            3852,
+            1
+          ],
+          [
+            1073745812,
+            3852,
+            1
+          ],
+          [
+            1073745813,
+            3852,
+            1
+          ],
+          [
+            1073745814,
+            3852,
+            1
+          ],
+          [
+            1073745815,
+            3847,
+            1
+          ],
+          [
+            1073745816,
+            3847,
+            1
+          ],
+          [
+            1073745817,
+            3847,
+            1
+          ],
+          [
+            1073745818,
+            3847,
+            1
+          ],
+          [
+            1073745819,
+            3847,
+            1
+          ],
+          [
+            1073745820,
+            3851,
+            1
+          ],
+          [
+            1073745821,
+            3851,
+            1
+          ],
+          [
+            1073745822,
+            3851,
+            1
+          ],
+          [
+            1073745823,
+            3851,
+            1
+          ],
+          [
+            1073745824,
+            3851,
+            1
+          ],
+          [
+            1073745825,
+            3853,
+            1
+          ],
+          [
+            1073745826,
+            3853,
+            1
+          ],
+          [
+            1073745827,
+            3853,
+            1
+          ],
+          [
+            1073745828,
+            3853,
+            1
+          ],
+          [
+            1073745829,
+            3853,
+            1
+          ],
+          [
+            1073745830,
+            3849,
+            1
+          ],
+          [
+            1073745831,
+            3849,
+            1
+          ],
+          [
+            1073745832,
+            3849,
+            1
+          ],
+          [
+            1073745833,
+            3849,
+            1
+          ],
+          [
+            1073745835,
+            3848,
+            1
+          ],
+          [
+            1073745836,
+            3848,
+            1
+          ],
+          [
+            1073745837,
+            3848,
+            1
+          ],
+          [
+            1073745838,
+            3848,
+            1
+          ],
+          [
+            1073745839,
+            3848,
+            1
+          ],
+          [
+            1073745840,
+            5360,
+            1
+          ],
+          [
+            1073745841,
+            3839,
+            1
+          ],
+          [
+            1073745842,
+            4009,
+            1
+          ],
+          [
+            1073745843,
+            4011,
+            1
+          ],
+          [
+            1073745844,
+            4011,
+            1
+          ]
+        ],
+        [
+          [
+            1073743073,
+            4081,
+            1
+          ],
+          [
+            1073743074,
+            3821,
+            1000
+          ],
+          [
+            1073743075,
+            2600,
+            1
+          ],
+          [
+            1073743076,
+            3922,
+            1
+          ],
+          [
+            1073743078,
+            3739,
+            1
+          ],
+          [
+            1073743080,
+            3617,
+            100
+          ],
+          [
+            1073743081,
+            7939,
+            1
+          ],
+          [
+            1073745845,
+            3962,
+            100
+          ],
+          [
+            1073745846,
+            3963,
+            100
+          ],
+          [
+            1073745847,
+            3972,
+            100
+          ],
+          [
+            1073745848,
+            3973,
+            100
+          ],
+          [
+            1073745849,
+            3974,
+            100
+          ],
+          [
+            1073745850,
+            3976,
+            100
+          ],
+          [
+            1073745851,
+            3980,
+            100
+          ],
+          [
+            1073745852,
+            3981,
+            100
+          ],
+          [
+            1073745854,
+            3834,
+            1
+          ],
+          [
+            1073745855,
+            3852,
+            1
+          ],
+          [
+            1073745856,
+            3852,
+            1
+          ],
+          [
+            1073745857,
+            3852,
+            1
+          ],
+          [
+            1073745858,
+            3852,
+            1
+          ],
+          [
+            1073745859,
+            3852,
+            1
+          ],
+          [
+            1073745860,
+            3847,
+            1
+          ],
+          [
+            1073745861,
+            3847,
+            1
+          ],
+          [
+            1073745862,
+            3847,
+            1
+          ],
+          [
+            1073745863,
+            3847,
+            1
+          ],
+          [
+            1073745864,
+            3847,
+            1
+          ],
+          [
+            1073745865,
+            3851,
+            1
+          ],
+          [
+            1073745866,
+            3851,
+            1
+          ],
+          [
+            1073745867,
+            3851,
+            1
+          ],
+          [
+            1073745868,
+            3851,
+            1
+          ],
+          [
+            1073745869,
+            3851,
+            1
+          ],
+          [
+            1073745870,
+            3853,
+            1
+          ],
+          [
+            1073745871,
+            3853,
+            1
+          ],
+          [
+            1073745872,
+            3853,
+            1
+          ],
+          [
+            1073745873,
+            3853,
+            1
+          ],
+          [
+            1073745874,
+            3853,
+            1
+          ],
+          [
+            1073745875,
+            3849,
+            1
+          ],
+          [
+            1073745876,
+            3849,
+            1
+          ],
+          [
+            1073745877,
+            3849,
+            1
+          ],
+          [
+            1073745878,
+            3849,
+            1
+          ],
+          [
+            1073745879,
+            3849,
+            1
+          ],
+          [
+            1073745880,
+            3848,
+            1
+          ],
+          [
+            1073745881,
+            3848,
+            1
+          ],
+          [
+            1073745882,
+            3848,
+            1
+          ],
+          [
+            1073745883,
+            3848,
+            1
+          ],
+          [
+            1073745884,
+            3848,
+            1
+          ],
+          [
+            1073745885,
+            5360,
+            1
+          ],
+          [
+            1073745886,
+            3839,
+            1
+          ],
+          [
+            1073745887,
+            4009,
+            1
+          ],
+          [
+            1073745888,
+            4011,
+            1
+          ],
+          [
+            1073745889,
+            4011,
+            1
+          ]
+        ]
+      ],
+      "combat_actions": [
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena enter"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena quick 7"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "GumpResponse",
+            "serial": 2,
+            "gump_id": 3122600591,
+            "button": 1
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Arena enter"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Arena quick 7"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "GumpResponse",
+            "serial": 5,
+            "gump_id": 3122600591,
+            "button": 1
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073745830
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena supplies"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Challenge 0x3 1 training any arena:1"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Accept"
+          }
+        }
+      ],
+      "strength_potion": {
+        "before": {
+          "armor": 0,
+          "body": 400,
+          "cold_resistance": 0,
+          "damageChance": 0,
+          "damage_max": 0,
+          "damage_min": 0,
+          "dead": false,
+          "defenseChance": 0,
+          "defenseChanceMax": 0,
+          "dex_lock": 2,
+          "dexterity": 25,
+          "direction": 2,
+          "energy_resistance": 0,
+          "fasterCastRecovery": 0,
+          "fasterCasting": 0,
+          "fire_resistance": 0,
+          "followers": 0,
+          "followers_max": 5,
+          "gold": 1000,
+          "hidden": false,
+          "hitChance": 0,
+          "hits": 100,
+          "hits_max": 100,
+          "hue": 33770,
+          "int_lock": 2,
+          "intelligence": 100,
+          "lowerManaCost": 0,
+          "lowerRegCost": 0,
+          "luck": 0,
+          "mana": 100,
+          "mana_max": 100,
+          "maxResistCold": 0,
+          "maxResistEnergy": 0,
+          "maxResistFire": 0,
+          "maxResistPhysical": 0,
+          "maxResistPoison": 0,
+          "mounted": false,
+          "name": "Anima",
+          "notoriety": 1,
+          "paralyzed": false,
+          "poison_level": -1,
+          "poison_resistance": 0,
+          "poisoned": false,
+          "pos": {
+            "x": 5223,
+            "y": 334,
+            "z": 15
+          },
+          "race": 0,
+          "serial": 2,
+          "speed_mode": 0,
+          "spellDamage": 0,
+          "stam": 25,
+          "stam_max": 25,
+          "stats_cap": 225,
+          "str_lock": 2,
+          "strength": 100,
+          "swingSpeed": 0,
+          "tithing_points": 0,
+          "weight": 201,
+          "weight_max": 390
+        },
+        "after": {
+          "armor": 0,
+          "body": 400,
+          "cold_resistance": 0,
+          "damageChance": 0,
+          "damage_max": 0,
+          "damage_min": 0,
+          "dead": false,
+          "defenseChance": 0,
+          "defenseChanceMax": 0,
+          "dex_lock": 2,
+          "dexterity": 25,
+          "direction": 2,
+          "energy_resistance": 0,
+          "fasterCastRecovery": 0,
+          "fasterCasting": 0,
+          "fire_resistance": 0,
+          "followers": 0,
+          "followers_max": 5,
+          "gold": 1000,
+          "hidden": false,
+          "hitChance": 0,
+          "hits": 100,
+          "hits_max": 120,
+          "hue": 33770,
+          "int_lock": 2,
+          "intelligence": 100,
+          "lowerManaCost": 0,
+          "lowerRegCost": 0,
+          "luck": 0,
+          "mana": 100,
+          "mana_max": 100,
+          "maxResistCold": 0,
+          "maxResistEnergy": 0,
+          "maxResistFire": 0,
+          "maxResistPhysical": 0,
+          "maxResistPoison": 0,
+          "mounted": false,
+          "name": "Anima",
+          "notoriety": 1,
+          "paralyzed": false,
+          "poison_level": -1,
+          "poison_resistance": 0,
+          "poisoned": false,
+          "pos": {
+            "x": 5223,
+            "y": 334,
+            "z": 15
+          },
+          "race": 0,
+          "serial": 2,
+          "speed_mode": 0,
+          "spellDamage": 0,
+          "stam": 25,
+          "stam_max": 25,
+          "stats_cap": 225,
+          "str_lock": 2,
+          "strength": 120,
+          "swingSpeed": 0,
+          "tithing_points": 0,
+          "weight": 201,
+          "weight_max": 460
+        }
+      },
+      "bottle_refill": {
+        "empty_bottle_serials": [
+          1073745834
+        ],
+        "removed_from_backpack": true,
+        "strength_potions_after": 5,
+        "bank_destination": "not directly observed over client protocol"
+      },
+      "round_reset_strength": 100,
+      "phases": [
+        "countdown",
+        "fighting",
+        "roundover"
+      ],
+      "match_id": "8630393a442a4dfeaa09e48c10e42c1a",
+      "replay_rows": 150,
+      "raw_sha256": "b38237fe752d9365d9017028bf00a415f8727d019a75ce0e488d4988e064d07a",
+      "replay_end": {
+        "seq": 149,
+        "t": 26206,
+        "type": "end",
+        "id": "8630393a442a4dfeaa09e48c10e42c1a",
+        "ranked": false,
+        "training": true,
+        "winner": null,
+        "score": [
+          0,
+          0
+        ],
+        "aborted": null,
+        "ratingResult": null,
+        "complete": true,
+        "dropped": 0
+      },
+      "backpack_at_shutdown": [
+        [
+          [
+            1073743058,
+            4081,
+            1
+          ],
+          [
+            1073743059,
+            3821,
+            1000
+          ],
+          [
+            1073743060,
+            2600,
+            1
+          ],
+          [
+            1073743061,
+            3922,
+            1
+          ],
+          [
+            1073743063,
+            3739,
+            1
+          ],
+          [
+            1073743065,
+            3617,
+            100
+          ],
+          [
+            1073743066,
+            7939,
+            1
+          ],
+          [
+            1073745800,
+            3962,
+            100
+          ],
+          [
+            1073745801,
+            3963,
+            100
+          ],
+          [
+            1073745802,
+            3972,
+            100
+          ],
+          [
+            1073745803,
+            3973,
+            100
+          ],
+          [
+            1073745804,
+            3974,
+            100
+          ],
+          [
+            1073745805,
+            3976,
+            100
+          ],
+          [
+            1073745806,
+            3980,
+            100
+          ],
+          [
+            1073745807,
+            3981,
+            100
+          ],
+          [
+            1073745808,
+            3849,
+            1
+          ],
+          [
+            1073745809,
+            3834,
+            1
+          ],
+          [
+            1073745810,
+            3852,
+            1
+          ],
+          [
+            1073745811,
+            3852,
+            1
+          ],
+          [
+            1073745812,
+            3852,
+            1
+          ],
+          [
+            1073745813,
+            3852,
+            1
+          ],
+          [
+            1073745814,
+            3852,
+            1
+          ],
+          [
+            1073745815,
+            3847,
+            1
+          ],
+          [
+            1073745816,
+            3847,
+            1
+          ],
+          [
+            1073745817,
+            3847,
+            1
+          ],
+          [
+            1073745818,
+            3847,
+            1
+          ],
+          [
+            1073745819,
+            3847,
+            1
+          ],
+          [
+            1073745820,
+            3851,
+            1
+          ],
+          [
+            1073745821,
+            3851,
+            1
+          ],
+          [
+            1073745822,
+            3851,
+            1
+          ],
+          [
+            1073745823,
+            3851,
+            1
+          ],
+          [
+            1073745824,
+            3851,
+            1
+          ],
+          [
+            1073745825,
+            3853,
+            1
+          ],
+          [
+            1073745826,
+            3853,
+            1
+          ],
+          [
+            1073745827,
+            3853,
+            1
+          ],
+          [
+            1073745828,
+            3853,
+            1
+          ],
+          [
+            1073745829,
+            3853,
+            1
+          ],
+          [
+            1073745831,
+            3849,
+            1
+          ],
+          [
+            1073745832,
+            3849,
+            1
+          ],
+          [
+            1073745833,
+            3849,
+            1
+          ],
+          [
+            1073745835,
+            3848,
+            1
+          ],
+          [
+            1073745836,
+            3848,
+            1
+          ],
+          [
+            1073745837,
+            3848,
+            1
+          ],
+          [
+            1073745838,
+            3848,
+            1
+          ],
+          [
+            1073745839,
+            3848,
+            1
+          ],
+          [
+            1073745840,
+            5360,
+            1
+          ],
+          [
+            1073745841,
+            3839,
+            1
+          ],
+          [
+            1073745842,
+            4009,
+            1
+          ],
+          [
+            1073745843,
+            4011,
+            1
+          ],
+          [
+            1073745844,
+            4011,
+            1
+          ],
+          [
+            1073745853,
+            3849,
+            1
+          ]
+        ],
+        [
+          [
+            1073743073,
+            4081,
+            1
+          ],
+          [
+            1073743074,
+            3821,
+            1000
+          ],
+          [
+            1073743075,
+            2600,
+            1
+          ],
+          [
+            1073743076,
+            3922,
+            1
+          ],
+          [
+            1073743078,
+            3739,
+            1
+          ],
+          [
+            1073743080,
+            3617,
+            100
+          ],
+          [
+            1073743081,
+            7939,
+            1
+          ],
+          [
+            1073745845,
+            3962,
+            100
+          ],
+          [
+            1073745846,
+            3963,
+            100
+          ],
+          [
+            1073745847,
+            3972,
+            100
+          ],
+          [
+            1073745848,
+            3973,
+            100
+          ],
+          [
+            1073745849,
+            3974,
+            100
+          ],
+          [
+            1073745850,
+            3976,
+            100
+          ],
+          [
+            1073745851,
+            3980,
+            100
+          ],
+          [
+            1073745852,
+            3981,
+            100
+          ],
+          [
+            1073745854,
+            3834,
+            1
+          ],
+          [
+            1073745855,
+            3852,
+            1
+          ],
+          [
+            1073745856,
+            3852,
+            1
+          ],
+          [
+            1073745857,
+            3852,
+            1
+          ],
+          [
+            1073745858,
+            3852,
+            1
+          ],
+          [
+            1073745859,
+            3852,
+            1
+          ],
+          [
+            1073745860,
+            3847,
+            1
+          ],
+          [
+            1073745861,
+            3847,
+            1
+          ],
+          [
+            1073745862,
+            3847,
+            1
+          ],
+          [
+            1073745863,
+            3847,
+            1
+          ],
+          [
+            1073745864,
+            3847,
+            1
+          ],
+          [
+            1073745865,
+            3851,
+            1
+          ],
+          [
+            1073745866,
+            3851,
+            1
+          ],
+          [
+            1073745867,
+            3851,
+            1
+          ],
+          [
+            1073745868,
+            3851,
+            1
+          ],
+          [
+            1073745869,
+            3851,
+            1
+          ],
+          [
+            1073745870,
+            3853,
+            1
+          ],
+          [
+            1073745871,
+            3853,
+            1
+          ],
+          [
+            1073745872,
+            3853,
+            1
+          ],
+          [
+            1073745873,
+            3853,
+            1
+          ],
+          [
+            1073745874,
+            3853,
+            1
+          ],
+          [
+            1073745875,
+            3849,
+            1
+          ],
+          [
+            1073745876,
+            3849,
+            1
+          ],
+          [
+            1073745877,
+            3849,
+            1
+          ],
+          [
+            1073745878,
+            3849,
+            1
+          ],
+          [
+            1073745879,
+            3849,
+            1
+          ],
+          [
+            1073745880,
+            3848,
+            1
+          ],
+          [
+            1073745881,
+            3848,
+            1
+          ],
+          [
+            1073745882,
+            3848,
+            1
+          ],
+          [
+            1073745883,
+            3848,
+            1
+          ],
+          [
+            1073745884,
+            3848,
+            1
+          ],
+          [
+            1073745885,
+            5360,
+            1
+          ],
+          [
+            1073745886,
+            3839,
+            1
+          ],
+          [
+            1073745887,
+            4009,
+            1
+          ],
+          [
+            1073745888,
+            4011,
+            1
+          ],
+          [
+            1073745889,
+            4011,
+            1
+          ]
+        ]
+      ],
+      "server_exit": -9,
+      "saves": {
+        "files": 44,
+        "sha256": "5d52440110f23621a2239e699c9477131be512f0d23a9956b3be9b6bb221ddd1"
+      },
+      "processes_stopped": true,
+      "duration_seconds": 43.1
+    },
+    {
+      "step": "rollback-full-state",
+      "argv": [
+        "shard_rollout.py",
+        "rollback"
+      ],
+      "exit": 0,
+      "stdout": {
+        "rolled_back": "<rehearsal>/shard",
+        "assemblies": {
+          "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+          "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "saves_restored": true,
+        "kept_aside": [
+          "<rehearsal>/shard/ServUO.exe.config.rollback-aside-1795019256",
+          "<rehearsal>/shard/Config.rollback-aside-1795019256",
+          "<rehearsal>/shard/Saves.rollback-aside-1795019256"
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "step": "restored-saves-identical-to-snapshot",
+      "snapshot": {
+        "files": 44,
+        "sha256": "c29ab6b723f5240c00898ef10d15261216f9f1318d23246c6eeb8742f030f963"
+      },
+      "restored": {
+        "files": 44,
+        "sha256": "c29ab6b723f5240c00898ef10d15261216f9f1318d23246c6eeb8742f030f963"
+      },
+      "match": true
+    },
+    {
+      "step": "health",
+      "phase": "h3-rolled-back-snapshot-state",
+      "passed": true,
+      "installed": {
+        "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+        "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+        "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+      },
+      "expected_set": {
+        "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+        "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+        "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+      },
+      "startup_seconds": 1.0,
+      "serials": [
+        2,
+        3
+      ],
+      "backpack_at_login": [
+        [
+          [
+            1073743058,
+            4081,
+            1
+          ],
+          [
+            1073743059,
+            3821,
+            1000
+          ],
+          [
+            1073743060,
+            2600,
+            1
+          ],
+          [
+            1073743061,
+            3922,
+            1
+          ],
+          [
+            1073743063,
+            3739,
+            1
+          ],
+          [
+            1073743065,
+            3617,
+            100
+          ],
+          [
+            1073743066,
+            7939,
+            1
+          ],
+          [
+            1073745800,
+            3962,
+            100
+          ],
+          [
+            1073745801,
+            3963,
+            100
+          ],
+          [
+            1073745802,
+            3972,
+            100
+          ],
+          [
+            1073745803,
+            3973,
+            100
+          ],
+          [
+            1073745804,
+            3974,
+            100
+          ],
+          [
+            1073745805,
+            3976,
+            100
+          ],
+          [
+            1073745806,
+            3980,
+            100
+          ],
+          [
+            1073745807,
+            3981,
+            100
+          ],
+          [
+            1073745809,
+            3834,
+            1
+          ],
+          [
+            1073745810,
+            3852,
+            1
+          ],
+          [
+            1073745811,
+            3852,
+            1
+          ],
+          [
+            1073745812,
+            3852,
+            1
+          ],
+          [
+            1073745813,
+            3852,
+            1
+          ],
+          [
+            1073745814,
+            3852,
+            1
+          ],
+          [
+            1073745815,
+            3847,
+            1
+          ],
+          [
+            1073745816,
+            3847,
+            1
+          ],
+          [
+            1073745817,
+            3847,
+            1
+          ],
+          [
+            1073745818,
+            3847,
+            1
+          ],
+          [
+            1073745819,
+            3847,
+            1
+          ],
+          [
+            1073745820,
+            3851,
+            1
+          ],
+          [
+            1073745821,
+            3851,
+            1
+          ],
+          [
+            1073745822,
+            3851,
+            1
+          ],
+          [
+            1073745823,
+            3851,
+            1
+          ],
+          [
+            1073745824,
+            3851,
+            1
+          ],
+          [
+            1073745825,
+            3853,
+            1
+          ],
+          [
+            1073745826,
+            3853,
+            1
+          ],
+          [
+            1073745827,
+            3853,
+            1
+          ],
+          [
+            1073745828,
+            3853,
+            1
+          ],
+          [
+            1073745829,
+            3853,
+            1
+          ],
+          [
+            1073745830,
+            3849,
+            1
+          ],
+          [
+            1073745831,
+            3849,
+            1
+          ],
+          [
+            1073745832,
+            3849,
+            1
+          ],
+          [
+            1073745833,
+            3849,
+            1
+          ],
+          [
+            1073745835,
+            3848,
+            1
+          ],
+          [
+            1073745836,
+            3848,
+            1
+          ],
+          [
+            1073745837,
+            3848,
+            1
+          ],
+          [
+            1073745838,
+            3848,
+            1
+          ],
+          [
+            1073745839,
+            3848,
+            1
+          ],
+          [
+            1073745840,
+            5360,
+            1
+          ],
+          [
+            1073745841,
+            3839,
+            1
+          ],
+          [
+            1073745842,
+            4009,
+            1
+          ],
+          [
+            1073745843,
+            4011,
+            1
+          ],
+          [
+            1073745844,
+            4011,
+            1
+          ],
+          [
+            1073745891,
+            3849,
+            1
+          ]
+        ],
+        [
+          [
+            1073743073,
+            4081,
+            1
+          ],
+          [
+            1073743074,
+            3821,
+            1000
+          ],
+          [
+            1073743075,
+            2600,
+            1
+          ],
+          [
+            1073743076,
+            3922,
+            1
+          ],
+          [
+            1073743078,
+            3739,
+            1
+          ],
+          [
+            1073743080,
+            3617,
+            100
+          ],
+          [
+            1073743081,
+            7939,
+            1
+          ],
+          [
+            1073745845,
+            3962,
+            100
+          ],
+          [
+            1073745846,
+            3963,
+            100
+          ],
+          [
+            1073745847,
+            3972,
+            100
+          ],
+          [
+            1073745848,
+            3973,
+            100
+          ],
+          [
+            1073745849,
+            3974,
+            100
+          ],
+          [
+            1073745850,
+            3976,
+            100
+          ],
+          [
+            1073745851,
+            3980,
+            100
+          ],
+          [
+            1073745852,
+            3981,
+            100
+          ],
+          [
+            1073745854,
+            3834,
+            1
+          ],
+          [
+            1073745855,
+            3852,
+            1
+          ],
+          [
+            1073745856,
+            3852,
+            1
+          ],
+          [
+            1073745857,
+            3852,
+            1
+          ],
+          [
+            1073745858,
+            3852,
+            1
+          ],
+          [
+            1073745859,
+            3852,
+            1
+          ],
+          [
+            1073745860,
+            3847,
+            1
+          ],
+          [
+            1073745861,
+            3847,
+            1
+          ],
+          [
+            1073745862,
+            3847,
+            1
+          ],
+          [
+            1073745863,
+            3847,
+            1
+          ],
+          [
+            1073745864,
+            3847,
+            1
+          ],
+          [
+            1073745865,
+            3851,
+            1
+          ],
+          [
+            1073745866,
+            3851,
+            1
+          ],
+          [
+            1073745867,
+            3851,
+            1
+          ],
+          [
+            1073745868,
+            3851,
+            1
+          ],
+          [
+            1073745869,
+            3851,
+            1
+          ],
+          [
+            1073745870,
+            3853,
+            1
+          ],
+          [
+            1073745871,
+            3853,
+            1
+          ],
+          [
+            1073745872,
+            3853,
+            1
+          ],
+          [
+            1073745873,
+            3853,
+            1
+          ],
+          [
+            1073745874,
+            3853,
+            1
+          ],
+          [
+            1073745875,
+            3849,
+            1
+          ],
+          [
+            1073745876,
+            3849,
+            1
+          ],
+          [
+            1073745877,
+            3849,
+            1
+          ],
+          [
+            1073745878,
+            3849,
+            1
+          ],
+          [
+            1073745879,
+            3849,
+            1
+          ],
+          [
+            1073745880,
+            3848,
+            1
+          ],
+          [
+            1073745881,
+            3848,
+            1
+          ],
+          [
+            1073745882,
+            3848,
+            1
+          ],
+          [
+            1073745883,
+            3848,
+            1
+          ],
+          [
+            1073745884,
+            3848,
+            1
+          ],
+          [
+            1073745885,
+            5360,
+            1
+          ],
+          [
+            1073745886,
+            3839,
+            1
+          ],
+          [
+            1073745887,
+            4009,
+            1
+          ],
+          [
+            1073745888,
+            4011,
+            1
+          ],
+          [
+            1073745889,
+            4011,
+            1
+          ]
+        ]
+      ],
+      "combat_actions": [
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena enter"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena quick 7"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "GumpResponse",
+            "serial": 2,
+            "gump_id": 3122600591,
+            "button": 1
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Arena enter"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Arena quick 7"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "GumpResponse",
+            "serial": 5,
+            "gump_id": 3122600591,
+            "button": 1
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073745833
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Arena supplies"
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Use",
+            "serial": 1073743057
+          }
+        },
+        {
+          "seat": 0,
+          "action": {
+            "type": "Say",
+            "text": "[Challenge 0x3 1 training any arena:1"
+          }
+        },
+        {
+          "seat": 1,
+          "action": {
+            "type": "Say",
+            "text": "[Accept"
+          }
+        }
+      ],
+      "strength_potion": {
+        "before": {
+          "armor": 0,
+          "body": 400,
+          "cold_resistance": 0,
+          "damageChance": 0,
+          "damage_max": 0,
+          "damage_min": 0,
+          "dead": false,
+          "defenseChance": 0,
+          "defenseChanceMax": 0,
+          "dex_lock": 2,
+          "dexterity": 25,
+          "direction": 2,
+          "energy_resistance": 0,
+          "fasterCastRecovery": 0,
+          "fasterCasting": 0,
+          "fire_resistance": 0,
+          "followers": 0,
+          "followers_max": 5,
+          "gold": 1000,
+          "hidden": false,
+          "hitChance": 0,
+          "hits": 100,
+          "hits_max": 100,
+          "hue": 33770,
+          "int_lock": 2,
+          "intelligence": 100,
+          "lowerManaCost": 0,
+          "lowerRegCost": 0,
+          "luck": 0,
+          "mana": 100,
+          "mana_max": 100,
+          "maxResistCold": 0,
+          "maxResistEnergy": 0,
+          "maxResistFire": 0,
+          "maxResistPhysical": 0,
+          "maxResistPoison": 0,
+          "mounted": false,
+          "name": "Anima",
+          "notoriety": 1,
+          "paralyzed": false,
+          "poison_level": -1,
+          "poison_resistance": 0,
+          "poisoned": false,
+          "pos": {
+            "x": 5223,
+            "y": 334,
+            "z": 15
+          },
+          "race": 0,
+          "serial": 2,
+          "speed_mode": 0,
+          "spellDamage": 0,
+          "stam": 25,
+          "stam_max": 25,
+          "stats_cap": 225,
+          "str_lock": 2,
+          "strength": 100,
+          "swingSpeed": 0,
+          "tithing_points": 0,
+          "weight": 201,
+          "weight_max": 390
+        },
+        "after": {
+          "armor": 0,
+          "body": 400,
+          "cold_resistance": 0,
+          "damageChance": 0,
+          "damage_max": 0,
+          "damage_min": 0,
+          "dead": false,
+          "defenseChance": 0,
+          "defenseChanceMax": 0,
+          "dex_lock": 2,
+          "dexterity": 25,
+          "direction": 2,
+          "energy_resistance": 0,
+          "fasterCastRecovery": 0,
+          "fasterCasting": 0,
+          "fire_resistance": 0,
+          "followers": 0,
+          "followers_max": 5,
+          "gold": 1000,
+          "hidden": false,
+          "hitChance": 0,
+          "hits": 100,
+          "hits_max": 120,
+          "hue": 33770,
+          "int_lock": 2,
+          "intelligence": 100,
+          "lowerManaCost": 0,
+          "lowerRegCost": 0,
+          "luck": 0,
+          "mana": 100,
+          "mana_max": 100,
+          "maxResistCold": 0,
+          "maxResistEnergy": 0,
+          "maxResistFire": 0,
+          "maxResistPhysical": 0,
+          "maxResistPoison": 0,
+          "mounted": false,
+          "name": "Anima",
+          "notoriety": 1,
+          "paralyzed": false,
+          "poison_level": -1,
+          "poison_resistance": 0,
+          "poisoned": false,
+          "pos": {
+            "x": 5223,
+            "y": 334,
+            "z": 15
+          },
+          "race": 0,
+          "serial": 2,
+          "speed_mode": 0,
+          "spellDamage": 0,
+          "stam": 25,
+          "stam_max": 25,
+          "stats_cap": 225,
+          "str_lock": 2,
+          "strength": 120,
+          "swingSpeed": 0,
+          "tithing_points": 0,
+          "weight": 201,
+          "weight_max": 460
+        }
+      },
+      "bottle_refill": {
+        "empty_bottle_serials": [
+          1073743056
+        ],
+        "removed_from_backpack": true,
+        "strength_potions_after": 5,
+        "bank_destination": "not directly observed over client protocol"
+      },
+      "round_reset_strength": 100,
+      "phases": [
+        "countdown",
+        "fighting",
+        "roundover"
+      ],
+      "match_id": "f976c1c6df0741c7b379c02d6896132a",
+      "replay_rows": 150,
+      "raw_sha256": "9d6cc37876249af319581ee6216470e2b48fe651ab5178163910c6b49e2efcb7",
+      "replay_end": {
+        "seq": 149,
+        "t": 26146,
+        "type": "end",
+        "id": "f976c1c6df0741c7b379c02d6896132a",
+        "ranked": false,
+        "training": true,
+        "winner": null,
+        "score": [
+          0,
+          0
+        ],
+        "aborted": null,
+        "ratingResult": null,
+        "complete": true,
+        "dropped": 0
+      },
+      "backpack_at_shutdown": [
+        [
+          [
+            1073743058,
+            4081,
+            1
+          ],
+          [
+            1073743059,
+            3821,
+            1000
+          ],
+          [
+            1073743060,
+            2600,
+            1
+          ],
+          [
+            1073743061,
+            3922,
+            1
+          ],
+          [
+            1073743063,
+            3739,
+            1
+          ],
+          [
+            1073743065,
+            3617,
+            100
+          ],
+          [
+            1073743066,
+            7939,
+            1
+          ],
+          [
+            1073745800,
+            3962,
+            100
+          ],
+          [
+            1073745801,
+            3963,
+            100
+          ],
+          [
+            1073745802,
+            3972,
+            100
+          ],
+          [
+            1073745803,
+            3973,
+            100
+          ],
+          [
+            1073745804,
+            3974,
+            100
+          ],
+          [
+            1073745805,
+            3976,
+            100
+          ],
+          [
+            1073745806,
+            3980,
+            100
+          ],
+          [
+            1073745807,
+            3981,
+            100
+          ],
+          [
+            1073745808,
+            3849,
+            1
+          ],
+          [
+            1073745809,
+            3834,
+            1
+          ],
+          [
+            1073745810,
+            3852,
+            1
+          ],
+          [
+            1073745811,
+            3852,
+            1
+          ],
+          [
+            1073745812,
+            3852,
+            1
+          ],
+          [
+            1073745813,
+            3852,
+            1
+          ],
+          [
+            1073745814,
+            3852,
+            1
+          ],
+          [
+            1073745815,
+            3847,
+            1
+          ],
+          [
+            1073745816,
+            3847,
+            1
+          ],
+          [
+            1073745817,
+            3847,
+            1
+          ],
+          [
+            1073745818,
+            3847,
+            1
+          ],
+          [
+            1073745819,
+            3847,
+            1
+          ],
+          [
+            1073745820,
+            3851,
+            1
+          ],
+          [
+            1073745821,
+            3851,
+            1
+          ],
+          [
+            1073745822,
+            3851,
+            1
+          ],
+          [
+            1073745823,
+            3851,
+            1
+          ],
+          [
+            1073745824,
+            3851,
+            1
+          ],
+          [
+            1073745825,
+            3853,
+            1
+          ],
+          [
+            1073745826,
+            3853,
+            1
+          ],
+          [
+            1073745827,
+            3853,
+            1
+          ],
+          [
+            1073745828,
+            3853,
+            1
+          ],
+          [
+            1073745829,
+            3853,
+            1
+          ],
+          [
+            1073745830,
+            3849,
+            1
+          ],
+          [
+            1073745831,
+            3849,
+            1
+          ],
+          [
+            1073745832,
+            3849,
+            1
+          ],
+          [
+            1073745835,
+            3848,
+            1
+          ],
+          [
+            1073745836,
+            3848,
+            1
+          ],
+          [
+            1073745837,
+            3848,
+            1
+          ],
+          [
+            1073745838,
+            3848,
+            1
+          ],
+          [
+            1073745839,
+            3848,
+            1
+          ],
+          [
+            1073745840,
+            5360,
+            1
+          ],
+          [
+            1073745841,
+            3839,
+            1
+          ],
+          [
+            1073745842,
+            4009,
+            1
+          ],
+          [
+            1073745843,
+            4011,
+            1
+          ],
+          [
+            1073745844,
+            4011,
+            1
+          ],
+          [
+            1073745891,
+            3849,
+            1
+          ]
+        ],
+        [
+          [
+            1073743073,
+            4081,
+            1
+          ],
+          [
+            1073743074,
+            3821,
+            1000
+          ],
+          [
+            1073743075,
+            2600,
+            1
+          ],
+          [
+            1073743076,
+            3922,
+            1
+          ],
+          [
+            1073743078,
+            3739,
+            1
+          ],
+          [
+            1073743080,
+            3617,
+            100
+          ],
+          [
+            1073743081,
+            7939,
+            1
+          ],
+          [
+            1073745845,
+            3962,
+            100
+          ],
+          [
+            1073745846,
+            3963,
+            100
+          ],
+          [
+            1073745847,
+            3972,
+            100
+          ],
+          [
+            1073745848,
+            3973,
+            100
+          ],
+          [
+            1073745849,
+            3974,
+            100
+          ],
+          [
+            1073745850,
+            3976,
+            100
+          ],
+          [
+            1073745851,
+            3980,
+            100
+          ],
+          [
+            1073745852,
+            3981,
+            100
+          ],
+          [
+            1073745854,
+            3834,
+            1
+          ],
+          [
+            1073745855,
+            3852,
+            1
+          ],
+          [
+            1073745856,
+            3852,
+            1
+          ],
+          [
+            1073745857,
+            3852,
+            1
+          ],
+          [
+            1073745858,
+            3852,
+            1
+          ],
+          [
+            1073745859,
+            3852,
+            1
+          ],
+          [
+            1073745860,
+            3847,
+            1
+          ],
+          [
+            1073745861,
+            3847,
+            1
+          ],
+          [
+            1073745862,
+            3847,
+            1
+          ],
+          [
+            1073745863,
+            3847,
+            1
+          ],
+          [
+            1073745864,
+            3847,
+            1
+          ],
+          [
+            1073745865,
+            3851,
+            1
+          ],
+          [
+            1073745866,
+            3851,
+            1
+          ],
+          [
+            1073745867,
+            3851,
+            1
+          ],
+          [
+            1073745868,
+            3851,
+            1
+          ],
+          [
+            1073745869,
+            3851,
+            1
+          ],
+          [
+            1073745870,
+            3853,
+            1
+          ],
+          [
+            1073745871,
+            3853,
+            1
+          ],
+          [
+            1073745872,
+            3853,
+            1
+          ],
+          [
+            1073745873,
+            3853,
+            1
+          ],
+          [
+            1073745874,
+            3853,
+            1
+          ],
+          [
+            1073745875,
+            3849,
+            1
+          ],
+          [
+            1073745876,
+            3849,
+            1
+          ],
+          [
+            1073745877,
+            3849,
+            1
+          ],
+          [
+            1073745878,
+            3849,
+            1
+          ],
+          [
+            1073745879,
+            3849,
+            1
+          ],
+          [
+            1073745880,
+            3848,
+            1
+          ],
+          [
+            1073745881,
+            3848,
+            1
+          ],
+          [
+            1073745882,
+            3848,
+            1
+          ],
+          [
+            1073745883,
+            3848,
+            1
+          ],
+          [
+            1073745884,
+            3848,
+            1
+          ],
+          [
+            1073745885,
+            5360,
+            1
+          ],
+          [
+            1073745886,
+            3839,
+            1
+          ],
+          [
+            1073745887,
+            4009,
+            1
+          ],
+          [
+            1073745888,
+            4011,
+            1
+          ],
+          [
+            1073745889,
+            4011,
+            1
+          ]
+        ]
+      ],
+      "server_exit": -9,
+      "saves": {
+        "files": 44,
+        "sha256": "dbecf1a347d128b66b97a552a52d19676b2a619bd9b1e7fb8a5e40f173179964"
+      },
+      "processes_stopped": true,
+      "duration_seconds": 43.4
+    },
+    {
+      "step": "final-verify",
+      "argv": [
+        "shard_rollout.py",
+        "verify"
+      ],
+      "exit": 0,
+      "stdout": {
+        "shard": "<rehearsal>/shard",
+        "actual": {
+          "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+          "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "expected": {
+          "ServUO.exe": "3a44e60b9edda4c9fb8bba313cb9950c394d2a9d24c6ab315b008549127b3165",
+          "Scripts.dll": "b30c89378266c7b0a7a2f55a162d979afecc5d7084ebc1782f338c91074012f9",
+          "Ultima.dll": "2adeee941bce23f3b4cb8fb465d7d5d796061e2e84852a1b61b14268dcd88a17"
+        },
+        "match": true
+      },
+      "stderr": ""
+    }
+  ],
+  "config_overrides": {
+    "Server.cfg": {
+      "Listen": "Listen=127.0.0.1",
+      "Address": "Address=127.0.0.1",
+      "Port": "Port=12698"
+    },
+    "Duel.cfg": {
+      "WebHost": "WebHost=127.0.0.1",
+      "WebPort": "WebPort=18100",
+      "ShowdownAfterSeconds": "ShowdownAfterSeconds=10",
+      "RoundTimeLimitSeconds": "RoundTimeLimitSeconds=20"
+    },
+    "Arena.cfg": {
+      "Enabled": "Enabled=true",
+      "DisableRisingTide": "DisableRisingTide=true",
+      "SelfPlay": "SelfPlay=false",
+      "BotAccounts": "BotAccounts="
+    },
+    "AutoSave.cfg": {
+      "Enabled": "Enabled=false"
+    },
+    "AutoRestart.cfg": {
+      "Enabled": "Enabled=false"
+    },
+    "Accounts.cfg": {
+      "AccountsPerIp": "AccountsPerIp=2",
+      "AutoCreateAccounts": "AutoCreateAccounts=true"
+    },
+    "DataPath.cfg": {
+      "CustomPath": "CustomPath=<licensed-client-data>"
+    },
+    "Compiler.cfg": {
+      "Dynamic": "Dynamic=false"
+    }
+  },
+  "kept_aside": [
+    "<rehearsal>/shard/ServUO.exe.config.rollback-aside-1795019256",
+    "<rehearsal>/shard/Config.rollback-aside-1795019256",
+    "<rehearsal>/shard/Saves.rollback-aside-1795019256"
+  ],
+  "leftover_processes": [],
+  "command": "python3.14 tests/provenance/rollback_rehearsal.py --baseline <historical_lineage output>/deployed-equivalent --candidate <build_provenance build1> --source <historical_lineage output>/export1 --bridge <anima-bridge f8e3eca9, anima-client ae89608 release> --data <licensed-client-data> --output <rehearsal>",
+  "notes": [
+    "server_exit -9 is ServUO's normal console \"shutdown\": World.Save then Core.Kill -> Process.Kill (self SIGKILL).",
+    "swap-refused-on-wrong-current: the guard refused at the first check (snapshot != expected current); installed set unchanged.",
+    "Training matches are not recorded in Dueling.bin history, so persistence is proven by identical character serials and backpack item [serial, graphic, amount] sets between the previous shutdown and the next login.",
+    "tools/shard_rollout.py was edited after the run only to change the documentation path in its module docstring (docs/operations/rollout-rollback.md -> ROLLOUT_ROLLBACK.md); tool_sha256 is the executed file, tool_sha256_committed the committed one."
+  ],
+  "tool_sha256_committed": "1fcdb6f2cfc2c9e02d050286a10bf80b8aaa5812780531cb18fa3ec3709a830f"
+}
