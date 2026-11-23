@@ -225,7 +225,13 @@ def proc_info(pid, strict):
             if len(parts) == 6 and parts[5].startswith('/'):
                 files.append(parts[5].replace(' (deleted)', ''))
         for fd in os.listdir(str(base/'fd')):
-            target = os.readlink(str(base/'fd'/fd))
+            try:
+                target = os.readlink(str(base/'fd'/fd))
+            except (FileNotFoundError, ProcessLookupError):
+                # A descriptor may close after listdir even while its process
+                # stays alive. Keep the cwd/maps and inspect the remaining fds;
+                # dropping this entire PID could falsely authorize a swap.
+                continue
             if target.startswith('/'):
                 files.append(target.replace(' (deleted)', ''))
     except (FileNotFoundError, ProcessLookupError):
