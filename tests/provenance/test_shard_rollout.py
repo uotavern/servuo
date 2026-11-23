@@ -512,6 +512,29 @@ class RunningShardTests(Base):
             self.assertEqual(sr.running_from(self.shard), [])
             self.assertEqual(self.snapshot()[0], 0)
 
+    def test_closed_fd_does_not_hide_live_cwd_maps_or_other_open_files(self):
+        proc = self.fake_proc({
+            101: (str(self.shard), ['/usr/bin/mono', 'ServUO.exe'], [], ['/dev/null']),
+            102: ('/', ['reader'], [str(self.shard/'Scripts.dll')], ['/dev/null']),
+            103: ('/', ['reader'], [], ['/dev/null', str(self.shard/'Saves'/'Dueling.bin')]),
+        })
+        real_readlink = os.readlink
+
+        def closing_fd(path):
+            if Path(path).name == '0' and Path(path).parent.name == 'fd':
+                raise FileNotFoundError('descriptor closed after enumeration')
+            return real_readlink(path)
+
+        before = sr.set_hashes(self.shard)
+        with mock.patch.object(sr, 'PROC', proc), mock.patch.object(sr, 'pids_matching_servuo', lambda: [101]), \
+                mock.patch.object(sr.os, 'readlink', side_effect=closing_fd):
+            self.assertEqual(sr.running_from(self.shard), [101, 102, 103])
+            with self.assertRaises(SystemExit) as raised:
+                self.snapshot()
+        self.assertIn('in use by pids', str(raised.exception))
+        self.assertFalse(self.backup.exists())
+        self.assertEqual(sr.set_hashes(self.shard), before)
+
     def test_ancestor_holding_open_shard_file_still_blocks(self):
         proc = self.fake_proc({
             os.getpid(): ('/', ['python3', 'tools/shard_rollout.py'], [], [], 300),
